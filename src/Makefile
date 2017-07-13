@@ -1,7 +1,7 @@
 YICES_DIR=/home/westwind/myInstall/yices-1.0.40
 
 CC=$(CXX)
-CFLAGS = -I. -I$(YICES_DIR)/include -Wall -O2 -std=c++11
+CFLAGS = -I. -I$(YICES_DIR)/include -Wall -O2 -std=c++0x
 CXXFLAGS = $(CFLAGS)
 LDFLAGS = -L$(YICES_DIR)/lib
 LOADLIBES = -lyices

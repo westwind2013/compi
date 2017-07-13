@@ -120,6 +120,7 @@ namespace crest {
 		// equivalent
 		SymbolicPred *tmpPred;
 		SymbolicExpr  *rank_first = new SymbolicExpr(1, rank_indices_[0]), *rank_other;
+		SymbolicExpr  *rank_first_ = new SymbolicExpr(1, rank_indices_[0]);
 		for (size_t i = 1; i < rank_indices_.size(); i++) {
 			rank_other = new SymbolicExpr(1, rank_indices_[i]);
 			*rank_other -= *rank_first; 
@@ -133,12 +134,15 @@ namespace crest {
 			//printf("%s\n", str.c_str());	
 
 		}
-		// (2) MPI rank < the size of MPI_COMM_WORLD
+		// (2) MPI rank >= 0
+		tmpPred = new SymbolicPred(ops::GE, rank_first_);
+		constraintsMPI.push_back(tmpPred);
+		// (3) MPI rank < the size of MPI_COMM_WORLD
 		*rank_first -= comm_world_size_; 
 		//exprsMPI.push_back(rank_first);
 		tmpPred = new SymbolicPred(ops::LT, rank_first);
 		constraintsMPI.push_back(tmpPred);
-
+		
 		//string str;
 		//tmpPred->AppendToString(&str);
 		//printf("%s\n", str.c_str());	

@@ -199,7 +199,7 @@ namespace crest {
 			// so as to pass it to the process being tested
 			std::ofstream outfile(".rand_params", std::ofstream::out);
 			for (int i = 0; i < num_params_; i++) {
-				string tmp = std::to_string(rand() % 1000);
+				string tmp = std::to_string((long long)rand() % 1000);
 
 				inputs_str += tmp + " ";
 				outfile << tmp << std::endl;
@@ -211,7 +211,7 @@ namespace crest {
 			// assemble the command together with the target process
 			// being MPI rank 0 
 			command += "mpirun -np 1 " + program_ + " : -np "
-				+ std::to_string(comm_world_size_ - 1) + " " + program_clean + " "
+				+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean + " "
 				+ inputs_str;
 
 		} else {
@@ -220,22 +220,22 @@ namespace crest {
 
 			for (size_t i = 0; i < inputs.size(); i++) {
 				if (rank_indices_.find(i) != rank_indices_.end()) continue;
-				inputs_str += std::to_string(inputs[i]) + " ";
+				inputs_str += std::to_string((long long)inputs[i]) + " ";
 			}
 
 			WriteInputToFileOrDie("input", inputs);
 
 			// assemble the command together
 			if (0 != rank_id) {
-				command += "mpirun -np " + std::to_string(rank_id) + " "
+				command += "mpirun -np " + std::to_string((long long)rank_id) + " "
 					+ program_clean + " " + inputs_str + " : -np 1 " + program_;
 				if (rank_id + 1 < comm_world_size_) {
-					command += " : -np " + std::to_string(comm_world_size_ - rank_id - 1)
+					command += " : -np " + std::to_string((long long)comm_world_size_ - rank_id - 1)
 						+ " " + program_clean + " " + inputs_str;
 				}
 			} else {
 				command += "mpirun -np 1 " + program_ + " : -np "
-					+ std::to_string(comm_world_size_ - 1) + " " + program_clean + " "
+					+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean + " "
 					+ inputs_str;
 			}
 		}
@@ -244,7 +244,7 @@ namespace crest {
 
 		// debug
 		command += "\n";
-		fprintf(stdout, command.c_str());
+		fprintf(stdout, "%s\n", command.c_str());
 		//inputs_str += "\n";
 		//fprintf(stdout, inputs_str.c_str());
 
