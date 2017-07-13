@@ -27,59 +27,68 @@ using std::string;
 
 namespace crest {
 
-class SymbolicExpr {
-public:
-	// Constructs a symbolic expression for the constant 0.
-	SymbolicExpr();
+	class SymbolicExpr {
+		public:
+			// Constructs a symbolic expression for the constant 0.
+			SymbolicExpr();
 
-	// Constructs a symbolic expression for the given constant 'c'.
-	explicit SymbolicExpr(value_t c);
+			// Constructs a symbolic expression for the given constant 'c'.
+			explicit SymbolicExpr(value_t c);
 
-	// Constructs a symbolic expression for the singleton 'c' * 'v'.
-	SymbolicExpr(value_t c, var_t v);
+			// Constructs a symbolic expression for the singleton 'c' * 'v'.
+			SymbolicExpr(value_t c, var_t v);
 
-	// Copy constructor.
-	SymbolicExpr(const SymbolicExpr& e);
+			// Copy constructor.
+			SymbolicExpr(const SymbolicExpr& e);
 
-	// Desctructor.
-	~SymbolicExpr();
+			// Desctructor.
+			~SymbolicExpr();
 
-	void Negate();
-	bool IsConcrete() const {
-		return coeff_.empty();
-	}
-	size_t Size() const {
-		return (1 + coeff_.size());
-	}
-	void AppendVars(set<var_t>* vars) const;
-	bool DependsOn(const map<var_t, type_t>& vars) const;
+			void Negate();
+			//
+			// hComment: this expression is concrete if coeff_ is empty
+			//
+			bool IsConcrete() const {
+				return coeff_.empty();
+			}
+			size_t Size() const {
+				return (1 + coeff_.size());
+			}
+			void AppendVars(set<var_t>* vars) const;
+			bool DependsOn(const map<var_t, type_t>& vars) const;
 
-	void AppendToString(string* s) const;
+			void AppendToString(string* s) const;
 
-	void Serialize(string* s) const;
-	bool Parse(istream& s);
+			void Serialize(string* s) const;
+			bool Parse(istream& s);
 
-	// Arithmetic operators.
-	const SymbolicExpr& operator+=(const SymbolicExpr& e);
-	const SymbolicExpr& operator-=(const SymbolicExpr& e);
-	const SymbolicExpr& operator+=(value_t c);
-	const SymbolicExpr& operator-=(value_t c);
-	const SymbolicExpr& operator*=(value_t c);
-	bool operator==(const SymbolicExpr& e) const;
+			// Arithmetic operators.
+			const SymbolicExpr& operator+=(const SymbolicExpr& e);
+			const SymbolicExpr& operator-=(const SymbolicExpr& e);
+			const SymbolicExpr& operator+=(value_t c);
+			const SymbolicExpr& operator-=(value_t c);
+			const SymbolicExpr& operator*=(value_t c);
+			bool operator==(const SymbolicExpr& e) const;
 
-	// Accessors.
-	value_t const_term() const {
-		return const_;
-	}
-	const map<var_t, value_t>& terms() const {
-		return coeff_;
-	}
-	typedef map<var_t, value_t>::const_iterator TermIt;
+			// Accessors.
+			value_t const_term() const {
+				return const_;
+			}
+			const map<var_t, value_t>& terms() const {
+				return coeff_;
+			}
+			typedef map<var_t, value_t>::const_iterator TermIt;
 
-private:
-	value_t const_;
-	map<var_t, value_t> coeff_;
-};
+		private:
+			value_t const_;
+
+			//
+			// hComment: coeff_->first holds the index of one marked
+			// variable by the marking order coeff_->second holds the 
+			// coefficient of this variable
+			//
+			map<var_t, value_t> coeff_;
+	};
 
 }  // namespace crest
 

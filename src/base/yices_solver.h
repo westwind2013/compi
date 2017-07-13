@@ -13,6 +13,7 @@
 
 #include <map>
 #include <vector>
+#include <unordered_set>
 
 #include "base/basic_types.h"
 #include "base/symbolic_predicate.h"
@@ -22,20 +23,37 @@ using std::vector;
 
 namespace crest {
 
-class YicesSolver {
- public:
-  static bool IncrementalSolve(const vector<value_t>& old_soln,
-			       const map<var_t,type_t>& vars,
-                               const vector<const SymbolicPred*>& constraints,
-			       map<var_t,value_t>* soln);
+	class YicesSolver {
+		public:
+			YicesSolver();
 
-  static bool Solve(const map<var_t,type_t>& vars,
-                    const vector<const SymbolicPred*>& constraints,
-		    map<var_t,value_t>* soln);
+			~YicesSolver();
 
-  static bool ReadSolutionFromFileOrDie(const string& file,
-                                        map<var_t,value_t>* soln);
-};
+			bool GetMPIInfoByFile();
+
+			bool GetMPIInfo(int comm_world_size, std::unordered_set<int>& rank_indices);
+
+			bool GenerateConstraintsMPI();
+
+			bool IncrementalSolve(const vector<value_t>& old_soln,
+					const map<var_t,type_t>& vars,
+					vector<const SymbolicPred*>& constraints,
+					map<var_t,value_t>* soln);
+
+			bool Solve(const map<var_t,type_t>& vars,
+					const vector<const SymbolicPred*>& constraints,
+					map<var_t,value_t>* soln);
+
+			bool ReadSolutionFromFileOrDie(const string& file,
+					map<var_t,value_t>* soln);
+
+		private:
+			bool is_first_run;
+			int comm_world_size_;
+			vector<id_t> rank_indices_;
+			//vector<SymbolicExpr *> exprsMPI;
+			vector<SymbolicPred *> constraintsMPI;
+	};
 
 }  // namespace crest
 

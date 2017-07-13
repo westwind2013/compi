@@ -29,78 +29,75 @@ using __gnu_cxx::hash_map;
 
 namespace crest {
 
-class SymbolicInterpreter {
- public:
-  SymbolicInterpreter();
-  explicit SymbolicInterpreter(const vector<value_t>& input);
+	class SymbolicInterpreter {
+		public:
+			SymbolicInterpreter();
+			explicit SymbolicInterpreter(const vector<value_t>& input);
 
-  void ClearStack(id_t id);
-  void Load(id_t id, addr_t addr, value_t value);
-  void Store(id_t id, addr_t addr);
+			void ClearStack(id_t id);
+			void Load(id_t id, addr_t addr, value_t value);
+			void Store(id_t id, addr_t addr);
 
-  void ApplyUnaryOp(id_t id, unary_op_t op, value_t value);
-  void ApplyBinaryOp(id_t id, binary_op_t op, value_t value);
-  void ApplyCompareOp(id_t id, compare_op_t op, value_t value);
+			void ApplyUnaryOp(id_t id, unary_op_t op, value_t value);
+			void ApplyBinaryOp(id_t id, binary_op_t op, value_t value);
+			void ApplyCompareOp(id_t id, compare_op_t op, value_t value);
 
-  void Call(id_t id, function_id_t fid);
-  void Return(id_t id);
-  void HandleReturn(id_t id, value_t value);
+			void Call(id_t id, function_id_t fid);
+			void Return(id_t id);
+			void HandleReturn(id_t id, value_t value);
 
-  void Branch(id_t id, branch_id_t bid, bool pred_value);
+			void Branch(id_t id, branch_id_t bid, bool pred_value);
 
-  value_t NewInput(type_t type, addr_t addr);
-  
-  // 
-  // hEdit: this method takes special care of input variables  
-  // that indicate MPI ranks (MPI_COMM_WORLD)
-  //
-  value_t NewInputRank(type_t type, addr_t addr);
+			value_t NewInput(type_t type, addr_t addr);
 
-  // Accessor for symbolic execution so far.
-  const SymbolicExecution& execution() const { return ex_; }
+			// 
+			// hEdit: this method takes special care of input variables  
+			// that indicate MPI ranks (MPI_COMM_WORLD)
+			//
+			value_t NewInputRank(type_t type, addr_t addr);
 
-  // Debugging.
-  void DumpMemory();
-  void DumpPath();
+			// Accessor for symbolic execution so far.
+			const SymbolicExecution& execution() const { return ex_; }
 
- private:
-  struct StackElem {
-    SymbolicExpr* expr;  // NULL to indicate concrete.
-    value_t concrete;
-  };
+			// Debugging.
+			void DumpMemory();
+			void DumpPath();
 
-  // Stack.
-  vector<StackElem> stack_;
+		private:
+			struct StackElem {
+				SymbolicExpr* expr;  // NULL to indicate concrete.
+				value_t concrete;
+			};
 
-  // Predicate register (for when top of stack is a symbolic predicate).
-  SymbolicPred* pred_;
+			// Stack.
+			vector<StackElem> stack_;
 
-  // Is the top of the stack a function return value?
-  bool return_value_;
+			// Predicate register (for when top of stack is a symbolic predicate).
+			SymbolicPred* pred_;
 
-  // Memory map.
-  map<addr_t,SymbolicExpr*> mem_;
+			// Is the top of the stack a function return value?
+			bool return_value_;
 
-  // The symbolic execution (program path and inputs).
-  SymbolicExecution ex_;
+			// Memory map.
+			map<addr_t,SymbolicExpr*> mem_;
 
-  // Number of symbolic inputs so far.
-  unsigned int num_inputs_;
-  
-  // 
-  // hEdit
-  //
-  // Random numbers passed by the tool.
-  vector<int> rand_params_;
-  // A set containing all the indices of symbolic variables that 
-  // indicates MPI rank of the tested process
-  vector<int> symbolic_ranks;
+			// The symbolic execution (program path and inputs).
+			SymbolicExecution ex_;
 
-  // Helper functions.
-  inline void PushConcrete(value_t value);
-  inline void PushSymbolic(SymbolicExpr* expr, value_t value);
-  inline void ClearPredicateRegister();
-};
+			// Number of symbolic inputs so far.
+			unsigned int num_inputs_;
+
+			// 
+			// hEdit
+			//
+			// Random numbers passed by the tool.
+			vector<int> rand_params_;
+
+			// Helper functions.
+			inline void PushConcrete(value_t value);
+			inline void PushSymbolic(SymbolicExpr* expr, value_t value);
+			inline void ClearPredicateRegister();
+	};
 
 }  // namespace crest
 

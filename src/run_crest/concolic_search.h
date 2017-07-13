@@ -18,13 +18,14 @@
 #include <time.h>
 
 /*
- #include <sys/types.h>
- #include <sys/socket.h>
- #include <sys/un.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
  */
 
 #include "base/basic_types.h"
 #include "base/symbolic_execution.h"
+#include "base/yices_solver.h"
 
 using std::map;
 using std::vector;
@@ -33,258 +34,265 @@ using __gnu_cxx::hash_set;
 
 namespace crest {
 
-class Search {
-public:
-	Search(const string& program, int max_iterations, int rank_num, int rank_id,
-			int num_params);
-	virtual ~Search();
+	class Search {
+		public:
+			Search(const string& program, int max_iterations, int comm_world_size,
+					int num_params);
+			virtual ~Search();
 
-	virtual void Run() = 0;
+			virtual void Run() = 0;
 
-protected:
-	vector<branch_id_t> branches_;
-	vector<branch_id_t> paired_branch_;
-	vector<function_id_t> branch_function_;
-	vector<bool> covered_;
-	vector<bool> total_covered_;
-	branch_id_t max_branch_;
-	unsigned int num_covered_;
-	unsigned int total_num_covered_;
+		protected:
+			vector<branch_id_t> branches_;
+			vector<branch_id_t> paired_branch_;
+			vector<function_id_t> branch_function_;
+			vector<bool> covered_;
+			vector<bool> total_covered_;
+			branch_id_t max_branch_;
+			unsigned int num_covered_;
+			unsigned int total_num_covered_;
 
-	vector<bool> reached_;
-	vector<unsigned int> branch_count_;
-	function_id_t max_function_;
-	unsigned int reachable_functions_;
-	unsigned int reachable_branches_;
+			vector<bool> reached_;
+			vector<unsigned int> branch_count_;
+			function_id_t max_function_;
+			unsigned int reachable_functions_;
+			unsigned int reachable_branches_;
 
-	time_t start_time_;
+			time_t start_time_;
 
-	typedef vector<branch_id_t>::const_iterator BranchIt;
+			typedef vector<branch_id_t>::const_iterator BranchIt;
 
-	bool SolveAtBranch(const SymbolicExecution& ex, size_t branch_idx,
-			vector<value_t>* input);
+			bool SolveAtBranch(const SymbolicExecution& ex, size_t branch_idx,
+					vector<value_t>* input);
 
-	bool CheckPrediction(const SymbolicExecution& old_ex,
-			const SymbolicExecution& new_ex, size_t branch_idx);
+			bool CheckPrediction(const SymbolicExecution& old_ex,
+					const SymbolicExecution& new_ex, size_t branch_idx);
 
-	void RunProgram(const vector<value_t>& inputs, SymbolicExecution* ex);
-	bool UpdateCoverage(const SymbolicExecution& ex);
-	bool UpdateCoverage(const SymbolicExecution& ex,
-			set<branch_id_t>* new_branches);
+			void RunProgram(const vector<value_t>& inputs, SymbolicExecution* ex);
+			bool UpdateCoverage(const SymbolicExecution& ex);
+			bool UpdateCoverage(const SymbolicExecution& ex,
+					set<branch_id_t>* new_branches);
 
-	void RandomInput(const map<var_t, type_t>& vars, vector<value_t>* input);
+			void RandomInput(const map<var_t, type_t>& vars, vector<value_t>* input);
 
-private:
-	const string program_;
-	const int max_iters_;
-	int num_iters_;
+		private:
+			const string program_;
+			const int max_iters_;
+			int num_iters_;
 
-	//
-	// hEdit: add 3 arguments to the tool, i.e., *rank_num*, *rank_id*
-	// and *num_params* to fit the need of MPI program
-	//
-	// the total number of MPI ranks (processes)
-	int rank_num_;
-	// which MPI rank (process) to be tested
-	int rank_id_;
-	// the number of parameters MPI program accept
-	int num_params_;
+			//
+			// hEdit: add 2 arguments to the tool, i.e., *comm_world_size*
+			// and *num_params* to fit the need of MPI program
+			//
+			// if this is the first run, the tool will generate random input;
+			// otherwise, it will decode the generated input from the symbolic
+			// path of the target
+			bool is_first_run;
+			// the total number of MPI ranks (processes)
+			int comm_world_size_;
+			// the number of parameters MPI program accept
+			int num_params_;
+			// the index of variables marked as MPI rank (MPI_COMM_WORLD)
+			// in the array of symbolically marked variables
+			std::unordered_set<int> rank_indices_;
+			// YicesSolver
+			YicesSolver* solver;
+
+			/*
+			   struct sockaddr_un sock_;
+			   int sockd_;
+			 */
+
+			void WriteInputToFileOrDie(const string& file,
+					const vector<value_t>& input);
+			void WriteCoverageToFileOrDie(const string& file);
+			void LaunchProgram(const vector<value_t>& inputs);
+	};
+
+	class BoundedDepthFirstSearch: public Search {
+		public:
+			explicit BoundedDepthFirstSearch(const string& program, int max_iterations,
+					int comm_world_size, int num_params, int max_depth);
+			virtual ~BoundedDepthFirstSearch();
+
+			virtual void Run();
+
+		private:
+			int max_depth_;
+
+			void DFS(size_t pos, int depth, SymbolicExecution& prev_ex);
+	};
 
 	/*
-	 struct sockaddr_un sock_;
-	 int sockd_;
+	   class OldDepthFirstSearch : public Search {
+	   public:
+	   explicit OldDepthFirstSearch(const string& program,
+	   int max_iterations);
+	   virtual ~OldDepthFirstSearch();
+
+	   virtual void Run();
+
+	   private:
+
+	   void DFS(size_t pos, SymbolicExecution& prev_ex);
+	   };
 	 */
 
-	void WriteInputToFileOrDie(const string& file,
-			const vector<value_t>& input);
-	void WriteCoverageToFileOrDie(const string& file);
-	void LaunchProgram(const vector<value_t>& inputs);
-};
+	class RandomInputSearch: public Search {
+		public:
+			RandomInputSearch(const string& program, int max_iterations, int comm_world_size,
+					int num_params);
+			virtual ~RandomInputSearch();
 
-class BoundedDepthFirstSearch: public Search {
-public:
-	explicit BoundedDepthFirstSearch(const string& program, int max_iterations,
-			int rank_num, int rank_id, int num_params, int max_depth);
-	virtual ~BoundedDepthFirstSearch();
+			virtual void Run();
 
-	virtual void Run();
+		private:
+			SymbolicExecution ex_;
+	};
 
-private:
-	int max_depth_;
+	class RandomSearch: public Search {
+		public:
+			RandomSearch(const string& program, int max_iterations, int comm_world_size,
+					int num_params);
+			virtual ~RandomSearch();
 
-	void DFS(size_t pos, int depth, SymbolicExecution& prev_ex);
-};
+			virtual void Run();
 
-/*
- class OldDepthFirstSearch : public Search {
- public:
- explicit OldDepthFirstSearch(const string& program,
- int max_iterations);
- virtual ~OldDepthFirstSearch();
+		private:
+			SymbolicExecution ex_;
 
- virtual void Run();
+			void SolveUncoveredBranches(size_t i, int depth,
+					const SymbolicExecution& prev_ex);
 
- private:
+			bool SolveRandomBranch(vector<value_t>* next_input, size_t* idx);
+	};
 
- void DFS(size_t pos, SymbolicExecution& prev_ex);
- };
- */
+	class UniformRandomSearch: public Search {
+		public:
+			UniformRandomSearch(const string& program, int max_iterations, int comm_world_size,
+					int num_params, size_t max_depth);
+			virtual ~UniformRandomSearch();
 
-class RandomInputSearch: public Search {
-public:
-	RandomInputSearch(const string& program, int max_iterations, int rank_num,
-			int rank_id, int num_params);
-	virtual ~RandomInputSearch();
+			virtual void Run();
 
-	virtual void Run();
+		private:
+			SymbolicExecution prev_ex_;
+			SymbolicExecution cur_ex_;
 
-private:
-	SymbolicExecution ex_;
-};
+			size_t max_depth_;
 
-class RandomSearch: public Search {
-public:
-	RandomSearch(const string& program, int max_iterations, int rank_num,
-			int rank_id, int num_params);
-	virtual ~RandomSearch();
+			void DoUniformRandomPath();
+	};
 
-	virtual void Run();
+	// Search looks like:
+	//  (1) Do random inputs for some amount of time.
+	//  (2) Do a local search repeatedly in some area, then continue the random search.
+	class HybridSearch: public Search {
+		public:
+			HybridSearch(const string& program, int max_iterations, int comm_world_size,
+					int num_params, int step_size);
+			virtual ~HybridSearch();
 
-private:
-	SymbolicExecution ex_;
+			virtual void Run();
 
-	void SolveUncoveredBranches(size_t i, int depth,
-			const SymbolicExecution& prev_ex);
+		private:
+			void RandomLocalSearch(SymbolicExecution* ex, size_t start, size_t end);
+			bool RandomStep(SymbolicExecution* ex, size_t start, size_t end);
 
-	bool SolveRandomBranch(vector<value_t>* next_input, size_t* idx);
-};
+			int step_size_;
+	};
 
-class UniformRandomSearch: public Search {
-public:
-	UniformRandomSearch(const string& program, int max_iterations, int rank_num,
-			int rank_id, int num_params, size_t max_depth);
-	virtual ~UniformRandomSearch();
+	/*
+	   class LeastRunSearch : public Search {
+	   public:
+	   LeastRunSearch(const string& program, int max_iterations);
+	   virtual ~LeastRunSearch();
 
-	virtual void Run();
+	   virtual void Run();
 
-private:
-	SymbolicExecution prev_ex_;
-	SymbolicExecution cur_ex_;
+	   private:
+	   vector<size_t> run_count_;
 
-	size_t max_depth_;
+	   bool DoSearch(int depth, int iters, int pos, const SymbolicExecution& prev_ex);
+	   };
+	 */
 
-	void DoUniformRandomPath();
-};
+	class CfgBaselineSearch: public Search {
+		public:
+			CfgBaselineSearch(const string& program, int max_iterations, int comm_world_size,
+					int num_params);
+			virtual ~CfgBaselineSearch();
 
-// Search looks like:
-//  (1) Do random inputs for some amount of time.
-//  (2) Do a local search repeatedly in some area, then continue the random search.
-class HybridSearch: public Search {
-public:
-	HybridSearch(const string& program, int max_iterations, int rank_num,
-			int rank_id, int num_params, int step_size);
-	virtual ~HybridSearch();
+			virtual void Run();
 
-	virtual void Run();
+		private:
+			SymbolicExecution success_ex_;
 
-private:
-	void RandomLocalSearch(SymbolicExecution* ex, size_t start, size_t end);
-	bool RandomStep(SymbolicExecution* ex, size_t start, size_t end);
+			bool DoSearch(int depth, int iters, int pos,
+					const SymbolicExecution& prev_ex);
+	};
 
-	int step_size_;
-};
+	class CfgHeuristicSearch: public Search {
+		public:
+			CfgHeuristicSearch(const string& program, int max_iterations, int comm_world_size,
+					int num_params);
+			virtual ~CfgHeuristicSearch();
 
-/*
- class LeastRunSearch : public Search {
- public:
- LeastRunSearch(const string& program, int max_iterations);
- virtual ~LeastRunSearch();
+			virtual void Run();
 
- virtual void Run();
+		private:
+			typedef vector<branch_id_t> nbhr_list_t;
+			vector<nbhr_list_t> cfg_;
+			vector<nbhr_list_t> cfg_rev_;
+			vector<size_t> dist_;
 
- private:
- vector<size_t> run_count_;
+			static const size_t kInfiniteDistance = 10000;
 
- bool DoSearch(int depth, int iters, int pos, const SymbolicExecution& prev_ex);
- };
- */
+			int iters_left_;
 
-class CfgBaselineSearch: public Search {
-public:
-	CfgBaselineSearch(const string& program, int max_iterations, int rank_num,
-			int rank_id, int num_params);
-	virtual ~CfgBaselineSearch();
+			SymbolicExecution success_ex_;
 
-	virtual void Run();
+			// Stats.
+			unsigned num_inner_solves_;
+			unsigned num_inner_successes_pred_fail_;
+			unsigned num_inner_lucky_successes_;
+			unsigned num_inner_zero_successes_;
+			unsigned num_inner_nonzero_successes_;
+			unsigned num_inner_recursive_successes_;
+			unsigned num_inner_unsats_;
+			unsigned num_inner_pred_fails_;
 
-private:
-	SymbolicExecution success_ex_;
+			unsigned num_top_solves_;
+			unsigned num_top_solve_successes_;
 
-	bool DoSearch(int depth, int iters, int pos,
-			const SymbolicExecution& prev_ex);
-};
+			unsigned num_solves_;
+			unsigned num_solve_successes_;
+			unsigned num_solve_sat_attempts_;
+			unsigned num_solve_unsats_;
+			unsigned num_solve_recurses_;
+			unsigned num_solve_pred_fails_;
+			unsigned num_solve_all_concrete_;
+			unsigned num_solve_no_paths_;
 
-class CfgHeuristicSearch: public Search {
-public:
-	CfgHeuristicSearch(const string& program, int max_iterations, int rank_num,
-			int rank_id, int num_params);
-	virtual ~CfgHeuristicSearch();
+			void UpdateBranchDistances();
+			void PrintStats();
+			bool DoSearch(int depth, int iters, int pos, int maxDist,
+					const SymbolicExecution& prev_ex);
+			bool DoBoundedBFS(int i, int depth, const SymbolicExecution& prev_ex);
+			void SkipUntilReturn(const vector<branch_id_t> path, size_t* pos);
 
-	virtual void Run();
+			bool FindAlongCfg(size_t i, unsigned int dist, const SymbolicExecution& ex,
+					const set<branch_id_t>& bs);
 
-private:
-	typedef vector<branch_id_t> nbhr_list_t;
-	vector<nbhr_list_t> cfg_;
-	vector<nbhr_list_t> cfg_rev_;
-	vector<size_t> dist_;
+			bool SolveAlongCfg(size_t i, unsigned int max_dist,
+					const SymbolicExecution& prev_ex);
 
-	static const size_t kInfiniteDistance = 10000;
+			void CollectNextBranches(const vector<branch_id_t>& path, size_t* pos,
+					vector<size_t>* idxs);
 
-	int iters_left_;
-
-	SymbolicExecution success_ex_;
-
-	// Stats.
-	unsigned num_inner_solves_;
-	unsigned num_inner_successes_pred_fail_;
-	unsigned num_inner_lucky_successes_;
-	unsigned num_inner_zero_successes_;
-	unsigned num_inner_nonzero_successes_;
-	unsigned num_inner_recursive_successes_;
-	unsigned num_inner_unsats_;
-	unsigned num_inner_pred_fails_;
-
-	unsigned num_top_solves_;
-	unsigned num_top_solve_successes_;
-
-	unsigned num_solves_;
-	unsigned num_solve_successes_;
-	unsigned num_solve_sat_attempts_;
-	unsigned num_solve_unsats_;
-	unsigned num_solve_recurses_;
-	unsigned num_solve_pred_fails_;
-	unsigned num_solve_all_concrete_;
-	unsigned num_solve_no_paths_;
-
-	void UpdateBranchDistances();
-	void PrintStats();
-	bool DoSearch(int depth, int iters, int pos, int maxDist,
-			const SymbolicExecution& prev_ex);
-	bool DoBoundedBFS(int i, int depth, const SymbolicExecution& prev_ex);
-	void SkipUntilReturn(const vector<branch_id_t> path, size_t* pos);
-
-	bool FindAlongCfg(size_t i, unsigned int dist, const SymbolicExecution& ex,
-			const set<branch_id_t>& bs);
-
-	bool SolveAlongCfg(size_t i, unsigned int max_dist,
-			const SymbolicExecution& prev_ex);
-
-	void CollectNextBranches(const vector<branch_id_t>& path, size_t* pos,
-			vector<size_t>* idxs);
-
-	size_t MinCflDistance(size_t i, const SymbolicExecution& ex,
-			const set<branch_id_t>& bs);
-};
+			size_t MinCflDistance(size_t i, const SymbolicExecution& ex,
+					const set<branch_id_t>& bs);
+	};
 
 }  // namespace crest
 

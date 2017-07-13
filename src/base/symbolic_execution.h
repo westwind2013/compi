@@ -26,30 +26,30 @@ using std::vector;
 
 namespace crest {
 
-class SymbolicExecution {
- public:
-  SymbolicExecution();
-  explicit SymbolicExecution(bool pre_allocate);
-  ~SymbolicExecution();
+	class SymbolicExecution {
+		public:
+			SymbolicExecution();
+			explicit SymbolicExecution(bool pre_allocate);
+			~SymbolicExecution();
 
-  void Swap(SymbolicExecution& se);
+			void Swap(SymbolicExecution& se);
 
-  void Serialize(string* s) const;
-  bool Parse(istream& s);
+			void Serialize(string* s) const;
+			bool Parse(istream& s);
 
-  const map<var_t,type_t>& vars() const { return vars_; }
-  const vector<value_t>& inputs() const { return inputs_; }
-  const SymbolicPath& path() const      { return path_; }
+			const map<var_t,type_t>& vars() const { return vars_; }
+			const vector<value_t>& inputs() const { return inputs_; }
+			const SymbolicPath& path() const      { return path_; }
 
-  map<var_t,type_t>* mutable_vars() { return &vars_; }
-  vector<value_t>* mutable_inputs() { return &inputs_; }
-  SymbolicPath* mutable_path() { return &path_; }
+			map<var_t,type_t>* mutable_vars() { return &vars_; }
+			vector<value_t>* mutable_inputs() { return &inputs_; }
+			SymbolicPath* mutable_path() { return &path_; }
 
- private:
-  map<var_t,type_t>  vars_;
-  vector<value_t> inputs_;
-  SymbolicPath path_;  
-};
+		private:
+			map<var_t,type_t>  vars_;
+			vector<value_t> inputs_;
+			SymbolicPath path_;  
+	};
 
 }  // namespace crest
 

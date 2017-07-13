@@ -83,27 +83,27 @@
  *      need not modify the stack -- it already contains a single element
  *      (the returned value).]
  *
- *    * Full example:  Consider the function "add(x, y) { return x+y; }".
- *      A call "z = add(a, 7)" generates instrumentation calls:
- *          Load(&a, a)
- *          Load(0, 7)
- *          Call(add)
- *          Store(&y)
- *          Store(&x)
- *          Load(&x, x)
- *          Load(&y, y)
- *          ApplyBinOp(ADD, x+y)
- *          Return()
- *          HandleReturn(z)
- *          Store(&z)
- *
- * - A symbolic input generates a call to create a new symbol (passing
- *   the conrete initial value for that symbol).
- *
- *   [We pass the conrete value and have signed/unsigned versions only
- *   to make it easier to exactly capture/print the concrete inputs to
- *   the program under test.]
- */
+*    * Full example:  Consider the function "add(x, y) { return x+y; }".
+*      A call "z = add(a, 7)" generates instrumentation calls:
+	*          Load(&a, a)
+	*          Load(0, 7)
+	*          Call(add)
+	*          Store(&y)
+	*          Store(&x)
+	*          Load(&x, x)
+	*          Load(&y, y)
+	*          ApplyBinOp(ADD, x+y)
+	*          Return()
+	*          HandleReturn(z)
+*          Store(&z)
+	*
+	* - A symbolic input generates a call to create a new symbol (passing
+			*   the conrete initial value for that symbol).
+	*
+	*   [We pass the conrete value and have signed/unsigned versions only
+	*   to make it easier to exactly capture/print the concrete inputs to
+	*   the program under test.]
+	*/
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
@@ -111,14 +111,14 @@
 #define EXTERN extern
 #endif
 
-/*
- * Type definitions.
- *
- * These macros must be kept in sync with the definitions in base/basic_types.h.
- * We use these obscure MACRO's rather than the definitions in basic_types.h
- * in an attempt to avoid clashing with names in instrumented programs
- * (and also because C does not support namespaces).
- */
+	/*
+	 * Type definitions.
+	 *
+	 * These macros must be kept in sync with the definitions in base/basic_types.h.
+	 * We use these obscure MACRO's rather than the definitions in basic_types.h
+	 * in an attempt to avoid clashing with names in instrumented programs
+	 * (and also because C does not support namespaces).
+	 */
 #define __CREST_ID int
 #define __CREST_BRANCH_ID int
 #define __CREST_FUNCTION_ID unsigned int
@@ -128,41 +128,41 @@
 #define __CREST_OP int
 #define __CREST_BOOL unsigned char
 
-/*
- * Constants representing possible C operators.
- *
- * TODO(jburnim): Arithmetic versus bitwise right shift?
- */
-typedef enum {
-	/* binary arithmetic */
-	__CREST_ADD = 0,
-	__CREST_SUBTRACT = 1,
-	__CREST_MULTIPLY = 2,
-	__CREST_DIVIDE = 3,
-	__CREST_MOD = 4,
-	/* binary bitwise operators */
-	__CREST_AND = 5,
-	__CREST_OR = 6,
-	__CREST_XOR = 7,
-	__CREST_SHIFT_L = 8,
-	__CREST_SHIFT_R = 9,
-	/* binary logical operators */
-	__CREST_L_AND = 10,
-	__CREST_L_OR = 11,
-	/* binary comparison */
-	__CREST_EQ = 12,
-	__CREST_NEQ = 13,
-	__CREST_GT = 14,
-	__CREST_LEQ = 15,
-	__CREST_LT = 16,
-	__CREST_GEQ = 17,
-	/* unhandled binary operators */
-	__CREST_CONCRETE = 18,
-	/* unary operators */
-	__CREST_NEGATE = 19,
-	__CREST_NOT = 20,
-	__CREST_L_NOT = 21,
-};
+	/*
+	 * Constants representing possible C operators.
+	 *
+	 * TODO(jburnim): Arithmetic versus bitwise right shift?
+	 */
+	typedef enum {
+		/* binary arithmetic */
+		__CREST_ADD = 0,
+		__CREST_SUBTRACT = 1,
+		__CREST_MULTIPLY = 2,
+		__CREST_DIVIDE = 3,
+		__CREST_MOD = 4,
+		/* binary bitwise operators */
+		__CREST_AND = 5,
+		__CREST_OR = 6,
+		__CREST_XOR = 7,
+		__CREST_SHIFT_L = 8,
+		__CREST_SHIFT_R = 9,
+		/* binary logical operators */
+		__CREST_L_AND = 10,
+		__CREST_L_OR = 11,
+		/* binary comparison */
+		__CREST_EQ = 12,
+		__CREST_NEQ = 13,
+		__CREST_GT = 14,
+		__CREST_LEQ = 15,
+		__CREST_LT = 16,
+		__CREST_GEQ = 17,
+		/* unhandled binary operators */
+		__CREST_CONCRETE = 18,
+		/* unary operators */
+		__CREST_NEGATE = 19,
+		__CREST_NOT = 20,
+		__CREST_L_NOT = 21,
+	};
 
 /*
  * Short-cut to indicate that a function should be skipped during

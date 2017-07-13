@@ -26,28 +26,34 @@ using std::vector;
 
 namespace crest {
 
-class SymbolicPath {
- public:
-  SymbolicPath();
-  SymbolicPath(bool pre_allocate);
-  ~SymbolicPath();
+	class SymbolicPath {
+		public:
+			SymbolicPath();
+			SymbolicPath(bool pre_allocate);
+			~SymbolicPath();
 
-  void Swap(SymbolicPath& sp);
+			void Swap(SymbolicPath& sp);
 
-  void Push(branch_id_t bid);
-  void Push(branch_id_t bid, SymbolicPred* constraint);
-  void Serialize(string* s) const;
-  bool Parse(istream& s);
+			void Push(branch_id_t bid);
+			void Push(branch_id_t bid, SymbolicPred* constraint);
+			void Serialize(string* s) const;
+			bool Parse(istream& s);
 
-  const vector<branch_id_t>& branches() const { return branches_; }
-  const vector<SymbolicPred*>& constraints() const { return constraints_; }
-  const vector<size_t>& constraints_idx() const { return constraints_idx_; }
+			const vector<branch_id_t>& branches() const {
+				return branches_;
+			}
+			const vector<SymbolicPred*>& constraints() const {
+				return constraints_;
+			}
+			const vector<size_t>& constraints_idx() const {
+				return constraints_idx_;
+			}
 
- private:
-  vector<branch_id_t> branches_;
-  vector<size_t> constraints_idx_;
-  vector<SymbolicPred*> constraints_;
-};
+		private:
+			vector<branch_id_t> branches_;
+			vector<size_t> constraints_idx_;
+			vector<SymbolicPred*> constraints_;
+	};
 
 }  // namespace crest
 
