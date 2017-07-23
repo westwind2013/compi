@@ -250,6 +250,11 @@ namespace crest {
 			for (PredIt i = constraints.begin(); i != constraints.end(); ++i) {
 				(*i)->AppendVars(&tmp);
 			}
+
+			// 
+			// hComment: if the variable is not present in the current solution, its old 
+			// assignment from the old solution will be taken
+			//
 			for (set<var_t>::const_iterator i = tmp.begin(); i != tmp.end(); ++i) {
 				if (soln->find(*i) == soln->end()) {
 					soln->insert(make_pair(*i, old_soln[*i]));

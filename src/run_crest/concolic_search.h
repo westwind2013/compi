@@ -98,6 +98,12 @@ namespace crest {
 			// YicesSolver
 			YicesSolver* solver;
 
+
+			// hEdit: temporary solution to avoid the random number being
+			// generated becomes too big
+			int hRand();
+
+
 			/*
 			   struct sockaddr_un sock_;
 			   int sockd_;

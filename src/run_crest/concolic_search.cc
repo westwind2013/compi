@@ -33,6 +33,12 @@ using std::queue;
 using std::random_shuffle;
 using std::stable_sort;
 
+// 
+// hEdit: set the time limit for a command running
+//
+
+long long TIMEOUT_IN_SECONDS = 60;
+
 namespace crest {
 
 	namespace {
@@ -149,6 +155,11 @@ namespace crest {
 		delete solver;
 	}
 
+	int Search::hRand() {
+
+		return rand() % 10000;
+	}
+
 	void Search::WriteInputToFileOrDie(const string& file,
 			const vector<value_t>& input) {
 		FILE* f = fopen(file.c_str(), "w");
@@ -195,16 +206,35 @@ namespace crest {
 
 		// Generate a random input for the first run
 		if (is_first_run) {
+			
+			// Plan A: generate random number
 			// Write the first input to the file ".rand_params" 
 			// so as to pass it to the process being tested
+			/* 
 			std::ofstream outfile(".rand_params", std::ofstream::out);
 			for (int i = 0; i < num_params_; i++) {
-				string tmp = std::to_string((long long)rand() % 1000);
+
+				//string tmp = std::to_string((long long)rand() % 1000);
+				string tmp = std::to_string((long long)hRand() % 1000);
 
 				inputs_str += tmp + " ";
 				outfile << tmp << std::endl;
 			}
-			outfile.close();
+			outfile.close();*/
+
+			// Plan B: read from file
+			std::ifstream infile(".rand_params");
+			if (!infile) {
+				fprintf(stderr, "There is not such file (.rand_params)\n");
+				fflush(stderr);
+				//exit(-1);
+			} else {
+				string s;
+				while (infile >> s) {
+					inputs_str += s + " ";
+				}
+			}
+			infile.close();
 
 			WriteInputToFileOrDie("input", inputs);
 
@@ -240,7 +270,15 @@ namespace crest {
 			}
 		}
 
-		system(command.c_str());
+		// apply a time limit to a command
+		command = string("timeout ") + string(std::to_string(TIMEOUT_IN_SECONDS) + "s ") + command;
+		int status = system(command.c_str()); 
+		
+		// if the command is terminated by the specified timeout
+		//if (124 == status) {
+			// log the triggered input 
+			printf("Timeout %d\n", status);
+		//}
 
 		// debug
 		command += "\n";
@@ -255,7 +293,7 @@ namespace crest {
 			if (!infile) {
 				fprintf(stderr, "There is not such file (.rank_indices)\n");
 				fflush(stderr);
-				exit(-1);
+				//exit(-1);
 			} else {
 				string s;
 				while (infile >> s) {
@@ -360,7 +398,8 @@ namespace crest {
 			}
 
 			for (size_t j = 0; j < 8; j++)
-				val = (val << 8) + (rand() / 256);
+				//val = (val << 8) + (rand() / 256);
+				val = (val << 8) + (hRand() / 256);
 
 			switch (it->second) {
 				case types::U_CHAR:

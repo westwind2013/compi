@@ -28,7 +28,7 @@ uname -v = #50~14.04.1-Ubuntu SMP Wed Jul 13 01:07:32 UTC 2016
 /bin/universe          = unknown
 
 PATH: /home/westwind/myInstall/crest.mpi/bin
-PATH: /home/westwind/myInstall/crest/bin
+PATH: /home/westwind/myInstall/crest.mpi/cil/bin
 PATH: /usr/local/sbin
 PATH: /usr/local/bin
 PATH: /usr/sbin
@@ -48,31 +48,26 @@ configure:2287: found /usr/bin/gcc
 configure:2298: result: gcc
 configure:2527: checking for C compiler version
 configure:2536: gcc --version >&5
-gcc (Ubuntu 4.8.4-2ubuntu1~14.04.3) 4.8.4
-Copyright (C) 2013 Free Software Foundation, Inc.
+gcc (Ubuntu/Linaro 4.4.7-8ubuntu1) 4.4.7
+Copyright (C) 2010 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 configure:2547: $? = 0
 configure:2536: gcc -v >&5
 Using built-in specs.
-COLLECT_GCC=gcc
-COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/4.8/lto-wrapper
 Target: x86_64-linux-gnu
-Configured with: ../src/configure -v --with-pkgversion='Ubuntu 4.8.4-2ubuntu1~14.04.3' --with-bugurl=file:///usr/share/doc/gcc-4.8/README.Bugs --enable-languages=c,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-4.8 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --with-gxx-include-dir=/usr/include/c++/4.8 --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --enable-gnu-unique-object --disable-libmudflap --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-4.8-amd64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-4.8-amd64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-4.8-amd64 --with-arch-directory=amd64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-objc-gc --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --with-tune=generic --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu/Linaro 4.4.7-8ubuntu1' --with-bugurl=file:///usr/share/doc/gcc-4.4/README.Bugs --enable-languages=c,c++,fortran --prefix=/usr --program-suffix=-4.4 --enable-shared --enable-linker-build-id --with-system-zlib --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --with-gxx-include-dir=/usr/include/c++/4.4 --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --disable-libmudflap --disable-werror --with-arch-32=i686 --with-tune=generic --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
 Thread model: posix
-gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04.3) 
+gcc version 4.4.7 (Ubuntu/Linaro 4.4.7-8ubuntu1) 
 configure:2547: $? = 0
 configure:2536: gcc -V >&5
-gcc: error: unrecognized command line option '-V'
-gcc: fatal error: no input files
-compilation terminated.
-configure:2547: $? = 4
+gcc: '-V' option must have argument
+configure:2547: $? = 1
 configure:2536: gcc -qversion >&5
-gcc: error: unrecognized command line option '-qversion'
-gcc: fatal error: no input files
-compilation terminated.
-configure:2547: $? = 4
+gcc: unrecognized option '-qversion'
+gcc: no input files
+configure:2547: $? = 1
 configure:2567: checking whether the C compiler works
 configure:2589: gcc    conftest.c  >&5
 configure:2593: $? = 0
@@ -164,9 +159,7 @@ configure:4796: checking how to run the C preprocessor
 configure:4827: gcc -E  conftest.c
 configure:4827: $? = 0
 configure:4841: gcc -E  conftest.c
-conftest.c:9:28: fatal error: ac_nonexistent.h: No such file or directory
- #include <ac_nonexistent.h>
-                            ^
+conftest.c:9: fatal error: ac_nonexistent.h: No such file or directory
 compilation terminated.
 configure:4841: $? = 1
 configure: failed program was:
@@ -183,9 +176,7 @@ configure:4866: result: gcc -E
 configure:4886: gcc -E  conftest.c
 configure:4886: $? = 0
 configure:4900: gcc -E  conftest.c
-conftest.c:9:28: fatal error: ac_nonexistent.h: No such file or directory
- #include <ac_nonexistent.h>
-                            ^
+conftest.c:9: fatal error: ac_nonexistent.h: No such file or directory
 compilation terminated.
 configure:4900: $? = 1
 configure: failed program was:
@@ -251,9 +242,7 @@ configure:5188: gcc -c -g -O2  conftest.c >&5
 configure:5188: $? = 0
 configure:5188: gcc -c -g -O2  conftest.c >&5
 conftest.c: In function 'main':
-conftest.c:55:32: error: expected expression before ')' token
- if (sizeof ((__builtin_va_list)))
-                                ^
+conftest.c:55: error: expected expression before ')' token
 configure:5188: $? = 1
 configure: failed program was:
 | /* confdefs.h */
@@ -318,11 +307,9 @@ configure: failed program was:
 configure:5188: result: yes
 configure:5195: checking if __thread is a keyword
 configure:5201: gcc -c -g -O2  conftest.c >&5
-conftest.c:19:1: error: storage class specified for unnamed parameter
- int main(int __thread) { return 0; }
- ^
+conftest.c:19: error: storage class specified for parameter 'type name'
 conftest.c: In function 'main':
-conftest.c:19:1: error: parameter name omitted
+conftest.c:19: error: parameter name omitted
 configure:5201: $? = 1
 configure: failed program was:
 | /* confdefs.h */
@@ -347,9 +334,9 @@ configure: failed program was:
 configure:5207: result: true
 configure:5212: checking if gcc adds underscores to assembly labels.
 configure:5218: gcc -o conftest -g -O2   conftest.c  >&5
-/tmp/ccbfwJ07.o: In function `main':
+/tmp/ccYdAtfz.o: In function `main':
 /home/westwind/myInstall/crest.mpi/cil/conftest.c:19: undefined reference to `_main'
-collect2: error: ld returned 1 exit status
+collect2: ld returned 1 exit status
 configure:5218: $? = 1
 configure: failed program was:
 | /* confdefs.h */
@@ -446,12 +433,8 @@ configure:5585: $? = 0
 configure:5585: result: yes
 configure:5597: checking for real definition of size_t
 configure:5614: gcc -c -g -O2  conftest.c >&5
-conftest.c:38:8: error: conflicting types for 'foo'
- size_t foo(size_t x) { return x; }
-        ^
-conftest.c:37:5: note: previous declaration of 'foo' was here
- int foo(int x);
-     ^
+conftest.c:38: error: conflicting types for 'foo'
+conftest.c:37: note: previous declaration of 'foo' was here
 configure:5614: $? = 1
 configure: failed program was:
 | /* confdefs.h */
@@ -493,12 +476,8 @@ configure: failed program was:
 | int foo(int x);
 | size_t foo(size_t x) { return x; }
 configure:5633: gcc -c -g -O2  conftest.c >&5
-conftest.c:38:8: error: conflicting types for 'foo'
- size_t foo(size_t x) { return x; }
-        ^
-conftest.c:37:14: note: previous declaration of 'foo' was here
- unsigned int foo(unsigned int x);
-              ^
+conftest.c:38: error: conflicting types for 'foo'
+conftest.c:37: note: previous declaration of 'foo' was here
 configure:5633: $? = 1
 configure: failed program was:
 | /* confdefs.h */
@@ -540,12 +519,8 @@ configure: failed program was:
 | unsigned int foo(unsigned int x);
 | size_t foo(size_t x) { return x; }
 configure:5654: gcc -c -g -O2  conftest.c >&5
-conftest.c:38:8: error: conflicting types for 'foo'
- size_t foo(size_t x) { return x; }
-        ^
-conftest.c:37:6: note: previous declaration of 'foo' was here
- long foo(long x);
-      ^
+conftest.c:38: error: conflicting types for 'foo'
+conftest.c:37: note: previous declaration of 'foo' was here
 configure:5654: $? = 1
 configure: failed program was:
 | /* confdefs.h */
