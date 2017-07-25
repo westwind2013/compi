@@ -29,9 +29,10 @@ namespace crest {
 
 			~YicesSolver();
 
-			bool GetMPIInfoByFile();
+			//bool GetMPIInfoByFile();
 
-			bool GetMPIInfo(int comm_world_size, std::unordered_set<int>& rank_indices);
+			bool GetMPIInfo(std::unordered_set<int>& comm_world_size, 
+				std::unordered_set<int>& rank_indices);
 
 			bool GenerateConstraintsMPI();
 
@@ -48,9 +49,8 @@ namespace crest {
 					map<var_t,value_t>* soln);
 
 		private:
-			bool is_first_run;
-			int comm_world_size_;
 			vector<id_t> rank_indices_;
+			vector<id_t> world_size_indices_;
 			//vector<SymbolicExpr *> exprsMPI;
 			vector<SymbolicPred *> constraintsMPI;
 	};

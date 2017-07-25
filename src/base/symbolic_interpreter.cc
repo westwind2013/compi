@@ -65,6 +65,28 @@ namespace crest {
 
 				infile.close();
 			}
+			
+			//
+			// hEdit: read the random values stored by the tool in file ".rand_params"
+			// and save them to vector "rand_params"
+			//
+			if (input.empty()) {
+				std::ifstream infile(".world_size");
+				if (!infile) {
+					fprintf(stderr, "There is not such file (.world_size)\n");
+					fflush(stderr);
+					//exit(-1);
+				} else {
+					string s;
+					if (infile >> s) {
+						world_size_ = std::stoi(s);
+						//std::cout << s << std::ends;
+						//fprintf(stderr, "%s\n", s.c_str());
+					}
+				}
+
+				infile.close();
+			}
 		}
 
 	void SymbolicInterpreter::DumpMemory() {
@@ -388,6 +410,50 @@ namespace crest {
 			// later use
 			//
 			std::ofstream outfile(".rank_indices", std::ofstream::out |
+					std::ofstream::app);
+			outfile << num_inputs_ << std::endl;
+			outfile.close();
+
+		}
+
+		num_inputs_++;
+
+		IFDEBUG(DumpMemory());
+		return ret;
+	}
+
+	// 
+	// hEdit: this method takes special care of input variables  
+	// that indicates the size of MPI_COMM_WORLD
+	//
+	value_t SymbolicInterpreter::NewInputWorldSize(type_t type, addr_t addr) {
+		IFDEBUG(fprintf(stderr, "symbolic_input %d %lu\n", type, addr));
+
+		mem_[addr] = new SymbolicExpr(1, num_inputs_);
+		ex_.mutable_vars()->insert(make_pair(num_inputs_, type));
+
+		value_t ret = 0;
+		if (num_inputs_ < ex_.inputs().size()) {
+			ret = ex_.inputs()[num_inputs_];
+		} else {
+			//
+			// hEdit:  we first make the size of MPI_COMM_WORLD 4
+			//
+			ret = CastTo(world_size_, type);
+			ex_.mutable_inputs()->push_back(ret);
+
+			//
+			// hEdit: padd the vecotor *rand_params_* so as to make
+			// other variables marked as symbolic take the CORRECT
+			// values from the vector. 
+			//
+			rand_params_.insert(rand_params_.begin() + num_inputs_, world_size_);
+
+			//
+			// hEdit: wirte the index of variables of MPI_COMM_WORLD
+			// size into a file for later use
+			//
+			std::ofstream outfile(".world_size_indices", std::ofstream::out |
 					std::ofstream::app);
 			outfile << num_inputs_ << std::endl;
 			outfile.close();

@@ -143,6 +143,9 @@ namespace crest {
 			// Sort the branches.
 			sort(branches_.begin(), branches_.end());
 
+
+			outfile_illegal_inputs.open("illegal_inputs");
+
 			// Write out the size of MPI_COMM_WORLD
 			//std::ofstream outfile(".comm_world_size", std::ofstream::out);
 			//for (int i = 0; i < num_params_; i++) {
@@ -152,6 +155,7 @@ namespace crest {
 		}
 
 	Search::~Search() {
+		outfile_illegal_inputs.close();
 		delete solver;
 	}
 
@@ -236,6 +240,12 @@ namespace crest {
 			}
 			infile.close();
 
+
+			// write out the current size of MPI_COMM_WORLD to a file
+			std::ofstream outfile(".world_size", std::ofstream::out);
+			outfile << comm_world_size_ << std::endl;
+			outfile.close();
+
 			WriteInputToFileOrDie("input", inputs);
 
 			// assemble the command together with the target process
@@ -247,9 +257,13 @@ namespace crest {
 		} else {
 			// determine which MPI rank to be tested
 			int rank_id = rank_indices_.empty() ? 0: inputs[*rank_indices_.begin()];
+			// determine the size of MPI_COMM_WORLD
+			comm_world_size_ = world_size_indices_.empty() ? 4: inputs[*world_size_indices_.begin()];
 
 			for (size_t i = 0; i < inputs.size(); i++) {
-				if (rank_indices_.find(i) != rank_indices_.end()) continue;
+				if (rank_indices_.find(i) != rank_indices_.end()
+					|| world_size_indices_.find(i) != world_size_indices_.end()) 
+					continue;
 				inputs_str += std::to_string((long long)inputs[i]) + " ";
 			}
 
@@ -275,10 +289,11 @@ namespace crest {
 		int status = system(command.c_str()); 
 		
 		// if the command is terminated by the specified timeout
-		//if (124 == status) {
+		if (0 != status) {
 			// log the triggered input 
-			printf("Timeout %d\n", status);
-		//}
+			outfile_illegal_inputs << "Return value" << status << std::endl;
+			outfile_illegal_inputs << command << std::endl;
+		}
 
 		// debug
 		command += "\n";
@@ -290,26 +305,38 @@ namespace crest {
 		// get the indicies of variables marked as MPI ranks
 		if (is_first_run) {
 			std::ifstream infile(".rank_indices");
+			std::ifstream infile2(".world_size_indices");
 			if (!infile) {
 				fprintf(stderr, "There is not such file (.rank_indices)\n");
 				fflush(stderr);
 				//exit(-1);
+			} else if (!infile2) {
+				fprintf(stderr, "There is not such file (.world_size_indices)\n");
+				fflush(stderr);
+				//exit(-1);
 			} else {
-				string s;
+				string s, s2;
 				while (infile >> s) {
 					rank_indices_.insert(std::stoi(s));
 					//std::cout << s << std::ends;
 					//fprintf(stderr, "%s\n", s.c_str());
-
+				}
+				while (infile2 >> s2) {
+					world_size_indices_.insert(std::stoi(s2));
+					//std::cout << s << std::ends;
+					//fprintf(stderr, "%s\n", s.c_str());
 				}
 
-				solver->GetMPIInfo(comm_world_size_, rank_indices_);
+				solver->GetMPIInfo(world_size_indices_, rank_indices_);
 				solver->GenerateConstraintsMPI();
 				
 				infile.close();
+				infile2.close();
 
 				// remove the file
 				if (0 != remove(".rank_indices") )
+					fprintf(stderr, "Removing file failed!\n");
+				if (0 != remove(".world_size_indices") )
 					fprintf(stderr, "Removing file failed!\n");
 			}
 			

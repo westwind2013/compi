@@ -56,6 +56,12 @@ namespace crest {
 			//
 			value_t NewInputRank(type_t type, addr_t addr);
 
+			// 
+			// hEdit: this method takes special care of input variables  
+			// that indicate the size of MPI_COMM_WORLD
+			//
+			value_t NewInputWorldSize(type_t type, addr_t addr);
+			
 			// Accessor for symbolic execution so far.
 			const SymbolicExecution& execution() const { return ex_; }
 
@@ -92,6 +98,7 @@ namespace crest {
 			//
 			// Random numbers passed by the tool.
 			vector<int> rand_params_;
+			int world_size_;
 
 			// Helper functions.
 			inline void PushConcrete(value_t value);

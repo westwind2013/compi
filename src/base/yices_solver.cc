@@ -45,7 +45,7 @@ namespace crest {
 		}
 	}
 
-	YicesSolver::YicesSolver() : is_first_run(true) {	
+	YicesSolver::YicesSolver() {	
 	}
 
 	YicesSolver::~YicesSolver() {
@@ -62,7 +62,7 @@ namespace crest {
 		}
 	}
 
-
+/*
 	bool YicesSolver::GetMPIInfoByFile() {
 
 		// get the indices of variables of MPI ranks
@@ -99,9 +99,12 @@ namespace crest {
 
 		return true;
 	}
+*/
 
-	bool YicesSolver::GetMPIInfo(int comm_world_size, std::unordered_set<int>& rank_indices) {
-		comm_world_size_ = comm_world_size;
+	bool YicesSolver::GetMPIInfo(std::unordered_set<int>& world_size_indices, std::unordered_set<int>& rank_indices) {
+		for (std::unordered_set<int>::iterator it = world_size_indices.begin(); 
+			it != world_size_indices.end(); it++)
+			world_size_indices_.push_back(*it);
 
 		for (std::unordered_set<int>::iterator it = rank_indices.begin(); 
 			it != rank_indices.end(); it++)
@@ -115,12 +118,22 @@ namespace crest {
 	// 
 	bool YicesSolver::GenerateConstraintsMPI() {
 
+		SymbolicPred *tmpPred;
+		
+		SymbolicExpr  *world_size_first = new SymbolicExpr(1, world_size_indices_[0]), *world_size_other;
+		for (size_t i = 1; i < world_size_indices_.size(); i++) {
+			world_size_other = new SymbolicExpr(1, world_size_indices_[i]);
+			*world_size_other -= *world_size_first; 
+
+			tmpPred = new SymbolicPred(ops::EQ, world_size_other);
+			constraintsMPI.push_back(tmpPred);
+		}
+
 		// construct the constraints:
 		// (1) make all the variables for MPI ranks in the MPI_COMM_WORLD 
 		// equivalent
-		SymbolicPred *tmpPred;
 		SymbolicExpr  *rank_first = new SymbolicExpr(1, rank_indices_[0]), *rank_other;
-		SymbolicExpr  *rank_first_ = new SymbolicExpr(1, rank_indices_[0]);
+		///SymbolicExpr  *rank_first_ = new SymbolicExpr(1, rank_indices_[0]);
 		for (size_t i = 1; i < rank_indices_.size(); i++) {
 			rank_other = new SymbolicExpr(1, rank_indices_[i]);
 			*rank_other -= *rank_first; 
@@ -134,11 +147,16 @@ namespace crest {
 			//printf("%s\n", str.c_str());	
 
 		}
+		
+		//
+		// remove this part as we make the MPI rank an unsigned int
+	 	//	
 		// (2) MPI rank >= 0
-		tmpPred = new SymbolicPred(ops::GE, rank_first_);
-		constraintsMPI.push_back(tmpPred);
-		// (3) MPI rank < the size of MPI_COMM_WORLD
-		*rank_first -= comm_world_size_; 
+		//tmpPred = new SymbolicPred(ops::GE, rank_first_);
+		//constraintsMPI.push_back(tmpPred);
+		
+		// (2) MPI rank < the size of MPI_COMM_WORLD
+		*rank_first -= *world_size_first; 
 		//exprsMPI.push_back(rank_first);
 		tmpPred = new SymbolicPred(ops::LT, rank_first);
 		constraintsMPI.push_back(tmpPred);
@@ -182,6 +200,7 @@ namespace crest {
 			(*iter)->AppendToString(&str);
 			printf("%s\n", str.c_str());	
 		}
+		printf("\n\n\n");
 		fflush(stdout);
 
 		set<var_t> tmp;

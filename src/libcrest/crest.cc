@@ -193,7 +193,16 @@ void __CrestInt(int* x) {
 //
 // hEdit: symbolic input function used to mark MPI rank.
 // 
-void __CrestIntRank(int* x) {
+void __CrestRank(int* x) {
 	pre_symbolic = 0;
-	*x = (int)SI->NewInputRank(types::INT, (addr_t)x);
+	*x = (int)SI->NewInputRank(types::U_INT, (addr_t)x);
+}
+
+//
+// hEdit: symbolic input function used to mark the size of 
+// MPI_COMM_WORLD.
+// 
+void __CrestWorldSize(int* x) {
+	pre_symbolic = 0;
+	*x = (int)SI->NewInputWorldSize(types::U_INT, (addr_t)x);
 }

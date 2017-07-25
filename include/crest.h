@@ -195,9 +195,11 @@ EXTERN void __CrestHandleReturn(__CREST_ID, __CREST_VALUE) __SKIP;
 #define CREST_int(x) __CrestInt(&x)
 
 //
-// hEdit: symbolic input function for MPI rank
+// hEdit: symbolic input function for MPI rank and 
+// the size of MPI_COMM_WORLD
 //
-#define CREST_int_rank(x) __CrestIntRank(&x)
+#define CREST_rank(x) __CrestRank(&x)
+#define CREST_world_size(x) __CrestWorldSize(&x)
 
 
 EXTERN void __CrestUChar(unsigned char* x) __SKIP;
@@ -208,8 +210,10 @@ EXTERN void __CrestShort(short* x) __SKIP;
 EXTERN void __CrestInt(int* x) __SKIP;
 
 //
-// hEdit: symbolic input function for MPI rank
+// hEdit: symbolic input function for MPI rank and 
+// the size of MPI_COMM_WORLD
 //
-EXTERN void __CrestIntRank(int* x) __SKIP;
+EXTERN void __CrestRank(int* x) __SKIP;
+EXTERN void __CrestWorldSize(int* x) __SKIP;
 
 #endif  /* LIBCREST_CREST_H__ */
