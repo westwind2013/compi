@@ -70,8 +70,10 @@ namespace crest {
 					const SymbolicExecution& new_ex, size_t branch_idx);
 
 			void RunProgram(const vector<value_t>& inputs, SymbolicExecution* ex);
-			bool UpdateCoverage(const SymbolicExecution& ex);
-			bool UpdateCoverage(const SymbolicExecution& ex,
+			bool UpdateCoverage(SymbolicExecution& ex);
+			bool UpdateCoverage(SymbolicExecution& ex,
+					set<branch_id_t>* new_branches);
+			bool UpdateCoverageUponTarget(SymbolicExecution& ex,
 					set<branch_id_t>* new_branches);
 
 			void RandomInput(const map<var_t, type_t>& vars, vector<value_t>* input);
@@ -89,6 +91,8 @@ namespace crest {
 			// otherwise, it will decode the generated input from the symbolic
 			// path of the target
 			bool is_first_run;
+			// the target rank to be tested
+			int target_rank_;
 			// the total number of MPI ranks (processes)
 			int comm_world_size_;
 			// the number of parameters MPI program accept

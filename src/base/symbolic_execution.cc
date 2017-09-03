@@ -32,6 +32,12 @@ namespace crest {
 
 		// Write the inputs.
 		size_t len = vars_.size();
+
+		//
+		// hEdit:: debug
+		//
+		//printf("vars_.size(): %d\n", len);
+
 		s->append((char*)&len, sizeof(len));
 		for (VarIt i = vars_.begin(); i != vars_.end(); ++i) {
 			s->push_back(static_cast<char>(i->second));
@@ -40,6 +46,28 @@ namespace crest {
 
 		// Write the path.
 		path_.Serialize(s);
+	}
+
+	void SymbolicExecution::SerializeBranches(string* s) const {
+		/*
+		typedef map<var_t,type_t>::const_iterator VarIt;
+
+		// Write the inputs.
+		size_t len = vars_.size();
+
+		//
+		// hEdit:: debug
+		//
+		printf("vars_.size(): %d\n", len);
+
+		s->append((char*)&len, sizeof(len));
+		for (VarIt i = vars_.begin(); i != vars_.end(); ++i) {
+			s->push_back(static_cast<char>(i->second));
+			s->append((char*)&inputs_[i->first], sizeof(value_t));
+		}*/
+
+		// Write the path.
+		path_.SerializeBranches(s);
 	}
 
 	bool SymbolicExecution::Parse(istream& s) {
@@ -55,6 +83,22 @@ namespace crest {
 
 		// Write the path.
 		return (path_.Parse(s) && !s.fail());
+	}
+
+	bool SymbolicExecution::ParseBranches(istream& s) {
+		// Read the inputs.
+		/*
+		size_t len;
+		s.read((char*)&len, sizeof(len));
+		vars_.clear();
+		inputs_.resize(len);
+		for (size_t i = 0; i < len; i++) {
+			vars_[i] = static_cast<type_t>(s.get());
+			s.read((char*)&inputs_[i], sizeof(value_t));
+		}
+		*/
+		// Write the path.
+		return (path_.ParseBranches(s) && !s.fail());
 	}
 
 }  // namespace crest

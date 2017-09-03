@@ -37,7 +37,9 @@ namespace crest {
 			void Push(branch_id_t bid);
 			void Push(branch_id_t bid, SymbolicPred* constraint);
 			void Serialize(string* s) const;
+			void SerializeBranches(string* s) const;
 			bool Parse(istream& s);
+			bool ParseBranches(istream& s);
 
 			const vector<branch_id_t>& branches() const {
 				return branches_;

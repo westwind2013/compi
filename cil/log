@@ -1,0 +1,432 @@
+ocamlbuild -build-dir _build -no-links -classic-display src/cil.cma
+/usr/bin/ocamlopt unix.cmxa -I /usr/lib/ocaml/ocamlbuild /usr/lib/ocaml/ocamlbuild/ocamlbuildlib.cmxa myocamlbuild.ml /usr/lib/ocaml/ocamlbuild/ocamlbuild.cmx -o myocamlbuild
+/usr/bin/ocamldep -modules ocamlutil/alpha.mli > ocamlutil/alpha.mli.depends
+/usr/bin/ocamldep -modules ocamlutil/pretty.mli > ocamlutil/pretty.mli.depends
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/pretty.cmi ocamlutil/pretty.mli
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/alpha.cmi ocamlutil/alpha.mli
+/usr/bin/ocamldep -modules ocamlutil/alpha.ml > ocamlutil/alpha.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/errormsg.mli > ocamlutil/errormsg.mli.depends
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/errormsg.cmi ocamlutil/errormsg.mli
+/usr/bin/ocamldep -modules src/ext/availexps.ml > src/ext/availexps.ml.depends
+/usr/bin/ocamldep -modules src/cil.mli > src/cil.mli.depends
+/usr/bin/ocamldep -modules src/cilint.mli > src/cilint.mli.depends
+make -C .. _build/machdep.ml
++ make -C .. _build/machdep.ml
+make[1]: Entering directory `/home/westwind/myInstall/crest.mpi/cil'
+src/machdep-ml.c: In function ‘main’:
+src/machdep-ml.c:106: warning: cast from pointer to integer of different size
+src/machdep-ml.c:115: warning: cast from pointer to integer of different size
+src/machdep-ml.c:124: warning: cast from pointer to integer of different size
+src/machdep-ml.c:133: warning: cast from pointer to integer of different size
+src/machdep-ml.c:142: warning: cast from pointer to integer of different size
+src/machdep-ml.c:151: warning: cast from pointer to integer of different size
+src/machdep-ml.c:160: warning: cast from pointer to integer of different size
+src/machdep-ml.c:169: warning: cast from pointer to integer of different size
+src/machdep-ml.c:178: warning: cast from pointer to integer of different size
+src/machdep-ml.c:187: warning: cast from pointer to integer of different size
+machdep-ml.exe created succesfully.
+Generating machine dependency information for CIL
+/bin/sh: 1: cl: not found
+make[1]: Leaving directory `/home/westwind/myInstall/crest.mpi/cil'
+/usr/bin/ocamldep -modules machdep.ml > machdep.ml.depends
+/usr/bin/ocamlc -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cilint.cmi src/cilint.mli
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o machdep.cmo machdep.ml
+/usr/bin/ocamldep -modules src/ext/dataflow.mli > src/ext/dataflow.mli.depends
+/usr/bin/ocamlc -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cil.cmi src/cil.mli
+/usr/bin/ocamldep -modules ocamlutil/inthash.mli > ocamlutil/inthash.mli.depends
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/inthash.cmi ocamlutil/inthash.mli
+/usr/bin/ocamldep -modules src/ext/expcompare.ml > src/ext/expcompare.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/util.mli > ocamlutil/util.mli.depends
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/util.cmi ocamlutil/util.mli
+/usr/bin/ocamldep -modules ocamlutil/stats.mli > ocamlutil/stats.mli.depends
+/usr/bin/ocamldep -modules src/ext/usedef.ml > src/ext/usedef.ml.depends
+/usr/bin/ocamlc -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/dataflow.cmi src/ext/dataflow.mli
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/expcompare.cmo src/ext/expcompare.ml
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/stats.cmi ocamlutil/stats.mli
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/usedef.cmo src/ext/usedef.ml
+/usr/bin/ocamldep -modules src/ext/availexpslv.ml > src/ext/availexpslv.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/bitmap.mli > ocamlutil/bitmap.mli.depends
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/bitmap.cmi ocamlutil/bitmap.mli
+/usr/bin/ocamldep -modules ocamlutil/bitmap.ml > ocamlutil/bitmap.ml.depends
+/usr/bin/ocamldep -modules src/frontc/cabs.ml > src/frontc/cabs.ml.depends
+/usr/bin/ocamldep -modules src/frontc/cabs2cil.mli > src/frontc/cabs2cil.mli.depends
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabs.cmo src/frontc/cabs.ml
+/usr/bin/ocamlc -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabs2cil.cmi src/frontc/cabs2cil.mli
+/usr/bin/ocamldep -modules src/frontc/cabs2cil.ml > src/frontc/cabs2cil.ml.depends
+/usr/bin/ocamldep -modules src/frontc/cabshelper.ml > src/frontc/cabshelper.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/growArray.mli > ocamlutil/growArray.mli.depends
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/growArray.cmi ocamlutil/growArray.mli
+/usr/bin/ocamldep -modules src/frontc/cabsvisit.mli > src/frontc/cabsvisit.mli.depends
+/usr/bin/ocamldep -modules src/cilutil.ml > src/cilutil.ml.depends
+/usr/bin/ocamldep -modules src/frontc/cprint.ml > src/frontc/cprint.ml.depends
+/usr/bin/ocamldep -modules src/escape.mli > src/escape.mli.depends
+/usr/bin/ocamldep -modules src/frontc/whitetrack.mli > src/frontc/whitetrack.mli.depends
+/usr/bin/ocamlc -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/escape.cmi src/escape.mli
+/usr/bin/ocamlc -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/whitetrack.cmi src/frontc/whitetrack.mli
+/usr/bin/ocamldep -modules ocamlutil/trace.mli > ocamlutil/trace.mli.depends
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabshelper.cmo src/frontc/cabshelper.ml
+/usr/bin/ocamlc -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabsvisit.cmi src/frontc/cabsvisit.mli
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cilutil.cmo src/cilutil.ml
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cprint.cmo src/frontc/cprint.ml
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/trace.cmi ocamlutil/trace.mli
+/usr/bin/ocamldep -modules src/frontc/cabsvisit.ml > src/frontc/cabsvisit.ml.depends
+/usr/bin/ocamldep -modules src/ext/callgraph.mli > src/ext/callgraph.mli.depends
+/usr/bin/ocamlc -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/callgraph.cmi src/ext/callgraph.mli
+/usr/bin/ocamldep -modules src/ext/callgraph.ml > src/ext/callgraph.ml.depends
+/usr/bin/ocamldep -modules src/ext/canonicalize.mli > src/ext/canonicalize.mli.depends
+/usr/bin/ocamlc -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/canonicalize.cmi src/ext/canonicalize.mli
+/usr/bin/ocamldep -modules src/ext/canonicalize.ml > src/ext/canonicalize.ml.depends
+/usr/bin/ocamldep -modules src/ext/cfg.mli > src/ext/cfg.mli.depends
+/usr/bin/ocamlc -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/cfg.cmi src/ext/cfg.mli
+/usr/bin/ocamldep -modules src/ext/cfg.ml > src/ext/cfg.ml.depends
+/usr/bin/ocamldep -modules src/check.mli > src/check.mli.depends
+/usr/bin/ocamlc -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/check.cmi src/check.mli
+/usr/bin/ocamldep -modules src/check.ml > src/check.ml.depends
+/usr/bin/ocamldep -modules src/cil.ml > src/cil.ml.depends
+make -C .. _build/cilversion.ml
++ make -C .. _build/cilversion.ml
+make[1]: Entering directory `/home/westwind/myInstall/crest.mpi/cil'
+rm -f _build/cilversion.ml
+./config.status --file=_build/cilversion.ml:src/cilversion.ml.in
+config.status: creating _build/cilversion.ml
+make[1]: Leaving directory `/home/westwind/myInstall/crest.mpi/cil'
+/usr/bin/ocamldep -modules cilversion.ml > cilversion.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/clist.mli > ocamlutil/clist.mli.depends
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o cilversion.cmo cilversion.ml
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/clist.cmi ocamlutil/clist.mli
+/usr/bin/ocamldep -modules src/cilint.ml > src/cilint.ml.depends
+/usr/bin/ocamldep -modules src/cillower.mli > src/cillower.mli.depends
+/usr/bin/ocamlc -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cillower.cmi src/cillower.mli
+/usr/bin/ocamldep -modules src/cillower.ml > src/cillower.ml.depends
+/usr/bin/ocamldep -modules src/ciloptions.mli > src/ciloptions.mli.depends
+/usr/bin/ocamlc -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/ciloptions.cmi src/ciloptions.mli
+/usr/bin/ocamldep -modules src/ciloptions.ml > src/ciloptions.ml.depends
+/usr/bin/ocamldep -modules src/frontc/frontc.mli > src/frontc/frontc.mli.depends
+/usr/bin/ocamldep -modules src/machdepenv.ml > src/machdepenv.ml.depends
+/usr/bin/ocamldep -modules src/mergecil.mli > src/mergecil.mli.depends
+/usr/bin/ocamldep -modules src/rmtmps.mli > src/rmtmps.mli.depends
+/usr/bin/ocamlc -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/frontc.cmi src/frontc/frontc.mli
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/machdepenv.cmo src/machdepenv.ml
+/usr/bin/ocamlc -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/mergecil.cmi src/mergecil.mli
+/usr/bin/ocamlc -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/rmtmps.cmi src/rmtmps.mli
+/usr/bin/ocamldep -modules src/ext/ciltools.ml > src/ext/ciltools.ml.depends
+/usr/bin/ocamldep -modules src/frontc/clexer.mli > src/frontc/clexer.mli.depends
+/usr/bin/ocamlyacc src/frontc/cparser.mly
++ /usr/bin/ocamlyacc src/frontc/cparser.mly
+1 shift/reduce conflict.
+/usr/bin/ocamldep -modules src/frontc/cparser.mli > src/frontc/cparser.mli.depends
+/usr/bin/ocamlc -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cparser.cmi src/frontc/cparser.mli
+/usr/bin/ocamlc -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/clexer.cmi src/frontc/clexer.mli
+/usr/bin/ocamllex -q src/frontc/clexer.mll
+/usr/bin/ocamldep -modules src/frontc/clexer.ml > src/frontc/clexer.ml.depends
+/usr/bin/ocamldep -modules src/frontc/lexerhack.ml > src/frontc/lexerhack.ml.depends
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/lexerhack.cmo src/frontc/lexerhack.ml
+/usr/bin/ocamldep -modules ocamlutil/clist.ml > ocamlutil/clist.ml.depends
+/usr/bin/ocamldep -modules src/frontc/cparser.ml > src/frontc/cparser.ml.depends
+/usr/bin/ocamldep -modules src/ext/dataflow.ml > src/ext/dataflow.ml.depends
+/usr/bin/ocamldep -modules src/ext/dataslicing.mli > src/ext/dataslicing.mli.depends
+/usr/bin/ocamlc -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/dataslicing.cmi src/ext/dataslicing.mli
+/usr/bin/ocamldep -modules src/ext/dataslicing.ml > src/ext/dataslicing.ml.depends
+/usr/bin/ocamldep -modules src/ext/deadcodeelim.ml > src/ext/deadcodeelim.ml.depends
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/ciltools.cmo src/ext/ciltools.ml
+/usr/bin/ocamldep -modules src/ext/reachingdefs.ml > src/ext/reachingdefs.ml.depends
+/usr/bin/ocamldep -modules src/ext/liveness.ml > src/ext/liveness.ml.depends
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/liveness.cmo src/ext/liveness.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/reachingdefs.cmo src/ext/reachingdefs.ml
+/usr/bin/ocamldep -modules src/ext/dominators.mli > src/ext/dominators.mli.depends
+/usr/bin/ocamlc -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/dominators.cmi src/ext/dominators.mli
+/usr/bin/ocamldep -modules src/ext/dominators.ml > src/ext/dominators.ml.depends
+/usr/bin/ocamldep -modules src/ext/epicenter.ml > src/ext/epicenter.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/errormsg.ml > ocamlutil/errormsg.ml.depends
+/usr/bin/ocamldep -modules src/escape.ml > src/escape.ml.depends
+make -C .. _build/feature_config.ml
++ make -C .. _build/feature_config.ml
+make[1]: Entering directory `/home/westwind/myInstall/crest.mpi/cil'
+rm -f _build/feature_config.*
+echo "(* This module was generated automatically by code in Makefile.in *)" >_build/feature_config.ml
+echo "open Cil"   >>_build/feature_config.ml
+echo "let features : featureDescr list = [" >> _build/feature_config.ml
+echo " (* EXTRAFEATURES: *)" >> _build/feature_config.ml
+echo \
+           \
+	| perl -pe 's/\\n/\n/g' >> _build/feature_config.ml
+echo "]"   >>_build/feature_config.ml
+make[1]: Leaving directory `/home/westwind/myInstall/crest.mpi/cil'
+/usr/bin/ocamldep -modules feature_config.ml > feature_config.ml.depends
+/usr/bin/ocamldep -modules src/formatcil.mli > src/formatcil.mli.depends
+/usr/bin/ocamlc -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/formatcil.cmi src/formatcil.mli
+/usr/bin/ocamldep -modules src/formatcil.ml > src/formatcil.ml.depends
+/usr/bin/ocamllex -q src/formatlex.mll
+/usr/bin/ocamldep -modules src/formatlex.ml > src/formatlex.ml.depends
+/usr/bin/ocamlyacc src/formatparse.mly
+/usr/bin/ocamldep -modules src/formatparse.mli > src/formatparse.mli.depends
+/usr/bin/ocamlc -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/formatparse.cmi src/formatparse.mli
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/formatlex.cmo src/formatlex.ml
+/usr/bin/ocamldep -modules src/formatparse.ml > src/formatparse.ml.depends
+/usr/bin/ocamldep -modules src/frontc/frontc.ml > src/frontc/frontc.ml.depends
+/usr/bin/ocamldep -modules src/frontc/patch.mli > src/frontc/patch.mli.depends
+/usr/bin/ocamlc -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/patch.cmi src/frontc/patch.mli
+/usr/bin/ocamldep -modules ocamlutil/growArray.ml > ocamlutil/growArray.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/longarray.mli > ocamlutil/longarray.mli.depends
+/usr/bin/ocamlc -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/longarray.cmi ocamlutil/longarray.mli
+/usr/bin/ocamldep -modules src/ext/heap.ml > src/ext/heap.ml.depends
+/usr/bin/ocamldep -modules src/ext/heapify.ml > src/ext/heapify.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/inthash.ml > ocamlutil/inthash.ml.depends
+/usr/bin/ocamldep -modules src/ext/llvm.ml > src/ext/llvm.ml.depends
+/usr/bin/ocamldep -modules src/ext/llvmgen.ml > src/ext/llvmgen.ml.depends
+/usr/bin/ocamldep -modules src/ext/llvmutils.ml > src/ext/llvmutils.ml.depends
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/llvmutils.cmo src/ext/llvmutils.ml
+/usr/bin/ocamldep -modules src/ext/llvmssa.ml > src/ext/llvmssa.ml.depends
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/llvmgen.cmo src/ext/llvmgen.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/llvmssa.cmo src/ext/llvmssa.ml
+/usr/bin/ocamldep -modules src/ext/logcalls.mli > src/ext/logcalls.mli.depends
+/usr/bin/ocamlc -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/logcalls.cmi src/ext/logcalls.mli
+/usr/bin/ocamldep -modules src/ext/logcalls.ml > src/ext/logcalls.ml.depends
+/usr/bin/ocamldep -modules src/ext/logwrites.ml > src/ext/logwrites.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/longarray.ml > ocamlutil/longarray.ml.depends
+/usr/bin/ocamldep -modules src/mergecil.ml > src/mergecil.ml.depends
+/usr/bin/ocamldep -modules src/ext/pta/olf.mli > src/ext/pta/olf.mli.depends
+/usr/bin/ocamlc -c -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/olf.cmi src/ext/pta/olf.mli
+/usr/bin/ocamldep -modules src/ext/pta/olf.ml > src/ext/pta/olf.ml.depends
+/usr/bin/ocamldep -modules src/ext/pta/setp.mli > src/ext/pta/setp.mli.depends
+/usr/bin/ocamldep -modules src/ext/pta/uref.mli > src/ext/pta/uref.mli.depends
+/usr/bin/ocamlc -c -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/setp.cmi src/ext/pta/setp.mli
+/usr/bin/ocamlc -c -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/uref.cmi src/ext/pta/uref.mli
+/usr/bin/ocamldep -modules src/ext/oneret.mli > src/ext/oneret.mli.depends
+/usr/bin/ocamlc -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/oneret.cmi src/ext/oneret.mli
+/usr/bin/ocamldep -modules src/ext/oneret.ml > src/ext/oneret.ml.depends
+/usr/bin/ocamldep -modules src/ext/partial.ml > src/ext/partial.ml.depends
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/heap.cmo src/ext/heap.ml
+/usr/bin/ocamldep -modules src/ext/pta/ptranal.mli > src/ext/pta/ptranal.mli.depends
+/usr/bin/ocamlc -c -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/ptranal.cmi src/ext/pta/ptranal.mli
+/usr/bin/ocamldep -modules src/frontc/patch.ml > src/frontc/patch.ml.depends
+/usr/bin/ocamldep -modules src/ext/predabst.ml > src/ext/predabst.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/pretty.ml > ocamlutil/pretty.ml.depends
+/usr/bin/ocamldep -modules src/ext/pta/ptranal.ml > src/ext/pta/ptranal.ml.depends
+/usr/bin/ocamldep -modules src/rmtmps.ml > src/rmtmps.ml.depends
+/usr/bin/ocamldep -modules src/ext/pta/setp.ml > src/ext/pta/setp.ml.depends
+/usr/bin/ocamldep -modules src/ext/sfi.ml > src/ext/sfi.ml.depends
+/usr/bin/ocamldep -modules src/ext/simplemem.ml > src/ext/simplemem.ml.depends
+/usr/bin/ocamldep -modules src/ext/simplify.mli > src/ext/simplify.mli.depends
+/usr/bin/ocamlc -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/simplify.cmi src/ext/simplify.mli
+/usr/bin/ocamldep -modules src/ext/simplify.ml > src/ext/simplify.ml.depends
+/usr/bin/ocamldep -modules src/ext/ssa.mli > src/ext/ssa.mli.depends
+/usr/bin/ocamlc -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/ssa.cmi src/ext/ssa.mli
+/usr/bin/ocamldep -modules src/ext/ssa.ml > src/ext/ssa.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/stats.ml > ocamlutil/stats.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/trace.ml > ocamlutil/trace.ml.depends
+/usr/bin/ocamldep -modules src/ext/pta/uref.ml > src/ext/pta/uref.ml.depends
+/usr/bin/ocamldep -modules ocamlutil/util.ml > ocamlutil/util.ml.depends
+/usr/bin/ocamldep -modules src/frontc/whitetrack.ml > src/frontc/whitetrack.ml.depends
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/alpha.cmo ocamlutil/alpha.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/availexps.cmo src/ext/availexps.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/availexpslv.cmo src/ext/availexpslv.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/bitmap.cmo ocamlutil/bitmap.ml
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabs2cil.cmo src/frontc/cabs2cil.ml
++ /usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabs2cil.cmo src/frontc/cabs2cil.ml
+File "src/frontc/cabs2cil.ml", line 4992, characters 28-30:
+Warning 3: deprecated feature: operator (or); you should use (||) instead
+File "src/frontc/cabs2cil.ml", line 5054, characters 28-30:
+Warning 3: deprecated feature: operator (or); you should use (||) instead
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabsvisit.cmo src/frontc/cabsvisit.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/callgraph.cmo src/ext/callgraph.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/canonicalize.cmo src/ext/canonicalize.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/cfg.cmo src/ext/cfg.ml
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/check.cmo src/check.ml
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cil.cmo src/cil.ml
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cilint.cmo src/cilint.ml
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cillower.cmo src/cillower.ml
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/ciloptions.cmo src/ciloptions.ml
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/clexer.cmo src/frontc/clexer.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/clist.cmo ocamlutil/clist.ml
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cparser.cmo src/frontc/cparser.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/dataflow.cmo src/ext/dataflow.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/dataslicing.cmo src/ext/dataslicing.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/deadcodeelim.cmo src/ext/deadcodeelim.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/dominators.cmo src/ext/dominators.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/epicenter.cmo src/ext/epicenter.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/errormsg.cmo ocamlutil/errormsg.ml
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/escape.cmo src/escape.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o feature_config.cmo feature_config.ml
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/formatcil.cmo src/formatcil.ml
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/formatparse.cmo src/formatparse.ml
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/frontc.cmo src/frontc/frontc.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/growArray.cmo ocamlutil/growArray.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/heapify.cmo src/ext/heapify.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/inthash.cmo ocamlutil/inthash.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/llvm.cmo src/ext/llvm.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/logcalls.cmo src/ext/logcalls.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/logwrites.cmo src/ext/logwrites.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/longarray.cmo ocamlutil/longarray.ml
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/mergecil.cmo src/mergecil.ml
+/usr/bin/ocamlc -c -g -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/olf.cmo src/ext/pta/olf.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/oneret.cmo src/ext/oneret.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/partial.cmo src/ext/partial.ml
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/patch.cmo src/frontc/patch.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/predabst.cmo src/ext/predabst.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/pretty.cmo ocamlutil/pretty.ml
+/usr/bin/ocamlc -c -g -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/ptranal.cmo src/ext/pta/ptranal.ml
++ /usr/bin/ocamlc -c -g -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/ptranal.cmo src/ext/pta/ptranal.ml
+File "src/ext/pta/ptranal.ml", line 287, characters 38-39:
+Warning 3: deprecated feature: operator (&); you should use (&&) instead
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/rmtmps.cmo src/rmtmps.ml
+/usr/bin/ocamlc -c -g -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/setp.cmo src/ext/pta/setp.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/sfi.cmo src/ext/sfi.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/simplemem.cmo src/ext/simplemem.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/simplify.cmo src/ext/simplify.ml
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/ssa.cmo src/ext/ssa.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/stats.cmo ocamlutil/stats.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/trace.cmo ocamlutil/trace.ml
+/usr/bin/ocamlc -c -g -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/uref.cmo src/ext/pta/uref.ml
+/usr/bin/ocamlc -c -g -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/util.cmo ocamlutil/util.ml
+/usr/bin/ocamlc -c -g -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/whitetrack.cmo src/frontc/whitetrack.ml
+/usr/bin/ocamlc -a ocamlutil/pretty.cmo ocamlutil/errormsg.cmo ocamlutil/alpha.cmo ocamlutil/inthash.cmo ocamlutil/stats.cmo ocamlutil/util.cmo cilversion.cmo machdep.cmo ocamlutil/clist.cmo src/cilint.cmo src/escape.cmo src/cil.cmo src/ext/dataflow.cmo src/ext/expcompare.cmo src/ext/usedef.cmo src/ext/availexps.cmo src/ext/availexpslv.cmo ocamlutil/bitmap.cmo src/frontc/cabs.cmo ocamlutil/trace.cmo src/cilutil.cmo ocamlutil/longarray.cmo ocamlutil/growArray.cmo src/frontc/cabshelper.cmo src/frontc/cabsvisit.cmo src/frontc/whitetrack.cmo src/frontc/cprint.cmo src/frontc/cabs2cil.cmo src/ext/callgraph.cmo src/ext/canonicalize.cmo src/ext/cfg.cmo src/check.cmo src/cillower.cmo src/frontc/lexerhack.cmo src/frontc/cparser.cmo src/frontc/clexer.cmo src/frontc/patch.cmo src/frontc/frontc.cmo src/machdepenv.cmo src/mergecil.cmo src/rmtmps.cmo src/ciloptions.cmo src/ext/ciltools.cmo src/ext/dataslicing.cmo src/ext/liveness.cmo src/ext/reachingdefs.cmo src/ext/deadcodeelim.cmo src/ext/dominators.cmo src/ext/epicenter.cmo feature_config.cmo src/formatparse.cmo src/formatlex.cmo src/formatcil.cmo src/ext/heap.cmo src/ext/heapify.cmo src/ext/llvmutils.cmo src/ext/llvmgen.cmo src/ext/llvmssa.cmo src/ext/llvm.cmo src/ext/logcalls.cmo src/ext/logwrites.cmo src/ext/pta/setp.cmo src/ext/pta/uref.cmo src/ext/pta/olf.cmo src/ext/oneret.cmo src/ext/pta/ptranal.cmo src/ext/partial.cmo src/ext/predabst.cmo src/ext/sfi.cmo src/ext/simplemem.cmo src/ext/simplify.cmo src/ext/ssa.cmo -o src/cil.cma
+ocamlbuild -build-dir _build -no-links -classic-display src/cil.cmxa
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/pretty.cmx ocamlutil/pretty.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/errormsg.cmx ocamlutil/errormsg.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/alpha.cmx ocamlutil/alpha.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cilint.cmx src/cilint.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o cilversion.cmx cilversion.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/clist.cmx ocamlutil/clist.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/escape.cmx src/escape.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/inthash.cmx ocamlutil/inthash.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o machdep.cmx machdep.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/util.cmx ocamlutil/util.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cil.cmx src/cil.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/dataflow.cmx src/ext/dataflow.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/expcompare.cmx src/ext/expcompare.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/stats.cmx ocamlutil/stats.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/usedef.cmx src/ext/usedef.ml
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabs.cmx src/frontc/cabs.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/longarray.cmx ocamlutil/longarray.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/growArray.cmx ocamlutil/growArray.ml
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabshelper.cmx src/frontc/cabshelper.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/trace.cmx ocamlutil/trace.ml
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/whitetrack.cmx src/frontc/whitetrack.ml
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabsvisit.cmx src/frontc/cabsvisit.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cilutil.cmx src/cilutil.ml
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cprint.cmx src/frontc/cprint.ml
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabs2cil.cmx src/frontc/cabs2cil.ml
++ /usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cabs2cil.cmx src/frontc/cabs2cil.ml
+File "src/frontc/cabs2cil.ml", line 4992, characters 28-30:
+Warning 3: deprecated feature: operator (or); you should use (||) instead
+File "src/frontc/cabs2cil.ml", line 5054, characters 28-30:
+Warning 3: deprecated feature: operator (or); you should use (||) instead
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/lexerhack.cmx src/frontc/lexerhack.ml
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/cparser.cmx src/frontc/cparser.ml
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/clexer.cmx src/frontc/clexer.ml
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/patch.cmx src/frontc/patch.ml
+/usr/bin/ocamlopt -c -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -o src/frontc/frontc.cmx src/frontc/frontc.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/machdepenv.cmx src/machdepenv.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/mergecil.cmx src/mergecil.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/rmtmps.cmx src/rmtmps.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/ciltools.cmx src/ext/ciltools.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/cfg.cmx src/ext/cfg.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/liveness.cmx src/ext/liveness.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/reachingdefs.cmx src/ext/reachingdefs.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/callgraph.cmx src/ext/callgraph.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/formatparse.cmx src/formatparse.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/formatlex.cmx src/formatlex.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/llvmutils.cmx src/ext/llvmutils.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/llvmgen.cmx src/ext/llvmgen.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/llvmssa.cmx src/ext/llvmssa.ml
+/usr/bin/ocamlopt -c -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/setp.cmx src/ext/pta/setp.ml
+/usr/bin/ocamlopt -c -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/uref.cmx src/ext/pta/uref.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/heap.cmx src/ext/heap.ml
+/usr/bin/ocamlopt -c -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/olf.cmx src/ext/pta/olf.ml
+/usr/bin/ocamlopt -c -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/ptranal.cmx src/ext/pta/ptranal.ml
++ /usr/bin/ocamlopt -c -I src/ext/pta -I ocamlutil -I src -I src/frontc -I src/ext -o src/ext/pta/ptranal.cmx src/ext/pta/ptranal.ml
+File "src/ext/pta/ptranal.ml", line 287, characters 38-39:
+Warning 3: deprecated feature: operator (&); you should use (&&) instead
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o ocamlutil/bitmap.cmx ocamlutil/bitmap.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/availexps.cmx src/ext/availexps.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/availexpslv.cmx src/ext/availexpslv.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/canonicalize.cmx src/ext/canonicalize.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/check.cmx src/check.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/cillower.cmx src/cillower.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/ciloptions.cmx src/ciloptions.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/dataslicing.cmx src/ext/dataslicing.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/deadcodeelim.cmx src/ext/deadcodeelim.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/dominators.cmx src/ext/dominators.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/epicenter.cmx src/ext/epicenter.ml
+/usr/bin/ocamlopt -c -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -o feature_config.cmx feature_config.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/formatcil.cmx src/formatcil.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/heapify.cmx src/ext/heapify.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/llvm.cmx src/ext/llvm.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/logcalls.cmx src/ext/logcalls.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/logwrites.cmx src/ext/logwrites.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/oneret.cmx src/ext/oneret.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/partial.cmx src/ext/partial.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/predabst.cmx src/ext/predabst.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/sfi.cmx src/ext/sfi.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/simplemem.cmx src/ext/simplemem.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/simplify.cmx src/ext/simplify.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/ssa.cmx src/ext/ssa.ml
+/usr/bin/ocamlopt -a ocamlutil/pretty.cmx ocamlutil/errormsg.cmx ocamlutil/alpha.cmx cilversion.cmx machdep.cmx ocamlutil/clist.cmx ocamlutil/inthash.cmx ocamlutil/stats.cmx ocamlutil/util.cmx src/cilint.cmx src/escape.cmx src/cil.cmx src/ext/dataflow.cmx src/ext/expcompare.cmx src/ext/usedef.cmx src/ext/availexps.cmx src/ext/availexpslv.cmx ocamlutil/bitmap.cmx src/frontc/cabs.cmx ocamlutil/longarray.cmx ocamlutil/growArray.cmx ocamlutil/trace.cmx src/cilutil.cmx src/frontc/cabshelper.cmx src/frontc/cabsvisit.cmx src/frontc/whitetrack.cmx src/frontc/cprint.cmx src/frontc/cabs2cil.cmx src/ext/callgraph.cmx src/ext/canonicalize.cmx src/ext/cfg.cmx src/check.cmx src/cillower.cmx src/frontc/lexerhack.cmx src/frontc/cparser.cmx src/frontc/clexer.cmx src/frontc/patch.cmx src/frontc/frontc.cmx src/machdepenv.cmx src/mergecil.cmx src/rmtmps.cmx src/ciloptions.cmx src/ext/ciltools.cmx src/ext/dataslicing.cmx src/ext/liveness.cmx src/ext/reachingdefs.cmx src/ext/deadcodeelim.cmx src/ext/dominators.cmx src/ext/epicenter.cmx feature_config.cmx src/formatparse.cmx src/formatlex.cmx src/formatcil.cmx src/ext/heap.cmx src/ext/heapify.cmx src/ext/llvmutils.cmx src/ext/llvmgen.cmx src/ext/llvmssa.cmx src/ext/llvm.cmx src/ext/logcalls.cmx src/ext/logwrites.cmx src/ext/pta/setp.cmx src/ext/pta/uref.cmx src/ext/pta/olf.cmx src/ext/oneret.cmx src/ext/pta/ptranal.cmx src/ext/partial.cmx src/ext/predabst.cmx src/ext/sfi.cmx src/ext/simplemem.cmx src/ext/simplify.cmx src/ext/ssa.cmx -o src/cil.cmxa
+ocamlbuild -build-dir _build -no-links -classic-display src/cil.a
+ocamlbuild -build-dir _build -no-links -classic-display src/cil.libfiles
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/availexps.ml > src/ext/availexps.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/availexpslv.ml > src/ext/availexpslv.inferred.mli
+/usr/bin/ocamlc -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -i src/frontc/cabs.ml > src/frontc/cabs.inferred.mli
+/usr/bin/ocamlc -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -i src/frontc/cabshelper.ml > src/frontc/cabshelper.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/ciltools.ml > src/ext/ciltools.inferred.mli
+/usr/bin/ocamlc -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -i src/cilutil.ml > src/cilutil.inferred.mli
+/usr/bin/ocamlc -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -i cilversion.ml > cilversion.inferred.mli
+/usr/bin/ocamlc -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -i src/frontc/cprint.ml > src/frontc/cprint.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/deadcodeelim.ml > src/ext/deadcodeelim.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/epicenter.ml > src/ext/epicenter.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/expcompare.ml > src/ext/expcompare.inferred.mli
+/usr/bin/ocamlc -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -i feature_config.ml > feature_config.inferred.mli
+/usr/bin/ocamlc -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -i src/formatlex.ml > src/formatlex.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/heap.ml > src/ext/heap.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/heapify.ml > src/ext/heapify.inferred.mli
+/usr/bin/ocamlc -I src/frontc -I ocamlutil -I src -I src/ext -I src/ext/pta -i src/frontc/lexerhack.ml > src/frontc/lexerhack.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/liveness.ml > src/ext/liveness.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/llvm.ml > src/ext/llvm.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/llvmgen.ml > src/ext/llvmgen.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/llvmssa.ml > src/ext/llvmssa.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/llvmutils.ml > src/ext/llvmutils.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/logwrites.ml > src/ext/logwrites.inferred.mli
+/usr/bin/ocamlc -I ocamlutil -I src -I src/frontc -I src/ext -I src/ext/pta -i machdep.ml > machdep.inferred.mli
+/usr/bin/ocamlc -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -i src/machdepenv.ml > src/machdepenv.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/partial.ml > src/ext/partial.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/predabst.ml > src/ext/predabst.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/reachingdefs.ml > src/ext/reachingdefs.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/sfi.ml > src/ext/sfi.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/simplemem.ml > src/ext/simplemem.inferred.mli
+/usr/bin/ocamlc -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -i src/ext/usedef.ml > src/ext/usedef.inferred.mli
+ocamlbuild -build-dir _build -no-links -classic-display src/main.native
+/usr/bin/ocamldep -modules src/main.ml > src/main.ml.depends
+/usr/bin/ocamldep -modules src/ext/crestInstrument.ml > src/ext/crestInstrument.ml.depends
+/usr/bin/ocamlc -c -g -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/crestInstrument.cmo src/ext/crestInstrument.ml
+/usr/bin/ocamlc -c -g -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/main.cmo src/main.ml
+/usr/bin/ocamlopt -c -I src/ext -I ocamlutil -I src -I src/frontc -I src/ext/pta -o src/ext/crestInstrument.cmx src/ext/crestInstrument.ml
+/usr/bin/ocamlopt -c -I src -I ocamlutil -I src/frontc -I src/ext -I src/ext/pta -o src/main.cmx src/main.ml
+/usr/bin/ocamlopt unix.cmxa str.cmxa nums.cmxa src/cil.cmxa src/ext/crestInstrument.cmx src/main.cmx -o src/main.native
+cp _build/src/main.native bin/cilly.native
+cp lib/App/Cilly.pm.in lib/App/Cilly.pm
+sed -e "s|CIL_VERSION|1.7.3|" lib/App/Cilly.pm > lib/App/Cilly.pm.tmp; \
+	mv lib/App/Cilly.pm.tmp lib/App/Cilly.pm; \
+	if gcc -D_GNUCC -m32 src/machdep-ml.c -o _build/machdep-ml32.exe ;then \
+	  sed -e "s|nogcc32model|` _build/machdep-ml32.exe --env`|" lib/App/Cilly.pm > lib/App/Cilly.pm.tmp; \
+	  mv lib/App/Cilly.pm.tmp lib/App/Cilly.pm; \
+	fi
+if gcc -D_GNUCC -m64 src/machdep-ml.c -o _build/machdep-ml64.exe ;then \
+	  sed -e "s|nogcc64model|` _build/machdep-ml64.exe --env`|" lib/App/Cilly.pm > lib/App/Cilly.pm.tmp; \
+	  mv lib/App/Cilly.pm.tmp lib/App/Cilly.pm; \
+	fi
+cd lib; perl Makefile.PL
+Checking if your kit is complete...
+Looks good
+Writing Makefile for cilly
+Writing MYMETA.yml and MYMETA.json
+make -C lib
+make[1]: Entering directory `/home/westwind/myInstall/crest.mpi/cil/lib'
+cp App/Cilly/KeptFile.pm blib/lib/App/Cilly/KeptFile.pm
+cp App/Cilly/TempFile.pm blib/lib/App/Cilly/TempFile.pm
+cp App/Cilly/CilConfig.pm blib/lib/App/Cilly/CilConfig.pm
+cp App/Cilly/OutputFile.pm blib/lib/App/Cilly/OutputFile.pm
+cp App/Cilly.pm blib/lib/App/Cilly.pm
+cp ../bin/cilly blib/script/cilly
+/usr/bin/perl -MExtUtils::MY -e 'MY->fixin(shift)' -- blib/script/cilly
+make[1]: Leaving directory `/home/westwind/myInstall/crest.mpi/cil/lib'

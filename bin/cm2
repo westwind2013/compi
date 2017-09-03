@@ -18,19 +18,12 @@ TARGET2=${TARGET}_c
 
 rm -f idcount stmtcount funcount cfg_func_map cfg branches cfg_branches
 
-${CILLY} $1 -o ${TARGET} --save-temps --doCrestInstrument \
+${CILLY} $1 -o ${TARGET} --save-temps --doCrestAll \
     -I${DIR}/include \
     -I/usr/include/mpich \
     -L${DIR}/lib -lcrest -lstdc++ \
     -lm \
     -lmpich # add the mpi library to support MPI programs
 
-
-${CILLY} ${TARGET2}.c -o ${TARGET2} \
-    -I${DIR}/include \
-    -I/usr/include/mpich \
-    -lstdc++ \
-    -lm \
-    -lmpich # add the mpi library to support MPI programs
 
 ${DIR}/bin/process_cfg

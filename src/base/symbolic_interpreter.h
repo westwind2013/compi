@@ -47,6 +47,7 @@ namespace crest {
 			void HandleReturn(id_t id, value_t value);
 
 			void Branch(id_t id, branch_id_t bid, bool pred_value);
+			void BranchOnly(branch_id_t bid);
 
 			value_t NewInput(type_t type, addr_t addr);
 
@@ -69,6 +70,15 @@ namespace crest {
 			void DumpMemory();
 			void DumpPath();
 
+			// 
+			// hEdit
+			//
+			// the size of MPI_COMM_WORLD
+			int world_size_;
+			// the rank of this process
+			int rank_;
+			// the rank being tested
+			int target_rank_;
 		private:
 			struct StackElem {
 				SymbolicExpr* expr;  // NULL to indicate concrete.
@@ -93,12 +103,11 @@ namespace crest {
 			// Number of symbolic inputs so far.
 			unsigned int num_inputs_;
 
-			// 
+			//
 			// hEdit
 			//
-			// Random numbers passed by the tool.
+			// parameters passed by users
 			vector<int> rand_params_;
-			int world_size_;
 
 			// Helper functions.
 			inline void PushConcrete(value_t value);

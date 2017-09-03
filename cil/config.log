@@ -27,8 +27,8 @@ uname -v = #50~14.04.1-Ubuntu SMP Wed Jul 13 01:07:32 UTC 2016
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
 
-PATH: /home/westwind/myInstall/crest.mpi/bin
-PATH: /home/westwind/myInstall/crest.mpi/cil/bin
+PATH: /home/westwind/myInstall/Develop/crest.mpi/bin
+PATH: /home/westwind/myInstall/Develop/crest.mpi/cil/bin
 PATH: /usr/local/sbin
 PATH: /usr/local/bin
 PATH: /usr/sbin
@@ -334,8 +334,8 @@ configure: failed program was:
 configure:5207: result: true
 configure:5212: checking if gcc adds underscores to assembly labels.
 configure:5218: gcc -o conftest -g -O2   conftest.c  >&5
-/tmp/ccYdAtfz.o: In function `main':
-/home/westwind/myInstall/crest.mpi/cil/conftest.c:19: undefined reference to `_main'
+/tmp/ccvk2k28.o: In function `main':
+/home/westwind/myInstall/Develop/crest.mpi/cil/conftest.c:19: undefined reference to `_main'
 collect2: ld returned 1 exit status
 configure:5218: $? = 1
 configure: failed program was:

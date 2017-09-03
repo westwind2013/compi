@@ -13,9 +13,12 @@
 #include <string>
 #include <sys/time.h>
 #include <vector>
+#include <iostream>
 
 #include "base/symbolic_interpreter.h"
 #include "libcrest/crest.h"
+
+#include "mpi.h"
 
 using std::vector;
 using namespace crest;
@@ -73,18 +76,40 @@ void __CrestInit() {
 
 
 void __CrestAtExit() {
-	const SymbolicExecution& ex = SI->execution();
 
+	string outfile_name("szd_execution");
+	const SymbolicExecution& ex = SI->execution();
 	// Write the execution out to file 'szd_execution'.
 	string buff;
 	buff.reserve(1<<26);
-	ex.Serialize(&buff);
-	std::ofstream out("szd_execution", std::ios::out | std::ios::binary);
+
+	if (SI->rank_ == SI->target_rank_) ex.Serialize(&buff);
+	else  ex.SerializeBranches(&buff);
+	
+	if (SI->rank_ != SI->target_rank_) outfile_name += std::to_string((long long)SI->rank_); 
+	
+	std::ofstream out(outfile_name.c_str(), std::ios::out | std::ios::binary);
 	out.write(buff.data(), buff.size());
 	assert(!out.fail());
 	out.close();
 }
 
+void __CrestGetMPIInfo() {
+
+	std::ifstream infile(".target_rank");
+	infile >> SI->target_rank_;
+	infile.close();
+
+	MPI_Comm_rank(MPI_COMM_WORLD, &(SI->rank_));
+	MPI_Comm_size(MPI_COMM_WORLD, &(SI->world_size_));
+
+	/*
+	if (SI->target_rank_ == SI->rank_) {
+		std::cout << "target_rank = " << SI->target_rank_ << std::endl;
+		std::cout << "rank = " << SI->rank_ << std::endl;
+		std::cout << "world_size = " << SI->world_size_ << std::endl;
+	}*/
+}
 
 //
 // Instrumentation functions.
@@ -139,6 +164,13 @@ void __CrestBranch(__CREST_ID id, __CREST_BRANCH_ID bid, __CREST_BOOL b) {
 	SI->Branch(id, bid, static_cast<bool>(b));
 }
 
+
+// 
+// hEdit: this function would only be used when instrumenting only branches 
+//
+void __CrestBranchOnly(__CREST_BRANCH_ID bid) {
+	SI->BranchOnly(bid);
+}
 
 void __CrestCall(__CREST_ID id, __CREST_FUNCTION_ID fid) {
 	SI->Call(id, fid);

@@ -195,13 +195,13 @@ namespace crest {
 		//
 		// hEdit: print the constraints
 		//
-		for (PredIt iter = constraints.begin(); iter < constraints.end(); iter++) {
-			string str;
-			(*iter)->AppendToString(&str);
-			printf("%s\n", str.c_str());	
-		}
-		printf("\n\n\n");
-		fflush(stdout);
+		//for (PredIt iter = constraints.begin(); iter < constraints.end(); iter++) {
+		//	string str;
+		//	(*iter)->AppendToString(&str);
+		//	printf("%s\n", str.c_str());	
+		//}
+		//printf("\n\n\n");
+		//fflush(stdout);
 
 		set<var_t> tmp;
 		typedef set<var_t>::const_iterator VarIt;

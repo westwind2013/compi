@@ -35,7 +35,9 @@ namespace crest {
 			void Swap(SymbolicExecution& se);
 
 			void Serialize(string* s) const;
+			void SerializeBranches(string* s) const;
 			bool Parse(istream& s);
+			bool ParseBranches(istream& s);
 
 			const map<var_t,type_t>& vars() const { return vars_; }
 			const vector<value_t>& inputs() const { return inputs_; }

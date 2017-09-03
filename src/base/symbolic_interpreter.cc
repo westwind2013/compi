@@ -15,6 +15,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include "mpi.h"
 
 #include "base/symbolic_interpreter.h"
 #include "base/yices_solver.h"
@@ -55,38 +56,20 @@ namespace crest {
 					fflush(stderr);
 					//exit(-1);
 				} else {
-					string s;
-					while (infile >> s) {
-						rand_params_.push_back(std::stoi(s));
-						//std::cout << s << std::ends;
-						//fprintf(stderr, "%s\n", s.c_str());
+					string s1, s2;
+					int times, value;
+					while (infile >> s1 && infile >> s2) {
+						times = std::stoi(s1);
+						value = std::stoi(s2);
+						while (times--) {
+							rand_params_.push_back(value);
+						}
 					}
 				}
 
 				infile.close();
 			}
-			
-			//
-			// hEdit: read the random values stored by the tool in file ".rand_params"
-			// and save them to vector "rand_params"
-			//
-			if (input.empty()) {
-				std::ifstream infile(".world_size");
-				if (!infile) {
-					fprintf(stderr, "There is not such file (.world_size)\n");
-					fflush(stderr);
-					//exit(-1);
-				} else {
-					string s;
-					if (infile >> s) {
-						world_size_ = std::stoi(s);
-						//std::cout << s << std::ends;
-						//fprintf(stderr, "%s\n", s.c_str());
-					}
-				}
 
-				infile.close();
-			}
 		}
 
 	void SymbolicInterpreter::DumpMemory() {
@@ -353,6 +336,10 @@ namespace crest {
 		IFDEBUG(DumpMemory());
 	}
 
+	void SymbolicInterpreter::BranchOnly(branch_id_t bid) {
+		ex_.mutable_path()->Push(bid);
+	}
+
 	value_t SymbolicInterpreter::NewInput(type_t type, addr_t addr) {
 		IFDEBUG(fprintf(stderr, "symbolic_input %d %lu\n", type, addr));
 
@@ -364,11 +351,19 @@ namespace crest {
 			ret = ex_.inputs()[num_inputs_];
 		} else {
 			//
-			// hEdit: get random paramters obtained from the tool
-			//
-			ret = CastTo(rand_params_[num_inputs_], type);
-			//std::cout << ret << std::endl;
-
+                        // hEdit: get random paramters obtained from the tool
+                        //
+			if (rand_params_.size() > num_inputs_)
+				ret = CastTo(rand_params_[num_inputs_], type);
+			else{
+				// When new marked variables is found, we need to
+				// generate new values for them. 
+				ret = CastTo(rand(), type);	
+				// 
+				// hEdit: synchronize the value among all processes
+				//
+				MPI_Bcast(&ret, 1, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
+			}
 			ex_.mutable_inputs()->push_back(ret);
 		}
 
@@ -395,24 +390,29 @@ namespace crest {
 			//
 			// hEdit: process of MPI rank 0 is first tested
 			//
-			ret = CastTo(0, type);
+			ret = CastTo(rank_, type);
 			ex_.mutable_inputs()->push_back(ret);
 
 			//
-			// hEdit: padd the vecotor *rand_params_* so as to make
-			// other variables marked as symbolic take the CORRECT
-			// values from the vector. 
-			//
-			rand_params_.insert(rand_params_.begin() + num_inputs_, 0);
+                        // hEdit: padd the vecotor *rand_params_* so as to make
+                        // other variables marked as symbolic take the CORRECT
+                        // values from the vector. 
+                        //
+                        if (num_inputs_ < rand_params_.size())
+				rand_params_.insert(rand_params_.begin() + num_inputs_, rank_);
+			else
+				rand_params_.push_back(rank_);
 
 			//
 			// hEdit: wirte the index of variables of MPI rank into a file for
 			// later use
 			//
-			std::ofstream outfile(".rank_indices", std::ofstream::out |
-					std::ofstream::app);
-			outfile << num_inputs_ << std::endl;
-			outfile.close();
+			if (target_rank_ == rank_) { 
+				std::ofstream outfile(".rank_indices", std::ofstream::out |
+						std::ofstream::app);
+				outfile << num_inputs_ << std::endl;
+				outfile.close();
+			}
 
 		}
 
@@ -441,22 +441,31 @@ namespace crest {
 			//
 			ret = CastTo(world_size_, type);
 			ex_.mutable_inputs()->push_back(ret);
-
+			//std::cout << "debug: world_size" << ret 
+			//	<< " : target_rank " << target_rank_ 
+			//	<< " : rank " << rank_ << std::endl;
+ 			
 			//
-			// hEdit: padd the vecotor *rand_params_* so as to make
-			// other variables marked as symbolic take the CORRECT
-			// values from the vector. 
-			//
-			rand_params_.insert(rand_params_.begin() + num_inputs_, world_size_);
+                        // hEdit: padd the vecotor *rand_params_* so as to make
+                        // other variables marked as symbolic take the CORRECT
+                        // values from the vector. 
+                        //
+                        if (num_inputs_ < rand_params_.size())
+				rand_params_.insert(rand_params_.begin() + num_inputs_, world_size_);
+			else 
+				rand_params_.push_back(world_size_);
 
 			//
 			// hEdit: wirte the index of variables of MPI_COMM_WORLD
 			// size into a file for later use
 			//
-			std::ofstream outfile(".world_size_indices", std::ofstream::out |
-					std::ofstream::app);
-			outfile << num_inputs_ << std::endl;
-			outfile.close();
+			if (target_rank_ == rank_) {
+				
+				std::ofstream outfile(".world_size_indices", std::ofstream::out |
+						std::ofstream::app);
+				outfile << num_inputs_ << std::endl;
+				outfile.close();
+			}
 
 		}
 

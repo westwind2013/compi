@@ -60,7 +60,7 @@ namespace crest {
 	Search::Search(const string& program, int max_iterations, int comm_world_size,
 			int num_params) :
 		program_(program), max_iters_(max_iterations), num_iters_(0), 
-		is_first_run(true), comm_world_size_(comm_world_size),
+		is_first_run(true), target_rank_(0), comm_world_size_(comm_world_size),
 		num_params_(num_params), solver(new YicesSolver()) {
 
 			start_time_ = time(NULL);
@@ -145,13 +145,6 @@ namespace crest {
 
 
 			outfile_illegal_inputs.open("illegal_inputs");
-
-			// Write out the size of MPI_COMM_WORLD
-			//std::ofstream outfile(".comm_world_size", std::ofstream::out);
-			//for (int i = 0; i < num_params_; i++) {
-			//	outfile << std::to_string(comm_world_size_) << std::endl;
-			//}
-			//outfile.close();
 		}
 
 	Search::~Search() {
@@ -205,28 +198,13 @@ namespace crest {
 	void Search::LaunchProgram(const vector<value_t>& inputs) {
 
 		string program_clean = program_ + "_c";
-		string inputs_str;
 		string command;
 
 		// Generate a random input for the first run
 		if (is_first_run) {
 			
-			// Plan A: generate random number
-			// Write the first input to the file ".rand_params" 
-			// so as to pass it to the process being tested
-			/* 
-			std::ofstream outfile(".rand_params", std::ofstream::out);
-			for (int i = 0; i < num_params_; i++) {
-
-				//string tmp = std::to_string((long long)rand() % 1000);
-				string tmp = std::to_string((long long)hRand() % 1000);
-
-				inputs_str += tmp + " ";
-				outfile << tmp << std::endl;
-			}
-			outfile.close();*/
-
-			// Plan B: read from file
+			// read from file
+			/*
 			std::ifstream infile(".rand_params");
 			if (!infile) {
 				fprintf(stderr, "There is not such file (.rand_params)\n");
@@ -238,51 +216,40 @@ namespace crest {
 					inputs_str += s + " ";
 				}
 			}
-			infile.close();
-
-
-			// write out the current size of MPI_COMM_WORLD to a file
-			std::ofstream outfile(".world_size", std::ofstream::out);
-			outfile << comm_world_size_ << std::endl;
-			outfile.close();
+			infile.close(); */
 
 			WriteInputToFileOrDie("input", inputs);
 
 			// assemble the command together with the target process
 			// being MPI rank 0 
 			command += "mpirun -np 1 " + program_ + " : -np "
-				+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean + " "
-				+ inputs_str;
+				+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
 
 		} else {
 			// determine which MPI rank to be tested
-			int rank_id = rank_indices_.empty() ? 0: inputs[*rank_indices_.begin()];
+			target_rank_ = rank_indices_.empty() ? 0: inputs[*rank_indices_.begin()];
 			// determine the size of MPI_COMM_WORLD
 			comm_world_size_ = world_size_indices_.empty() ? 4: inputs[*world_size_indices_.begin()];
-
-			for (size_t i = 0; i < inputs.size(); i++) {
-				if (rank_indices_.find(i) != rank_indices_.end()
-					|| world_size_indices_.find(i) != world_size_indices_.end()) 
-					continue;
-				inputs_str += std::to_string((long long)inputs[i]) + " ";
-			}
 
 			WriteInputToFileOrDie("input", inputs);
 
 			// assemble the command together
-			if (0 != rank_id) {
-				command += "mpirun -np " + std::to_string((long long)rank_id) + " "
-					+ program_clean + " " + inputs_str + " : -np 1 " + program_;
-				if (rank_id + 1 < comm_world_size_) {
-					command += " : -np " + std::to_string((long long)comm_world_size_ - rank_id - 1)
-						+ " " + program_clean + " " + inputs_str;
+			if (0 != target_rank_) {
+				command += "mpirun -np " + std::to_string((long long)target_rank_) + " "
+					+ program_clean + " : -np 1 " + program_;
+				if (target_rank_ + 1 < comm_world_size_) {
+					command += " : -np " + std::to_string((long long)comm_world_size_ - target_rank_ - 1)
+						+ " " + program_clean;
 				}
 			} else {
 				command += "mpirun -np 1 " + program_ + " : -np "
-					+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean + " "
-					+ inputs_str;
+					+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
 			}
 		}
+
+		std::ofstream outfile(".target_rank");
+		outfile << target_rank_;
+		outfile.close();
 
 		// apply a time limit to a command
 		command = string("timeout ") + string(std::to_string(TIMEOUT_IN_SECONDS) + "s ") + command;
@@ -369,14 +336,113 @@ namespace crest {
 		 */
 	}
 
-	bool Search::UpdateCoverage(const SymbolicExecution& ex) {
+	bool Search::UpdateCoverage(SymbolicExecution& ex) {
 		return UpdateCoverage(ex, NULL);
+		//return UpdateCoverageUponTarget(ex, NULL);
 	}
 
-	bool Search::UpdateCoverage(const SymbolicExecution& ex,
+
+	
+	// 
+	// hedit: update the coverage only based on all the MPI ranks
+	// 
+	bool Search::UpdateCoverage(SymbolicExecution& ex,
 			set<branch_id_t>* new_branches) {
 
+		//
+		// hEdit: merge all the branches being found
+		vector<SymbolicExecution> ex_all_others;
+		string base_name("szd_execution"), extended_name;
+
+		for (int i = 0; i < comm_world_size_; i++) {
+			if (i == target_rank_) continue;
+
+			SymbolicExecution ex_tmp;
+			extended_name = base_name + std::to_string((long long)i);
+
+			ifstream in(extended_name.c_str(), ios::in | ios::binary);
+			assert(in && ex_tmp.ParseBranches(in));
+			in.close();
+
+			ex_all_others.push_back(ex_tmp);
+		}
+
 		const unsigned int prev_covered_ = num_covered_;
+		const vector<branch_id_t>& branches = ex.path().branches();
+		
+		for (BranchIt i = branches.begin(); i != branches.end(); ++i) {
+			if ((*i > 0) && !covered_[*i]) {
+				covered_[*i] = true;
+				num_covered_++;
+				if (new_branches) {
+					new_branches->insert(*i);
+				}
+				if (!reached_[branch_function_[*i]]) {
+					reached_[branch_function_[*i]] = true;
+					reachable_functions_++;
+					reachable_branches_ += branch_count_[branch_function_[*i]];
+				}
+			}
+			if ((*i > 0) && !total_covered_[*i]) {
+				total_covered_[*i] = true;
+				total_num_covered_++;
+			}
+		}
+		
+
+		for (size_t j = 0; j < ex_all_others.size(); j++) {
+			
+			const vector<branch_id_t>& branches = ex_all_others[j].path().branches();
+
+			//
+			// hEdit: debug
+			//
+			printf("debug: branches_size = %d\n", branches.size());
+
+			for (BranchIt i = branches.begin(); i != branches.end(); ++i) {
+				if ((*i > 0) && !covered_[*i]) {
+					covered_[*i] = true;
+					num_covered_++;
+					if (new_branches) {
+						new_branches->insert(*i);
+					}
+					if (!reached_[branch_function_[*i]]) {
+						reached_[branch_function_[*i]] = true;
+						reachable_functions_++;
+						reachable_branches_ += branch_count_[branch_function_[*i]];
+					}
+				}
+				if ((*i > 0) && !total_covered_[*i]) {
+					total_covered_[*i] = true;
+					total_num_covered_++;
+				}
+			}
+		}
+
+		fprintf(stderr,
+				"Iteration %d (%lds): covered %u branches [%u reach funs, %u reach branches].\n",
+				num_iters_, time(NULL) - start_time_, total_num_covered_,
+				reachable_functions_, reachable_branches_);
+
+		bool found_new_branch = (num_covered_ > prev_covered_);
+		if (found_new_branch) {
+			WriteCoverageToFileOrDie("coverage");
+		}
+
+		return found_new_branch;
+	}
+
+
+
+	// 
+	// hedit: update the coverage only based on the target rank
+	// 
+	bool Search::UpdateCoverageUponTarget(SymbolicExecution& ex,
+			set<branch_id_t>* new_branches) {
+
+		// record the previous coverage
+		const unsigned int prev_covered_ = num_covered_;
+		// obtain the branches covered by the current execution
 		const vector<branch_id_t>& branches = ex.path().branches();
 		for (BranchIt i = branches.begin(); i != branches.end(); ++i) {
 			if ((*i > 0) && !covered_[*i]) {
@@ -385,6 +451,7 @@ namespace crest {
 				if (new_branches) {
 					new_branches->insert(*i);
 				}
+				// if find this branch is in a new function
 				if (!reached_[branch_function_[*i]]) {
 					reached_[branch_function_[*i]] = true;
 					reachable_functions_++;
@@ -409,6 +476,8 @@ namespace crest {
 
 		return found_new_branch;
 	}
+
+
 
 	void Search::RandomInput(const map<var_t, type_t>& vars,
 			vector<value_t>* input) {

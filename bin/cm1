@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# hEdit
+# Time: May 03, 2017
+# Change: Add MPI header path and library flags to supoort MPI
+
+set -e
+
+echo $0
+DIR=`dirname $0`/..
+echo $DIR
+
+CILLY=${DIR}/cil/bin/cilly
+echo $CILLY
+
+TARGET=`expr $1 : '\(.*\)\.c'`
+
+rm -f idcount stmtcount funcount cfg_func_map cfg branches cfg_branches
+
+${CILLY} $1 -o ${TARGET}  --save-temps --doCrestBranch \
+    -I${DIR}/include \
+    -I/usr/include/mpich \
+    -L${DIR}/lib -lcrest -lstdc++ \
+    -lm \
+    -lmpich # add the mpi library to support MPI programs
+
+mv ${TARGET} ${TARGET}_c

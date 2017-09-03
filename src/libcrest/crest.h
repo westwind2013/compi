@@ -174,12 +174,14 @@
  * Instrumentation functions.
  */
 EXTERN void __CrestInit() __SKIP;
+EXTERN void __CrestGetMPIInfo() __SKIP;
 EXTERN void __CrestLoad(__CREST_ID, __CREST_ADDR, __CREST_VALUE) __SKIP;
 EXTERN void __CrestStore(__CREST_ID, __CREST_ADDR) __SKIP;
 EXTERN void __CrestClearStack(__CREST_ID) __SKIP;
 EXTERN void __CrestApply1(__CREST_ID, __CREST_OP, __CREST_VALUE) __SKIP;
 EXTERN void __CrestApply2(__CREST_ID, __CREST_OP, __CREST_VALUE) __SKIP;
 EXTERN void __CrestBranch(__CREST_ID, __CREST_BRANCH_ID, __CREST_BOOL) __SKIP;
+EXTERN void __CrestBranchOnly(__CREST_BRANCH_ID) __SKIP;
 EXTERN void __CrestCall(__CREST_ID, __CREST_FUNCTION_ID) __SKIP;
 EXTERN void __CrestReturn(__CREST_ID) __SKIP;
 EXTERN void __CrestHandleReturn(__CREST_ID, __CREST_VALUE) __SKIP;

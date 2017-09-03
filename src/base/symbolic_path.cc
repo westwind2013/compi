@@ -51,16 +51,58 @@ namespace crest {
 
 		// Write the path.
 		size_t len = branches_.size();
+		
+		//
+		// hEdit:: debug
+		//
+		//printf("branches_.size(): %d\n", len);
+		
 		s->append((char*)&len, sizeof(len));
 		s->append((char*)&branches_.front(), branches_.size() * sizeof(branch_id_t));
 
 		// Write the path constraints.
 		len = constraints_.size();
+
+		//
+		// hEdit:: debug
+		//
+		//printf("constraints_.size(): %d\n", len);
+
 		s->append((char*)&len, sizeof(len));
 		s->append((char*)&constraints_idx_.front(), constraints_.size() * sizeof(size_t));
 		for (ConIt i = constraints_.begin(); i != constraints_.end(); ++i) {
 			(*i)->Serialize(s);
 		}
+	}
+
+	void SymbolicPath::SerializeBranches(string* s) const {
+		//typedef vector<SymbolicPred*>::const_iterator ConIt;
+
+		// Write the path.
+		size_t len = branches_.size();
+		
+		//
+		// hEdit:: debug
+		//
+		//printf("branches_.size(): %d\n", len);
+		
+		s->append((char*)&len, sizeof(len));
+		s->append((char*)&branches_.front(), branches_.size() * sizeof(branch_id_t));
+
+		/*
+		// Write the path constraints.
+		len = constraints_.size();
+
+		//
+		// hEdit:: debug
+		//
+		printf("constraints_.size(): %d\n", len);
+
+		s->append((char*)&len, sizeof(len));
+		s->append((char*)&constraints_idx_.front(), constraints_.size() * sizeof(size_t));
+		for (ConIt i = constraints_.begin(); i != constraints_.end(); ++i) {
+			(*i)->Serialize(s);
+		}*/
 	}
 
 	bool SymbolicPath::Parse(istream& s) {
@@ -88,6 +130,36 @@ namespace crest {
 			if (!(*i)->Parse(s))
 				return false;
 		}
+
+		return !s.fail();
+	}
+
+	bool SymbolicPath::ParseBranches(istream& s) {
+		//typedef vector<SymbolicPred*>::iterator ConIt;
+		size_t len;
+
+		// Read the path.
+		s.read((char*)&len, sizeof(size_t));
+		branches_.resize(len);
+		s.read((char*)&branches_.front(), len * sizeof(branch_id_t));
+		if (s.fail())
+			return false;
+
+		/*
+		// Clean up any existing path constraints.
+		for (size_t i = 0; i < constraints_.size(); i++)
+			delete constraints_[i];
+
+		// Read the path constraints.
+		s.read((char*)&len, sizeof(size_t));
+		constraints_idx_.resize(len);
+		constraints_.resize(len);
+		s.read((char*)&constraints_idx_.front(), len * sizeof(size_t));
+		for (ConIt i = constraints_.begin(); i != constraints_.end(); ++i) {
+			*i = new SymbolicPred();
+			if (!(*i)->Parse(s))
+				return false;
+		}*/
 
 		return !s.fail();
 	}
