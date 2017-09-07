@@ -38,7 +38,7 @@ namespace crest {
 	class Search {
 		public:
 			Search(const string& program, int max_iterations, int comm_world_size,
-					int num_params);
+					int target_rank);
 			virtual ~Search();
 
 			virtual void Run() = 0;
@@ -85,18 +85,17 @@ namespace crest {
 
 			//
 			// hEdit: add 2 arguments to the tool, i.e., *comm_world_size*
-			// and *num_params* to fit the need of MPI program
+			// and *target_rank* to fit the need of MPI program
 			//
 			// if this is the first run, the tool will generate random input;
 			// otherwise, it will decode the generated input from the symbolic
 			// path of the target
 			bool is_first_run;
-			// the target rank to be tested
-			int target_rank_;
 			// the total number of MPI ranks (processes)
 			int comm_world_size_;
-			// the number of parameters MPI program accept
-			int num_params_;
+			// the target rank to be tested
+			int target_rank_;
+			
 			// the index of variables marked as MPI rank (MPI_COMM_WORLD)
 			// in the array of symbolically marked variables
 			std::unordered_set<int> rank_indices_;
@@ -119,6 +118,8 @@ namespace crest {
 			   int sockd_;
 			 */
 
+			void WriteInputToFileOrDie_debug(const string& file,
+					const vector<value_t>& input);
 			void WriteInputToFileOrDie(const string& file,
 					const vector<value_t>& input);
 			void WriteCoverageToFileOrDie(const string& file);
@@ -128,7 +129,7 @@ namespace crest {
 	class BoundedDepthFirstSearch: public Search {
 		public:
 			explicit BoundedDepthFirstSearch(const string& program, int max_iterations,
-					int comm_world_size, int num_params, int max_depth);
+					int comm_world_size, int target_rank, int max_depth);
 			virtual ~BoundedDepthFirstSearch();
 
 			virtual void Run();
@@ -157,7 +158,7 @@ namespace crest {
 	class RandomInputSearch: public Search {
 		public:
 			RandomInputSearch(const string& program, int max_iterations, int comm_world_size,
-					int num_params);
+					int target_rank);
 			virtual ~RandomInputSearch();
 
 			virtual void Run();
@@ -169,7 +170,7 @@ namespace crest {
 	class RandomSearch: public Search {
 		public:
 			RandomSearch(const string& program, int max_iterations, int comm_world_size,
-					int num_params);
+					int target_rank);
 			virtual ~RandomSearch();
 
 			virtual void Run();
@@ -186,7 +187,7 @@ namespace crest {
 	class UniformRandomSearch: public Search {
 		public:
 			UniformRandomSearch(const string& program, int max_iterations, int comm_world_size,
-					int num_params, size_t max_depth);
+					int target_rank, size_t max_depth);
 			virtual ~UniformRandomSearch();
 
 			virtual void Run();
@@ -206,7 +207,7 @@ namespace crest {
 	class HybridSearch: public Search {
 		public:
 			HybridSearch(const string& program, int max_iterations, int comm_world_size,
-					int num_params, int step_size);
+					int target_rank, int step_size);
 			virtual ~HybridSearch();
 
 			virtual void Run();
@@ -236,7 +237,7 @@ namespace crest {
 	class CfgBaselineSearch: public Search {
 		public:
 			CfgBaselineSearch(const string& program, int max_iterations, int comm_world_size,
-					int num_params);
+					int target_rank);
 			virtual ~CfgBaselineSearch();
 
 			virtual void Run();
@@ -251,7 +252,7 @@ namespace crest {
 	class CfgHeuristicSearch: public Search {
 		public:
 			CfgHeuristicSearch(const string& program, int max_iterations, int comm_world_size,
-					int num_params);
+					int target_rank);
 			virtual ~CfgHeuristicSearch();
 
 			virtual void Run();

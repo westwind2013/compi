@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <queue>
 #include <utility>
+#include <iostream>
 
 #include "base/yices_solver.h"
 #include "run_crest/concolic_search.h"
@@ -58,10 +59,10 @@ namespace crest {
 	////////////////////////////////////////////////////////////////////////
 
 	Search::Search(const string& program, int max_iterations, int comm_world_size,
-			int num_params) :
+			int target_rank) :
 		program_(program), max_iters_(max_iterations), num_iters_(0), 
-		is_first_run(true), target_rank_(0), comm_world_size_(comm_world_size),
-		num_params_(num_params), solver(new YicesSolver()) {
+		is_first_run(true),  comm_world_size_(comm_world_size),
+		target_rank_(target_rank), solver(new YicesSolver()) {
 
 			start_time_ = time(NULL);
 
@@ -157,6 +158,36 @@ namespace crest {
 		return rand() % 10000;
 	}
 
+	//
+	// hEdit: change the format of input file so that this format is
+	// the same as that of our designated input file. Upon error, we 
+	// can directly use this input file to reproduce the generated bug. 
+	//
+	void Search::WriteInputToFileOrDie_debug(const string& file,
+			const vector<value_t>& input) {
+		FILE* f = fopen(file.c_str(), "w");
+		if (!f) {
+			fprintf(stderr, "Failed to open %s.\n", file.c_str());
+			perror("Error: ");
+			exit(-1);
+		}
+		
+		if (input.empty()) return;
+		size_t i = 0, j = 0;	
+		for (; j < input.size(); j++) {
+			if (rank_indices_.find(i) == rank_indices_.end() && 
+					world_size_indices_.find(i) == world_size_indices_.end() &&
+					input[i] == input[j])
+				continue;
+
+			fprintf(f, "%lld  %lld\n", j - i, input[i]);
+			i = j + 1;
+		}
+		if (j != i) fprintf(f, "%lld  %lld\n", j - i, input[i]);
+
+		fclose(f);
+	}
+	
 	void Search::WriteInputToFileOrDie(const string& file,
 			const vector<value_t>& input) {
 		FILE* f = fopen(file.c_str(), "w");
@@ -165,9 +196,9 @@ namespace crest {
 			perror("Error: ");
 			exit(-1);
 		}
-
-		for (size_t i = 0; i < input.size(); i++) {
-			fprintf(f, "%lld\n", input[i]);
+		
+		for (size_t j = 0; j < input.size(); j++) {
+			fprintf(f, "%lld\n", input[j]);
 		}
 
 		fclose(f);
@@ -201,10 +232,9 @@ namespace crest {
 		string command;
 
 		// Generate a random input for the first run
-		if (is_first_run) {
+		/*if (is_first_run) {
 			
 			// read from file
-			/*
 			std::ifstream infile(".rand_params");
 			if (!infile) {
 				fprintf(stderr, "There is not such file (.rand_params)\n");
@@ -216,35 +246,37 @@ namespace crest {
 					inputs_str += s + " ";
 				}
 			}
-			infile.close(); */
+			infile.close(); 
 
-			WriteInputToFileOrDie("input", inputs);
+			//WriteInputToFileOrDie("input", inputs);
 
 			// assemble the command together with the target process
 			// being MPI rank 0 
-			command += "mpirun -np 1 " + program_ + " : -np "
-				+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
+			//command += "mpirun -np 1 " + program_ + " : -np "
+			//	+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
 
-		} else {
+		}*/ 
+		
+		if (!is_first_run) {
 			// determine which MPI rank to be tested
 			target_rank_ = rank_indices_.empty() ? 0: inputs[*rank_indices_.begin()];
 			// determine the size of MPI_COMM_WORLD
 			comm_world_size_ = world_size_indices_.empty() ? 4: inputs[*world_size_indices_.begin()];
+		}
 
-			WriteInputToFileOrDie("input", inputs);
+		WriteInputToFileOrDie("input", inputs);
 
-			// assemble the command together
-			if (0 != target_rank_) {
-				command += "mpirun -np " + std::to_string((long long)target_rank_) + " "
-					+ program_clean + " : -np 1 " + program_;
-				if (target_rank_ + 1 < comm_world_size_) {
-					command += " : -np " + std::to_string((long long)comm_world_size_ - target_rank_ - 1)
-						+ " " + program_clean;
-				}
-			} else {
-				command += "mpirun -np 1 " + program_ + " : -np "
-					+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
+		// assemble the command together
+		if (0 != target_rank_) {
+			command += "mpirun -np " + std::to_string((long long)target_rank_) + " "
+				+ program_clean + " : -np 1 " + program_;
+			if (target_rank_ + 1 < comm_world_size_) {
+				command += " : -np " + std::to_string((long long)comm_world_size_ - target_rank_ - 1)
+					+ " " + program_clean;
 			}
+		} else {
+			command += "mpirun -np 1 " + program_ + " : -np "
+				+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
 		}
 
 		std::ofstream outfile(".target_rank");
@@ -264,7 +296,7 @@ namespace crest {
 
 		// debug
 		command += "\n";
-		fprintf(stdout, "%s\n", command.c_str());
+		fprintf(stderr, "%s\n", command.c_str());
 		//inputs_str += "\n";
 		//fprintf(stdout, inputs_str.c_str());
 
@@ -319,13 +351,28 @@ namespace crest {
 			exit(0);
 		}
 
+
 		// Run the program.
 		LaunchProgram(inputs);
 
 		// Read the execution from the program.
 		// Want to do this with sockets.  (Currently doing it with files.)
 		ifstream in("szd_execution", ios::in | ios::binary);
-		assert(in && ex->Parse(in));
+		
+		// 
+		// hEdit: temporary fix for Bug (1): core dump at assert() 
+		// that checks abnormal reading over a stream whose reason 
+		// is suspected to that the size of available data to be 
+		// read is less than expected. Note this fix spreads across 
+		// multiple places. 
+		//
+		// Fix (1.c): replace assert to tolerate reading failure, 
+		// i.e., only log the error and skip it. 
+		//
+		if (!in || !ex->Parse(in)) {
+			fprintf(stderr, "szd_execution\n");
+		}
+		// assert(in && ex->Parse(in));
 		in.close();
 
 		/*
@@ -334,6 +381,12 @@ namespace crest {
 		   }
 		   fprintf(stderr, "\n");
 		 */
+		
+		//
+		// hEdit: debug
+		// 
+		fprintf(stderr, "\nThe size of the constraint set of the current"
+			"execution is %zu\n", ex->path().constraints().size());
 	}
 
 	bool Search::UpdateCoverage(SymbolicExecution& ex) {
@@ -361,7 +414,23 @@ namespace crest {
 			extended_name = base_name + std::to_string((long long)i);
 
 			ifstream in(extended_name.c_str(), ios::in | ios::binary);
-			assert(in && ex_tmp.ParseBranches(in));
+		
+			// 
+			// hEdit: temporary fix for Bug (1): core dump at assert() 
+			// that checks abnormal reading over a stream whose reason 
+			// is suspected to that the size of available data to be 
+			// read is less than expected. Note this fix spreads across 
+			// multiple places. 
+			//
+			// Fix (1.d): as shown in Fix (1.c). 
+			//
+			if (!in || !ex_tmp.ParseBranches(in)) {
+				in.close();
+				fprintf(stderr, "%s\n", extended_name.c_str());	
+				continue;
+			}
+			// assert(in && ex_tmp.ParseBranches(in));
+			
 			in.close();
 
 			ex_all_others.push_back(ex_tmp);
@@ -397,7 +466,7 @@ namespace crest {
 			//
 			// hEdit: debug
 			//
-			printf("debug: branches_size = %d\n", branches.size());
+			//printf("debug: branches_size = %d\n", branches.size());
 
 			for (BranchIt i = branches.begin(); i != branches.end(); ++i) {
 				if ((*i > 0) && !covered_[*i]) {
@@ -417,7 +486,7 @@ namespace crest {
 					total_num_covered_++;
 				}
 			}
-		}
+		} 
 
 		fprintf(stderr,
 				"Iteration %d (%lds): covered %u branches [%u reach funs, %u reach branches].\n",
@@ -592,8 +661,8 @@ namespace crest {
 	////////////////////////////////////////////////////////////////////////
 
 	BoundedDepthFirstSearch::BoundedDepthFirstSearch(const string& program,
-			int max_iterations, int comm_world_size, int num_params, int max_depth) :
-		Search(program, max_iterations, comm_world_size, num_params), max_depth_(
+			int max_iterations, int comm_world_size, int target_rank, int max_depth) :
+		Search(program, max_iterations, comm_world_size, target_rank), max_depth_(
 				max_depth) {
 		}
 
@@ -676,8 +745,8 @@ void BoundedDepthFirstSearch::DFS(size_t pos, int depth,
 ////////////////////////////////////////////////////////////////////////
 
 RandomInputSearch::RandomInputSearch(const string& program, int max_iterations,
-		int comm_world_size, int num_params) :
-	Search(program, max_iterations, comm_world_size, num_params) {
+		int comm_world_size, int target_rank) :
+	Search(program, max_iterations, comm_world_size, target_rank) {
 	}
 
 RandomInputSearch::~RandomInputSearch() {
@@ -699,8 +768,8 @@ void RandomInputSearch::Run() {
 ////////////////////////////////////////////////////////////////////////
 
 RandomSearch::RandomSearch(const string& program, int max_iterations,
-		int comm_world_size, int num_params) :
-	Search(program, max_iterations, comm_world_size, num_params) {
+		int comm_world_size, int target_rank) :
+	Search(program, max_iterations, comm_world_size, target_rank) {
 	}
 
 RandomSearch::~RandomSearch() {
@@ -895,8 +964,8 @@ bool RandomSearch::SolveRandomBranch(vector<value_t>* next_input, size_t* idx) {
 ////////////////////////////////////////////////////////////////////////
 
 UniformRandomSearch::UniformRandomSearch(const string& program,
-		int max_iterations, int comm_world_size, int num_params, size_t max_depth) :
-	Search(program, max_iterations, comm_world_size, num_params), max_depth_(
+		int max_iterations, int comm_world_size, int target_rank, size_t max_depth) :
+	Search(program, max_iterations, comm_world_size, target_rank), max_depth_(
 			max_depth) {
 	}
 
@@ -951,8 +1020,8 @@ void UniformRandomSearch::DoUniformRandomPath() {
 ////////////////////////////////////////////////////////////////////////
 
 HybridSearch::HybridSearch(const string& program, int max_iterations,
-		int comm_world_size, int num_params, int step_size) :
-	Search(program, max_iterations, comm_world_size, num_params), step_size_(
+		int comm_world_size, int target_rank, int step_size) :
+	Search(program, max_iterations, comm_world_size, target_rank), step_size_(
 			step_size) {
 	}
 
@@ -1027,8 +1096,8 @@ bool HybridSearch::RandomStep(SymbolicExecution *ex, size_t start, size_t end) {
 ////////////////////////////////////////////////////////////////////////
 
 CfgBaselineSearch::CfgBaselineSearch(const string& program, int max_iterations,
-		int comm_world_size, int num_params) :
-	Search(program, max_iterations, comm_world_size, num_params) {
+		int comm_world_size, int target_rank) :
+	Search(program, max_iterations, comm_world_size, target_rank) {
 	}
 
 CfgBaselineSearch::~CfgBaselineSearch() {
@@ -1110,8 +1179,8 @@ bool CfgBaselineSearch::DoSearch(int depth, int iters, int pos,
 ////////////////////////////////////////////////////////////////////////
 
 CfgHeuristicSearch::CfgHeuristicSearch(const string& program,
-		int max_iterations, int comm_world_size, int num_params) :
-	Search(program, max_iterations, comm_world_size, num_params), cfg_(
+		int max_iterations, int comm_world_size, int target_rank) :
+	Search(program, max_iterations, comm_world_size, target_rank), cfg_(
 			max_branch_), cfg_rev_(max_branch_), dist_(max_branch_) {
 
 		// Read in the CFG.

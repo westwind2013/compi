@@ -88,7 +88,10 @@ void __CrestAtExit() {
 	
 	if (SI->rank_ != SI->target_rank_) outfile_name += std::to_string((long long)SI->rank_); 
 	
-	std::ofstream out(outfile_name.c_str(), std::ios::out | std::ios::binary);
+	// debug
+	//std::cout << outfile_name << std::endl;
+
+	std::ofstream out(outfile_name.c_str(), std::ios::trunc | std::ios::out | std::ios::binary);
 	out.write(buff.data(), buff.size());
 	assert(!out.fail());
 	out.close();

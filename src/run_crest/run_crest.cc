@@ -16,7 +16,7 @@
 
 //
 // hEdit: add 3 arguments to the tool, i.e., *comm_world_size*
-// and *num_params* to fit the need of MPI program
+// and *target_rank* to fit the need of MPI program
 //
 int main(int argc, char* argv[]) {
 	if (argc < 6) {
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	string prog = argv[1];
 	int comm_world_size = atoi(argv[2]);
 	//int rank_id = atoi(argv[3]);
-	int num_params = atoi(argv[3]);
+	int target_rank = atoi(argv[3]);
 	int num_iters = atoi(argv[4]);
 	string search_type = argv[5];
 
@@ -45,34 +45,34 @@ int main(int argc, char* argv[]) {
 	crest::Search* strategy;
 	if (search_type == "-random") {
 		strategy = new crest::RandomSearch(prog, num_iters, comm_world_size,
-				num_params);
+				target_rank);
 	} else if (search_type == "-random_input") {
 		strategy = new crest::RandomInputSearch(prog, num_iters, comm_world_size,
-				num_params);
+				target_rank);
 	} else if (search_type == "-dfs") {
 		if (argc == 6) {
 			strategy = new crest::BoundedDepthFirstSearch(prog, num_iters,
-					comm_world_size, num_params, 1000000);
+					comm_world_size, target_rank, 1000000);
 		} else {
 			strategy = new crest::BoundedDepthFirstSearch(prog, num_iters,
-					comm_world_size, num_params, atoi(argv[6]));
+					comm_world_size, target_rank, atoi(argv[6]));
 		}
 	} else if (search_type == "-cfg") {
 		strategy = new crest::CfgHeuristicSearch(prog, num_iters, comm_world_size,
-				num_params);
+				target_rank);
 	} else if (search_type == "-cfg_baseline") {
 		strategy = new crest::CfgBaselineSearch(prog, num_iters, comm_world_size,
-				num_params);
+				target_rank);
 	} else if (search_type == "-hybrid") {
 		strategy = new crest::HybridSearch(prog, num_iters, comm_world_size,
-				num_params, 100);
+				target_rank, 100);
 	} else if (search_type == "-uniform_random") {
 		if (argc == 6) {
 			strategy = new crest::UniformRandomSearch(prog, num_iters, comm_world_size,
-					num_params, 100000000);
+					target_rank, 100000000);
 		} else {
 			strategy = new crest::UniformRandomSearch(prog, num_iters, comm_world_size,
-					num_params, atoi(argv[6]));
+					target_rank, atoi(argv[6]));
 		}
 	} else {
 		fprintf(stderr, "Unknown search strategy: %s\n", search_type.c_str());

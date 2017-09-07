@@ -9,6 +9,7 @@
 // for details.
 
 #include "base/symbolic_path.h"
+#include <fstream>
 
 namespace crest {
 
@@ -88,6 +89,11 @@ namespace crest {
 		
 		s->append((char*)&len, sizeof(len));
 		s->append((char*)&branches_.front(), branches_.size() * sizeof(branch_id_t));
+		
+		//
+		// hEdit:: debug
+		//
+		//printf("Wirte %lld\n", branches_.size() * sizeof(branch_id_t));
 
 		/*
 		// Write the path constraints.
@@ -113,8 +119,31 @@ namespace crest {
 		s.read((char*)&len, sizeof(size_t));
 		branches_.resize(len);
 		s.read((char*)&branches_.front(), len * sizeof(branch_id_t));
-		if (s.fail())
+		// 
+		// hEdit: temporary fix for Bug (1): core dump at assert () that 
+		// checks abnormal reading over a stream whose reason is suspected to
+		// that the size of available data to be read is less than expected. 
+		// Note this fix spreads across multiple places. 
+		//
+		// Fix(1.b): the same as Fix (1.a)
+		if (s.fail()) {
+
+			size_t available = s.gcount();
+
+			if ( s.rdstate() & std::ifstream::failbit) 
+				fprintf(stderr, "Failbit\n Expect to read %zu bytes"
+					"while only %zu bytes are available\n", 
+					len * sizeof(branch_id_t), available);
+			if ( s.rdstate() & std::ifstream::badbit) 
+				fprintf(stderr, "Badbit\n Expect to read %zu bytes"
+					"while only %zu bytes are available\n", 
+					len * sizeof(branch_id_t), available);
+			fflush(stderr);
+			
+			branches_.resize(available / sizeof(branch_id_t));
+			
 			return false;
+		}
 
 		// Clean up any existing path constraints.
 		for (size_t i = 0; i < constraints_.size(); i++)
@@ -135,6 +164,23 @@ namespace crest {
 	}
 
 	bool SymbolicPath::ParseBranches(istream& s) {
+		
+		// 
+		// hEdit: debug
+		//
+		/*
+		if (s.fail()) {
+			if ( s.rdstate() & std::ifstream::failbit) 
+				printf("Failbiti before reading %lld\n");
+			if ( s.rdstate() & std::ifstream::badbit) 
+				printf("Badbit before reading \n");
+			fflush(stdout);
+
+			return false;
+		}
+		*/
+
+
 		//typedef vector<SymbolicPred*>::iterator ConIt;
 		size_t len;
 
@@ -142,8 +188,39 @@ namespace crest {
 		s.read((char*)&len, sizeof(size_t));
 		branches_.resize(len);
 		s.read((char*)&branches_.front(), len * sizeof(branch_id_t));
-		if (s.fail())
+		
+		// 
+		// hEdit: temporary fix for Bug (1): core dump at assert () that 
+		// checks abnormal reading over a stream whose reason is suspected to
+		// that the size of available data to be read is less than expected. 
+		// Note this fix spreads across multiple places. 
+		// 
+		// Fix (1.a): log error message and adjust the size of the recording
+		// array branches_. 
+		//
+		if (s.fail()) {
+
+			// obatin the real amount of reading from the stream s. 
+			size_t available = s.gcount();
+
+			// output error message to be checked later
+			if ( s.rdstate() & std::ifstream::failbit) 
+				fprintf(stderr, "Failbit\n Expect to read %zu bytes"
+					"while only %zu bytes are available\n", 
+					len * sizeof(branch_id_t), available);
+			if ( s.rdstate() & std::ifstream::badbit) 
+				fprintf(stderr, "Badbit\n Expect to read %zu bytes"
+					"while only %zu bytes are available\n", 
+					len * sizeof(branch_id_t), available);
+			fflush(stderr);
+			
+			// adjust the size of branches_ to make sure it reflects 
+			// its real size. 
+			branches_.resize(available / sizeof(branch_id_t));
+		
+			// return false to denote a failure. 
 			return false;
+		}
 
 		/*
 		// Clean up any existing path constraints.

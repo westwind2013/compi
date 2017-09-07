@@ -353,9 +353,11 @@ namespace crest {
 			//
                         // hEdit: get random paramters obtained from the tool
                         //
+			
 			if (rand_params_.size() > num_inputs_)
 				ret = CastTo(rand_params_[num_inputs_], type);
-			else{
+			else
+			{
 				// When new marked variables is found, we need to
 				// generate new values for them. 
 				ret = CastTo(rand(), type);	

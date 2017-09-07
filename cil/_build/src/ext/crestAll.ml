@@ -1,3 +1,7 @@
+(* This file automatically marks MPI rank inside MPI_COMM_WORLD
+ * as well as MPI_COMM_WORLD'S size
+*)
+
 (* Copyright (c) 2008, Jacob Burnim (jburnim@cs.berkeley.edu)
  *
  * This file is part of CREST, which is distributed under the revised

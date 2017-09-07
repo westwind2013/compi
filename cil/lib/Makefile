@@ -17,8 +17,8 @@
 #     MAN3PODS => {  }
 #     NAME => q[cilly]
 #     PL_FILES => {  }
-#     PM => { App/Cilly/CilConfig.pm=>q[$(INST_LIBDIR)/App/Cilly/CilConfig.pm], App/Cilly/KeptFile.pm=>q[$(INST_LIBDIR)/App/Cilly/KeptFile.pm], App/Cilly/TempFile.pm=>q[$(INST_LIBDIR)/App/Cilly/TempFile.pm], App/Cilly.pm=>q[$(INST_LIBDIR)/App/Cilly.pm], App/Cilly/OutputFile.pm=>q[$(INST_LIBDIR)/App/Cilly/OutputFile.pm] }
-#     PREREQ_PM => { Carp=>q[0], Data::Dumper=>q[0], File::Copy=>q[0], Text::ParseWords=>q[0], File::Temp=>q[0], File::Spec=>q[0], Getopt::Long=>q[0], File::Basename=>q[0], FindBin=>q[0] }
+#     PM => { App/Cilly.pm=>q[$(INST_LIBDIR)/App/Cilly.pm], App/Cilly/CilConfig.pm=>q[$(INST_LIBDIR)/App/Cilly/CilConfig.pm], App/Cilly/OutputFile.pm=>q[$(INST_LIBDIR)/App/Cilly/OutputFile.pm], App/Cilly/TempFile.pm=>q[$(INST_LIBDIR)/App/Cilly/TempFile.pm], App/Cilly/KeptFile.pm=>q[$(INST_LIBDIR)/App/Cilly/KeptFile.pm] }
+#     PREREQ_PM => { Text::ParseWords=>q[0], File::Basename=>q[0], File::Copy=>q[0], File::Spec=>q[0], Carp=>q[0], Data::Dumper=>q[0], FindBin=>q[0], Getopt::Long=>q[0], File::Temp=>q[0] }
 #     TEST_REQUIRES => {  }
 #     VERSION_FROM => q[App/Cilly.pm]
 #     clean => { FILES=>q[] }
@@ -193,16 +193,16 @@ TO_INST_PM = App/Cilly.pm \
 	App/Cilly/OutputFile.pm \
 	App/Cilly/TempFile.pm
 
-PM_TO_BLIB = App/Cilly/CilConfig.pm \
+PM_TO_BLIB = App/Cilly.pm \
+	$(INST_LIBDIR)/App/Cilly.pm \
+	App/Cilly/CilConfig.pm \
 	$(INST_LIBDIR)/App/Cilly/CilConfig.pm \
-	App/Cilly/KeptFile.pm \
-	$(INST_LIBDIR)/App/Cilly/KeptFile.pm \
+	App/Cilly/OutputFile.pm \
+	$(INST_LIBDIR)/App/Cilly/OutputFile.pm \
 	App/Cilly/TempFile.pm \
 	$(INST_LIBDIR)/App/Cilly/TempFile.pm \
-	App/Cilly.pm \
-	$(INST_LIBDIR)/App/Cilly.pm \
-	App/Cilly/OutputFile.pm \
-	$(INST_LIBDIR)/App/Cilly/OutputFile.pm
+	App/Cilly/KeptFile.pm \
+	$(INST_LIBDIR)/App/Cilly/KeptFile.pm
 
 
 # --- MakeMaker platform_constants section:
@@ -468,22 +468,22 @@ clean_subdirs :
 
 clean :: clean_subdirs
 	- $(RM_F) \
-	  $(MAKE_APERL_FILE) $(BASEEXT).bso \
-	  core $(BASEEXT).x \
-	  $(INST_ARCHAUTODIR)/extralibs.ld core.*perl.*.? \
-	  mon.out perl.exe \
-	  perl $(BOOTSTRAP) \
-	  pm_to_blib *$(OBJ_EXT) \
-	  perl$(EXE_EXT) core.[0-9][0-9][0-9] \
-	  *$(LIB_EXT) $(BASEEXT).def \
-	  core.[0-9][0-9] MYMETA.yml \
-	  *perl.core core.[0-9][0-9][0-9][0-9][0-9] \
-	  $(INST_ARCHAUTODIR)/extralibs.all pm_to_blib.ts \
-	  blibdirs.ts core.[0-9][0-9][0-9][0-9] \
-	  lib$(BASEEXT).def perlmain.c \
-	  MYMETA.json core.[0-9] \
-	  $(BASEEXT).exp so_locations \
-	  tmon.out 
+	  $(BASEEXT).def *$(LIB_EXT) \
+	  $(BASEEXT).bso core.[0-9][0-9][0-9][0-9] \
+	  pm_to_blib.ts core.[0-9][0-9] \
+	  lib$(BASEEXT).def MYMETA.yml \
+	  core.[0-9] $(INST_ARCHAUTODIR)/extralibs.all \
+	  perl core.*perl.*.? \
+	  core.[0-9][0-9][0-9][0-9][0-9] pm_to_blib \
+	  *$(OBJ_EXT) $(INST_ARCHAUTODIR)/extralibs.ld \
+	  so_locations core.[0-9][0-9][0-9] \
+	  perl$(EXE_EXT) $(BASEEXT).exp \
+	  $(BOOTSTRAP) $(BASEEXT).x \
+	  mon.out $(MAKE_APERL_FILE) \
+	  MYMETA.json perl.exe \
+	  core perlmain.c \
+	  tmon.out blibdirs.ts \
+	  *perl.core 
 	- $(RM_RF) \
 	  blib 
 	- $(MV) $(FIRST_MAKEFILE) $(MAKEFILE_OLD) $(DEV_NULL)
@@ -881,11 +881,11 @@ ppd :
 
 pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
-	  App/Cilly/CilConfig.pm $(INST_LIBDIR)/App/Cilly/CilConfig.pm \
-	  App/Cilly/KeptFile.pm $(INST_LIBDIR)/App/Cilly/KeptFile.pm \
-	  App/Cilly/TempFile.pm $(INST_LIBDIR)/App/Cilly/TempFile.pm \
 	  App/Cilly.pm $(INST_LIBDIR)/App/Cilly.pm \
-	  App/Cilly/OutputFile.pm $(INST_LIBDIR)/App/Cilly/OutputFile.pm 
+	  App/Cilly/CilConfig.pm $(INST_LIBDIR)/App/Cilly/CilConfig.pm \
+	  App/Cilly/OutputFile.pm $(INST_LIBDIR)/App/Cilly/OutputFile.pm \
+	  App/Cilly/TempFile.pm $(INST_LIBDIR)/App/Cilly/TempFile.pm \
+	  App/Cilly/KeptFile.pm $(INST_LIBDIR)/App/Cilly/KeptFile.pm 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 

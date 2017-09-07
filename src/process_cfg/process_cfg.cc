@@ -148,13 +148,13 @@ int main(void) {
 	// Read in the set of branches.
 	set<int> branches;
 	readBranches(&branches);
-	fprintf(stderr, "Read %d branches.\n", branches.size());
+	fprintf(stderr, "Read %zu branches.\n", branches.size());
 
 	// Read in the CFG.
 	graph_t cfg;
 	cfg.reserve(1000000);
 	readCfg(&cfg);
-	fprintf(stderr, "Read %d nodes.\n", cfg.size());
+	fprintf(stderr, "Read %zu nodes.\n", cfg.size());
 
 	// Set the length of every edge to 1 if the destination is a branch,
 	// and zero otherwise.

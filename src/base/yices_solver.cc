@@ -120,6 +120,9 @@ namespace crest {
 
 		SymbolicPred *tmpPred;
 		
+		// construct the constraints:
+		// (1) make all the variables representing the size of MPI_COMM_WORLD 
+		// equivalent
 		SymbolicExpr  *world_size_first = new SymbolicExpr(1, world_size_indices_[0]), *world_size_other;
 		for (size_t i = 1; i < world_size_indices_.size(); i++) {
 			world_size_other = new SymbolicExpr(1, world_size_indices_[i]);
@@ -129,8 +132,7 @@ namespace crest {
 			constraintsMPI.push_back(tmpPred);
 		}
 
-		// construct the constraints:
-		// (1) make all the variables for MPI ranks in the MPI_COMM_WORLD 
+		// (2) make all the variables for MPI ranks in the MPI_COMM_WORLD 
 		// equivalent
 		SymbolicExpr  *rank_first = new SymbolicExpr(1, rank_indices_[0]), *rank_other;
 		///SymbolicExpr  *rank_first_ = new SymbolicExpr(1, rank_indices_[0]);
@@ -151,14 +153,19 @@ namespace crest {
 		//
 		// remove this part as we make the MPI rank an unsigned int
 	 	//	
-		// (2) MPI rank >= 0
+		// (3) MPI rank >= 0
 		//tmpPred = new SymbolicPred(ops::GE, rank_first_);
 		//constraintsMPI.push_back(tmpPred);
 		
-		// (2) MPI rank < the size of MPI_COMM_WORLD
+		// (4) MPI rank < the size of MPI_COMM_WORLD
 		*rank_first -= *world_size_first; 
 		//exprsMPI.push_back(rank_first);
 		tmpPred = new SymbolicPred(ops::LT, rank_first);
+		constraintsMPI.push_back(tmpPred);
+	
+		// (5) the size of MPI_COMM_WORLD must be smaller than 
+		*world_size_first -= 4;
+		tmpPred = new SymbolicPred(ops::LE, world_size_first);
 		constraintsMPI.push_back(tmpPred);
 		
 		//string str;
@@ -183,9 +190,16 @@ namespace crest {
 		const SymbolicPred* pointer2Last = constraints.back();
 
 		//
+		// hEdit: debug 
+		// 
+		//fprintf(stderr, "The size of constraintsMPI is %zu \n"
+		//	"The size of constraints is %zu \n\n", 
+		//	constraintsMPI.size(), constraints.size());
+		
+		
+		//
 		// hEdit: insert the MPI constraints
 		//
-		//std::cout << "MPI" << constraintsMPI.size() << std::endl;
 		for (vector<SymbolicPred*>::iterator iter = constraintsMPI.begin(); 
 				iter < constraintsMPI.end(); iter++) {
 			//constraints.insert(constraints.end()-1, *iter);	
