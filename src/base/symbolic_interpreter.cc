@@ -72,6 +72,14 @@ namespace crest {
 
 		}
 
+	SymbolicInterpreter::~SymbolicInterpreter() {
+
+		if (rank_ == target_rank_) {
+			outfile_rank_indices.close();
+			outfile_world_size_indices.close();
+		}
+	}
+
 	void SymbolicInterpreter::DumpMemory() {
 		for (ConstMemIt i = mem_.begin(); i != mem_.end(); ++i) {
 			string s;
@@ -410,7 +418,56 @@ namespace crest {
 			// later use
 			//
 			if (target_rank_ == rank_) { 
-				std::ofstream outfile(".rank_indices", std::ofstream::out |
+				outfile_rank_indices << num_inputs_ << std::endl;
+			}
+
+		}
+
+		num_inputs_++;
+
+		IFDEBUG(DumpMemory());
+		return ret;
+	}
+
+
+
+	// 
+	// hEdit: this method takes special care of input variables  
+	// that indicate MPI ranks in MPI_COMM_WORLD
+	//
+	value_t SymbolicInterpreter::NewInputRankNonDefaultComm(type_t type, addr_t addr) {
+		IFDEBUG(fprintf(stderr, "symbolic_input %d %lu\n", type, addr));
+
+		mem_[addr] = new SymbolicExpr(1, num_inputs_);
+		ex_.mutable_vars()->insert(make_pair(num_inputs_, type));
+
+		value_t ret = 0;
+		if (num_inputs_ < ex_.inputs().size()) {
+			ret = ex_.inputs()[num_inputs_];
+		} else {
+			//
+			// hEdit: the value will be overwritten by the call of MPI_Comm_rank
+			// and thus it is given 0
+			//
+			ret = CastTo(0, type);
+			ex_.mutable_inputs()->push_back(ret);
+
+			//
+                        // hEdit: padd the vecotor *rand_params_* so as to make
+                        // other variables marked as symbolic take the CORRECT
+                        // values from the vector. 
+                        //
+                        if (num_inputs_ < rand_params_.size())
+				rand_params_.insert(rand_params_.begin() + num_inputs_, rank_);
+			else
+				rand_params_.push_back(rank_);
+
+			//
+			// hEdit: wirte the index of variables of MPI rank into a file for
+			// later use
+			//
+			if (target_rank_ == rank_) { 
+				std::ofstream outfile(".rank_indices_non_default_comm", std::ofstream::out |
 						std::ofstream::app);
 				outfile << num_inputs_ << std::endl;
 				outfile.close();
@@ -423,6 +480,7 @@ namespace crest {
 		IFDEBUG(DumpMemory());
 		return ret;
 	}
+
 
 	// 
 	// hEdit: this method takes special care of input variables  
@@ -463,10 +521,7 @@ namespace crest {
 			//
 			if (target_rank_ == rank_) {
 				
-				std::ofstream outfile(".world_size_indices", std::ofstream::out |
-						std::ofstream::app);
-				outfile << num_inputs_ << std::endl;
-				outfile.close();
+				outfile_world_size_indices << num_inputs_ << std::endl;
 			}
 
 		}

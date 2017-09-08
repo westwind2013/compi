@@ -111,6 +111,13 @@ void __CrestGetMPIInfo() {
 	MPI_Comm_rank(MPI_COMM_WORLD, &(SI->rank_));
 	MPI_Comm_size(MPI_COMM_WORLD, &(SI->world_size_));
 
+	// open all the logging files
+	if (SI->target_rank_ == SI->rank_) {
+		SI->outfile_rank_indices.open(".rank_indices", std::ofstream::out |
+				std::ofstream::trunc);
+		SI->outfile_world_size_indices.open(".world_size_indices", std::ofstream::out |
+				std::ofstream::trunc);
+	}
 	/*
 	if (SI->target_rank_ == SI->rank_) {
 		std::cout << "target_rank = " << SI->target_rank_ << std::endl;

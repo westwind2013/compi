@@ -33,6 +33,7 @@ namespace crest {
 		public:
 			SymbolicInterpreter();
 			explicit SymbolicInterpreter(const vector<value_t>& input);
+			~SymbolicInterpreter();
 
 			void ClearStack(id_t id);
 			void Load(id_t id, addr_t addr, value_t value);
@@ -56,6 +57,7 @@ namespace crest {
 			// that indicate MPI ranks (MPI_COMM_WORLD)
 			//
 			value_t NewInputRank(type_t type, addr_t addr);
+			value_t NewInputRankNonDefaultComm(type_t type, addr_t addr);
 
 			// 
 			// hEdit: this method takes special care of input variables  
@@ -79,6 +81,10 @@ namespace crest {
 			int rank_;
 			// the rank being tested
 			int target_rank_;
+			// logging files
+			std::ofstream outfile_rank_indices;
+			std::ofstream outfile_world_size_indices;
+
 		private:
 			struct StackElem {
 				SymbolicExpr* expr;  // NULL to indicate concrete.
@@ -108,11 +114,14 @@ namespace crest {
 			//
 			// parameters passed by users
 			vector<int> rand_params_;
+			// the indices of MPI ranks in non-default communicator
+			vector<int> rank_in_non_default_indices;
 
 			// Helper functions.
 			inline void PushConcrete(value_t value);
 			inline void PushSymbolic(SymbolicExpr* expr, value_t value);
 			inline void ClearPredicateRegister();
+
 	};
 
 }  // namespace crest
