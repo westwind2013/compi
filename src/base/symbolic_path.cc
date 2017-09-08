@@ -131,11 +131,11 @@ namespace crest {
 			size_t available = s.gcount();
 
 			if ( s.rdstate() & std::ifstream::failbit) 
-				fprintf(stderr, "Failbit\n Expect to read %zu bytes"
+				fprintf(stderr, "Failbit\n Expect to read %zu bytes "
 					"while only %zu bytes are available\n", 
 					len * sizeof(branch_id_t), available);
 			if ( s.rdstate() & std::ifstream::badbit) 
-				fprintf(stderr, "Badbit\n Expect to read %zu bytes"
+				fprintf(stderr, "Badbit\n Expect to read %zu bytes "
 					"while only %zu bytes are available\n", 
 					len * sizeof(branch_id_t), available);
 			fflush(stderr);
@@ -205,11 +205,11 @@ namespace crest {
 
 			// output error message to be checked later
 			if ( s.rdstate() & std::ifstream::failbit) 
-				fprintf(stderr, "Failbit\n Expect to read %zu bytes"
+				fprintf(stderr, "Failbit\n Expect to read %zu bytes "
 					"while only %zu bytes are available\n", 
 					len * sizeof(branch_id_t), available);
 			if ( s.rdstate() & std::ifstream::badbit) 
-				fprintf(stderr, "Badbit\n Expect to read %zu bytes"
+				fprintf(stderr, "Badbit\n Expect to read %zu bytes "
 					"while only %zu bytes are available\n", 
 					len * sizeof(branch_id_t), available);
 			fflush(stderr);

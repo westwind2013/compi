@@ -385,7 +385,7 @@ namespace crest {
 		//
 		// hEdit: debug
 		// 
-		fprintf(stderr, "\nThe size of the constraint set of the current"
+		fprintf(stderr, "\nThe size of the constraint set of the current "
 			"execution is %zu\n", ex->path().constraints().size());
 	}
 

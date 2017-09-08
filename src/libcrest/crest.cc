@@ -95,6 +95,11 @@ void __CrestAtExit() {
 	out.write(buff.data(), buff.size());
 	assert(!out.fail());
 	out.close();
+
+	//
+	// hEdit: delete the object
+	// 
+	delete SI;
 }
 
 void __CrestGetMPIInfo() {
@@ -231,6 +236,38 @@ void __CrestInt(int* x) {
 void __CrestRank(int* x) {
 	pre_symbolic = 0;
 	*x = (int)SI->NewInputRank(types::U_INT, (addr_t)x);
+}
+
+
+// 
+// hEdit: 
+// 
+void __CrestAfterMPICommRank(MPI_Comm comm, int rank) {
+	int size = 0;
+	int *pComm = NULL;
+	char is_this_group = 0, judge_this_group = 0;
+	
+	MPI_Comm_size(comm, &size);
+	if (SI->rank_ == SI->target_rank_) {
+		is_this_group = 1;
+		pComm = new int [size];
+	}
+	MPI_Allreduce(&is_this_group, &judge_this_group, 1, MPI_CHAR, MPI_MAX, comm);
+	
+	// return if this is not the communicator of interest, i.e., the communicator
+	// that includes the target rank
+	if(judge_this_group == 0) return;
+
+	// rank 0 gathers the result
+	MPI_Gather(&(SI->rank_), 1, MPI_INT, pComm, 1, MPI_INT, 0, comm);
+
+	if (SI->rank_ == SI->target_rank_) delete [] pComm;
+
+	// return if the rank in the current comm is not 0
+	if (rank != 0) return;
+
+	// rank 0 logs the gathered result to a file
+
 }
 
 //
