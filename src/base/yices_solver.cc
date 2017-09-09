@@ -210,12 +210,12 @@ namespace crest {
 		
 		const SymbolicPred* pointer2Last = constraints.back();
 
-		//
-		// hEdit: debug 
-		// 
-		fprintf(stderr, "The size of constraintsMPI is %zu \n"
-			"The size of constraints is %zu \n\n", 
-			constraintsMPI.size(), constraints.size());
+//
+// hEdit: debug 
+// 
+fprintf(stderr, "The size of constraintsMPI is %zu \n"
+	"The size of constraints is %zu \n\n", 
+	constraintsMPI.size(), constraints.size());
 		
 		
 		//
@@ -227,16 +227,16 @@ namespace crest {
 			constraints.push_back(*iter);
 		}
 
-		//
-		// hEdit: print the constraints
-		//
-		for (PredIt iter = constraints.begin(); iter < constraints.end(); iter++) {
-			string str;
-			(*iter)->AppendToString(&str);
-			printf("%s\n", str.c_str());	
-		}
-		printf("\n\n\n");
-		fflush(stdout);
+//
+// hEdit: print the constraints
+//
+for (PredIt iter = constraints.begin(); iter < constraints.end(); iter++) {
+	string str;
+	(*iter)->AppendToString(&str);
+	fprintf(stderr, "%s\n", str.c_str());	
+}
+fprintf(stderr, "\n\n\n");
+fflush(stderr);
 
 		set<var_t> tmp;
 		typedef set<var_t>::const_iterator VarIt;
@@ -290,7 +290,19 @@ namespace crest {
 			if ((*i)->DependsOn(dependent_vars))
 				dependent_constraints.push_back(*i);
 		}
-		
+	
+//
+// hEdit: print the constraints
+//
+fprintf(stderr, "dependent constraints\n");
+for (PredIt iter = dependent_constraints.begin(); iter < dependent_constraints.end(); iter++) {
+	string str;
+	(*iter)->AppendToString(&str);
+	fprintf(stderr, "%s\n", str.c_str());	
+}
+fprintf(stderr, "\n\n\n");
+fflush(stderr);
+
 		//
 		// hEdit: pop out the MPI constraints
 		//
