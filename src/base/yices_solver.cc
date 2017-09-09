@@ -102,6 +102,10 @@ namespace crest {
 */
 
 	bool YicesSolver::GetMPIInfo(std::unordered_set<int>& world_size_indices, std::unordered_set<int>& rank_indices) {
+		
+		world_size_indices_.clear();
+		rank_indices_.clear();
+		
 		for (std::unordered_set<int>::iterator it = world_size_indices.begin(); 
 			it != world_size_indices.end(); it++)
 			world_size_indices_.push_back(*it);
@@ -113,11 +117,28 @@ namespace crest {
 		return true;
 	}
 
+	bool YicesSolver::GetMPIInfo(const std::vector<int>& world_size_indices, const std::vector<int>& rank_indices) {
+		
+		world_size_indices_.clear();
+		rank_indices_.clear();
+		
+		for (std::vector<int>::const_iterator it = world_size_indices.begin(); 
+			it != world_size_indices.end(); it++)
+			world_size_indices_.push_back(*it);
+
+		for (std::vector<int>::const_iterator it = rank_indices.begin(); 
+			it != rank_indices.end(); it++)
+			rank_indices_.push_back(*it);
+
+		return true;
+	}
 	//
 	// hEdit: generate additional constraints for MPI rank 
 	// 
 	bool YicesSolver::GenerateConstraintsMPI() {
 
+		constraintsMPI.clear();
+		
 		SymbolicPred *tmpPred;
 		
 		// construct the constraints:

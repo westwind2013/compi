@@ -33,6 +33,7 @@ namespace crest {
 
 			bool GetMPIInfo(std::unordered_set<int>& comm_world_size, 
 				std::unordered_set<int>& rank_indices);
+	bool GetMPIInfo(const std::vector<int>& world_size_indices, const std::vector<int>& rank_indices);
 
 			bool GenerateConstraintsMPI();
 

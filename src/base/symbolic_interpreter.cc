@@ -413,14 +413,15 @@ namespace crest {
 			else
 				rand_params_.push_back(rank_);
 
-			//
-			// hEdit: wirte the index of variables of MPI rank into a file for
-			// later use
-			//
-			if (target_rank_ == rank_) { 
-				outfile_rank_indices << num_inputs_ << std::endl;
-			}
-
+		}
+		
+		//
+		// hEdit: wirte the index of variables of MPI rank into a file for
+		// later use
+		//
+		if (target_rank_ == rank_) {
+			ex_.rank_indices_.push_back(num_inputs_);
+			outfile_rank_indices << num_inputs_ << std::endl;
 		}
 
 		num_inputs_++;
@@ -514,16 +515,15 @@ namespace crest {
 				rand_params_.insert(rand_params_.begin() + num_inputs_, world_size_);
 			else 
 				rand_params_.push_back(world_size_);
+		}
 
-			//
-			// hEdit: wirte the index of variables of MPI_COMM_WORLD
-			// size into a file for later use
-			//
-			if (target_rank_ == rank_) {
-				
-				outfile_world_size_indices << num_inputs_ << std::endl;
-			}
-
+		//
+		// hEdit: wirte the index of variables of MPI_COMM_WORLD
+		// size into a file for later use
+		//
+		if (target_rank_ == rank_) {
+			ex_.world_size_indices_.push_back(num_inputs_);			
+			outfile_world_size_indices << num_inputs_ << std::endl;
 		}
 
 		num_inputs_++;

@@ -302,8 +302,8 @@ namespace crest {
 
 
 		// get the indicies of variables marked as MPI ranks
-		if (is_first_run) {
-			std::ifstream infile(".rank_indices");
+		//if (is_first_run) {
+		/*	std::ifstream infile(".rank_indices");
 			std::ifstream infile2(".world_size_indices");
 			if (!infile) {
 				fprintf(stderr, "There is not such file (.rank_indices)\n");
@@ -332,16 +332,11 @@ namespace crest {
 				infile.close();
 				infile2.close();
 
-				// remove the file
-				if (0 != remove(".rank_indices") )
-					fprintf(stderr, "Removing file failed!\n");
-				if (0 != remove(".world_size_indices") )
-					fprintf(stderr, "Removing file failed!\n");
 			}
-			
+		*/	
 			// Disable this branch in further runs 
 			is_first_run = false;
-		}
+		//}
 	}
 
 	void Search::RunProgram(const vector<value_t>& inputs, SymbolicExecution* ex) {
@@ -617,6 +612,23 @@ namespace crest {
 				constraints.begin() + branch_idx + 1);
 		map<var_t, value_t> soln;
 		constraints[branch_idx]->Negate();
+		
+		
+		
+		
+		
+		
+	solver->GetMPIInfo(ex.world_size_indices_, ex.rank_indices_);
+	solver->GenerateConstraintsMPI();
+
+		
+		
+		
+		
+		
+		
+		
+		
 		// fprintf(stderr, "Yices . . . ");
 		bool success = solver->IncrementalSolve(ex.inputs(), ex.vars(), cs,
 				&soln);
