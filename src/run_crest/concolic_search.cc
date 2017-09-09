@@ -619,6 +619,15 @@ namespace crest {
 		
 		
 	solver->GetMPIInfo(ex.world_size_indices_, ex.rank_indices_);
+
+	world_size_indices_.clear();
+	rank_indices_.clear();
+	world_size_indices_.insert(ex.world_size_indices_.begin(), 
+				ex.world_size_indices_.end());
+	rank_indices_.insert(ex.rank_indices_.begin(), 
+				ex.rank_indices_.end());
+
+	
 	solver->GenerateConstraintsMPI();
 
 		

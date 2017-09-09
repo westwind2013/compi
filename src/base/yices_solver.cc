@@ -307,12 +307,6 @@ for (PredIt iter = dependent_constraints.begin(); iter < dependent_constraints.e
 fprintf(stderr, "\n\n\n");
 fflush(stderr);
 
-		//
-		// hEdit: pop out the MPI constraints
-		//
-		for (size_t i = 0; i < constraintsMPI.size(); i++) {
-			constraints.pop_back();
-		}
 		
 		soln->clear();
 		if (Solve(dependent_vars, dependent_constraints, soln)) {
@@ -320,6 +314,12 @@ fflush(stderr);
 			for (PredIt i = constraints.begin(); i != constraints.end(); ++i) {
 				(*i)->AppendVars(&tmp);
 			}
+//
+// hEdit: pop out the MPI constraints
+//
+for (size_t i = 0; i < constraintsMPI.size(); i++) {
+	constraints.pop_back();
+}
 
 			// 
 			// hComment: if the variable is not present in the current solution, its old 
@@ -333,6 +333,12 @@ fflush(stderr);
 			return true;
 		}
 
+//
+// hEdit: pop out the MPI constraints
+//
+for (size_t i = 0; i < constraintsMPI.size(); i++) {
+	constraints.pop_back();
+}
 		return false;
 	}
 
