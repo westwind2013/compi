@@ -28,6 +28,13 @@ namespace crest {
 
 	class SymbolicExecution {
 		public:
+			//
+			// hEdit: logging information used specifically by MPI
+			//
+			vector<id_t> rank_indices_;
+			vector<id_t> rank_non_default_comm_indices_;
+			vector<id_t> world_size_indices_;
+
 			SymbolicExecution();
 			explicit SymbolicExecution(bool pre_allocate);
 			~SymbolicExecution();
