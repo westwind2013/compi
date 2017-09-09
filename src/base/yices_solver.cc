@@ -9,6 +9,7 @@
 // for details.
 
 #include <iostream>
+#include <algorithm>
 #include <assert.h>
 #include <limits>
 #include <queue>
@@ -130,6 +131,9 @@ namespace crest {
 			it != rank_indices.end(); it++)
 			rank_indices_.push_back(*it);
 
+		
+		std::reverse(world_size_indices_.begin(), world_size_indices_.end());
+		std::reverse(rank_indices_.begin(), rank_indices_.end());
 		return true;
 	}
 	//
