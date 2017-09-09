@@ -71,6 +71,7 @@ namespace crest {
 		s->append(buff);
 
 		for (ConstIt i = coeff_.begin(); i != coeff_.end(); ++i) {
+
 			sprintf(buff, " (* %lld x%u)", i->second, i->first);
 			s->append(buff);
 		}

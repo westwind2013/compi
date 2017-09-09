@@ -213,9 +213,9 @@ namespace crest {
 		//
 		// hEdit: debug 
 		// 
-		//fprintf(stderr, "The size of constraintsMPI is %zu \n"
-		//	"The size of constraints is %zu \n\n", 
-		//	constraintsMPI.size(), constraints.size());
+		fprintf(stderr, "The size of constraintsMPI is %zu \n"
+			"The size of constraints is %zu \n\n", 
+			constraintsMPI.size(), constraints.size());
 		
 		
 		//
@@ -230,13 +230,13 @@ namespace crest {
 		//
 		// hEdit: print the constraints
 		//
-		//for (PredIt iter = constraints.begin(); iter < constraints.end(); iter++) {
-		//	string str;
-		//	(*iter)->AppendToString(&str);
-		//	printf("%s\n", str.c_str());	
-		//}
-		//printf("\n\n\n");
-		//fflush(stdout);
+		for (PredIt iter = constraints.begin(); iter < constraints.end(); iter++) {
+			string str;
+			(*iter)->AppendToString(&str);
+			printf("%s\n", str.c_str());	
+		}
+		printf("\n\n\n");
+		fflush(stdout);
 
 		set<var_t> tmp;
 		typedef set<var_t>::const_iterator VarIt;
