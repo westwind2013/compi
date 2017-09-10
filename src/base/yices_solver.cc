@@ -308,6 +308,11 @@ namespace crest {
 		
 		soln->clear();
 		if (Solve(dependent_vars, dependent_constraints, soln)) {
+
+string str;
+pointer2Last->AppendToString(&str);
+fprintf(stderr, "Target constraint: %s: YES\n", str.c_str());	
+			
 			// Merge in the constrained variables.
 			for (PredIt i = constraints.begin(); i != constraints.end(); ++i) {
 				(*i)->AppendVars(&tmp);
@@ -332,6 +337,10 @@ namespace crest {
 			return true;
 		}
 
+string str;
+pointer2Last->AppendToString(&str);
+fprintf(stderr, "Target constraint: %s: NO\n", str.c_str());	
+		
 		//
 		// hEdit: pop out the MPI constraints
 		//

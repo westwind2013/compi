@@ -38,7 +38,7 @@ using std::stable_sort;
 // hEdit: set the time limit for a command running
 //
 
-long long TIMEOUT_IN_SECONDS = 60;
+long long TIMEOUT_IN_SECONDS = 240;
 
 namespace crest {
 
