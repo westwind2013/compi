@@ -73,12 +73,12 @@ namespace crest {
 		}
 
 	SymbolicInterpreter::~SymbolicInterpreter() {
-
+/*
 		if (rank_ == target_rank_) {
 			outfile_rank_indices.close();
 			outfile_world_size_indices.close();
 		}
-	}
+*/	}
 
 	void SymbolicInterpreter::DumpMemory() {
 		for (ConstMemIt i = mem_.begin(); i != mem_.end(); ++i) {
@@ -421,7 +421,7 @@ namespace crest {
 		//
 		if (target_rank_ == rank_) {
 			ex_.rank_indices_.push_back(num_inputs_);
-			outfile_rank_indices << num_inputs_ << std::endl;
+			//outfile_rank_indices << num_inputs_ << std::endl;
 		}
 
 		num_inputs_++;
@@ -463,17 +463,18 @@ namespace crest {
 			else
 				rand_params_.push_back(rank_);
 
-			//
-			// hEdit: wirte the index of variables of MPI rank into a file for
-			// later use
-			//
-			if (target_rank_ == rank_) { 
-				std::ofstream outfile(".rank_indices_non_default_comm", std::ofstream::out |
-						std::ofstream::app);
-				outfile << num_inputs_ << std::endl;
-				outfile.close();
-			}
 
+		}
+		
+		//
+		// hEdit: wirte the index of variables of MPI rank into a file for
+		// later use
+		//
+		if (target_rank_ == rank_) { 
+			std::ofstream outfile(".rank_indices_non_default_comm", std::ofstream::out |
+					std::ofstream::app);
+			outfile << num_inputs_ << std::endl;
+			outfile.close();
 		}
 
 		num_inputs_++;
@@ -523,7 +524,7 @@ namespace crest {
 		//
 		if (target_rank_ == rank_) {
 			ex_.world_size_indices_.push_back(num_inputs_);			
-			outfile_world_size_indices << num_inputs_ << std::endl;
+			//outfile_world_size_indices << num_inputs_ << std::endl;
 		}
 
 		num_inputs_++;

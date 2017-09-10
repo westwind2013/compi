@@ -131,11 +131,9 @@ namespace crest {
 			it != rank_indices.end(); it++)
 			rank_indices_.push_back(*it);
 
-		
-		std::reverse(world_size_indices_.begin(), world_size_indices_.end());
-		std::reverse(rank_indices_.begin(), rank_indices_.end());
 		return true;
 	}
+
 	//
 	// hEdit: generate additional constraints for MPI rank 
 	// 
@@ -217,9 +215,9 @@ namespace crest {
 //
 // hEdit: debug 
 // 
-fprintf(stderr, "The size of constraintsMPI is %zu \n"
-	"The size of constraints is %zu \n\n", 
-	constraintsMPI.size(), constraints.size());
+//fprintf(stderr, "The size of constraintsMPI is %zu \n"
+//	"The size of constraints is %zu \n\n", 
+//	constraintsMPI.size(), constraints.size());
 		
 		
 		//
@@ -234,13 +232,13 @@ fprintf(stderr, "The size of constraintsMPI is %zu \n"
 //
 // hEdit: print the constraints
 //
-for (PredIt iter = constraints.begin(); iter < constraints.end(); iter++) {
-	string str;
-	(*iter)->AppendToString(&str);
-	fprintf(stderr, "%s\n", str.c_str());	
-}
-fprintf(stderr, "\n\n\n");
-fflush(stderr);
+//for (PredIt iter = constraints.begin(); iter < constraints.end(); iter++) {
+//	string str;
+//	(*iter)->AppendToString(&str);
+//	fprintf(stderr, "%s\n", str.c_str());	
+//}
+//fprintf(stderr, "\n\n\n");
+//fflush(stderr);
 
 		set<var_t> tmp;
 		typedef set<var_t>::const_iterator VarIt;
@@ -298,14 +296,14 @@ fflush(stderr);
 //
 // hEdit: print the constraints
 //
-fprintf(stderr, "dependent constraints\n");
-for (PredIt iter = dependent_constraints.begin(); iter < dependent_constraints.end(); iter++) {
-	string str;
-	(*iter)->AppendToString(&str);
-	fprintf(stderr, "%s\n", str.c_str());	
-}
-fprintf(stderr, "\n\n\n");
-fflush(stderr);
+//fprintf(stderr, "dependent constraints\n");
+//for (PredIt iter = dependent_constraints.begin(); iter < dependent_constraints.end(); iter++) {
+//	string str;
+//	(*iter)->AppendToString(&str);
+//	fprintf(stderr, "%s\n", str.c_str());	
+//}
+//fprintf(stderr, "\n\n\n");
+//fflush(stderr);
 
 		
 		soln->clear();
@@ -314,12 +312,13 @@ fflush(stderr);
 			for (PredIt i = constraints.begin(); i != constraints.end(); ++i) {
 				(*i)->AppendVars(&tmp);
 			}
-//
-// hEdit: pop out the MPI constraints
-//
-for (size_t i = 0; i < constraintsMPI.size(); i++) {
-	constraints.pop_back();
-}
+			
+			//
+			// hEdit: pop out the MPI constraints
+			//
+			for (size_t i = 0; i < constraintsMPI.size(); i++) {
+				constraints.pop_back();
+			}
 
 			// 
 			// hComment: if the variable is not present in the current solution, its old 
@@ -333,12 +332,12 @@ for (size_t i = 0; i < constraintsMPI.size(); i++) {
 			return true;
 		}
 
-//
-// hEdit: pop out the MPI constraints
-//
-for (size_t i = 0; i < constraintsMPI.size(); i++) {
-	constraints.pop_back();
-}
+		//
+		// hEdit: pop out the MPI constraints
+		//
+		for (size_t i = 0; i < constraintsMPI.size(); i++) {
+			constraints.pop_back();
+		}
 		return false;
 	}
 

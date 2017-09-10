@@ -158,6 +158,7 @@ namespace crest {
 		return rand() % 10000;
 	}
 
+/*
 	//
 	// hEdit: change the format of input file so that this format is
 	// the same as that of our designated input file. Upon error, we 
@@ -187,7 +188,8 @@ namespace crest {
 
 		fclose(f);
 	}
-	
+*/	
+
 	void Search::WriteInputToFileOrDie(const string& file,
 			const vector<value_t>& input) {
 		FILE* f = fopen(file.c_str(), "w");
@@ -547,15 +549,9 @@ namespace crest {
 			vector<value_t>* input) {
 		input->resize(vars.size());
 
-		int rank_val = rand() % comm_world_size_;
-
 		for (map<var_t, type_t>::const_iterator it = vars.begin(); it != vars.end();
 				++it) {
 			unsigned long long val = 0;
-			if (rank_indices_.find(it->first) != rank_indices_.end()) {
-				input->at(it->first) = (int) rank_val;
-				continue;
-			}
 
 			for (size_t j = 0; j < 8; j++)
 				//val = (val << 8) + (rand() / 256);
@@ -620,13 +616,17 @@ namespace crest {
 		
 	solver->GetMPIInfo(ex.world_size_indices_, ex.rank_indices_);
 
+	/*
 	world_size_indices_.clear();
 	rank_indices_.clear();
 	world_size_indices_.insert(ex.world_size_indices_.begin(), 
 				ex.world_size_indices_.end());
 	rank_indices_.insert(ex.rank_indices_.begin(), 
 				ex.rank_indices_.end());
+	*/
 
+	world_size_indices_ = ex.world_size_indices_; 
+	rank_indices_ = ex.rank_indices_;
 	
 	solver->GenerateConstraintsMPI();
 

@@ -98,10 +98,10 @@ namespace crest {
 			
 			// the index of variables marked as MPI rank (MPI_COMM_WORLD)
 			// in the array of symbolically marked variables
-			std::unordered_set<int> rank_indices_;
+			vector<int> rank_indices_;
 			// the index of variables marked as the size of MPI_COMM_WORLD
 			// in the array of symbolically marked variables
-			std::unordered_set<int> world_size_indices_;
+			vector<int> world_size_indices_;
 			// YicesSolver
 			YicesSolver* solver;
 			// records the illegal inputs to a file
