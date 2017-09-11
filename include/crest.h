@@ -205,11 +205,17 @@ EXTERN void __CrestHandleReturn(__CREST_ID, __CREST_VALUE) __SKIP;
 
 
 EXTERN void __CrestUChar(unsigned char* x) __SKIP;
+EXTERN void __CrestUCharWithLimit(unsigned char* x, long long int limit) __SKIP;
 EXTERN void __CrestUShort(unsigned short* x) __SKIP;
+EXTERN void __CrestUShortWithLimit(unsigned short* x, long long int limit) __SKIP;
 EXTERN void __CrestUInt(unsigned int* x) __SKIP;
+EXTERN void __CrestUIntWithLimit(unsigned int* x, long long int limit) __SKIP;
 EXTERN void __CrestChar(char* x) __SKIP;
+EXTERN void __CrestCharWithLimit(char* x, long long int limit) __SKIP;
 EXTERN void __CrestShort(short* x) __SKIP;
+EXTERN void __CrestShortWithLimit(short* x, long long int limit) __SKIP;
 EXTERN void __CrestInt(int* x) __SKIP;
+EXTERN void __CrestIntWithLimit(int* x, long long int limit) __SKIP;
 
 //
 // hEdit: symbolic input function for MPI rank and 
@@ -217,5 +223,6 @@ EXTERN void __CrestInt(int* x) __SKIP;
 //
 EXTERN void __CrestRank(int* x) __SKIP;
 EXTERN void __CrestWorldSize(int* x) __SKIP;
+EXTERN void __CrestWorldSizeWithLimit(int* x, long long int limit) __SKIP;
 
 #endif  /* LIBCREST_CREST_H__ */
