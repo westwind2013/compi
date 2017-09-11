@@ -51,6 +51,7 @@ namespace crest {
 			void BranchOnly(branch_id_t bid);
 
 			value_t NewInput(type_t type, addr_t addr);
+			value_t NewInputWithLimit(type_t type, addr_t addr, value_t limit);
 
 			// 
 			// hEdit: this method takes special care of input variables  
@@ -64,6 +65,7 @@ namespace crest {
 			// that indicate the size of MPI_COMM_WORLD
 			//
 			value_t NewInputWorldSize(type_t type, addr_t addr);
+			value_t NewInputWorldSizeWithLimit(type_t type, addr_t addr, value_t limit);
 			
 			// Accessor for symbolic execution so far.
 			const SymbolicExecution& execution() const { return ex_; }

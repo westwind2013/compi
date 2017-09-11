@@ -22,6 +22,13 @@ namespace crest {
 	SymbolicExecution::~SymbolicExecution() { }
 
 	void SymbolicExecution::Swap(SymbolicExecution& se) {
+
+		limits_.swap(se.limits_);
+		rank_indices_.swap(se.rank_indices_);
+		rank_non_default_comm_indices_.swap(se.rank_non_default_comm_indices_);
+		world_size_indices_.swap(se.world_size_indices_);
+		std::swap(execution_tag_, se.execution_tag_);
+
 		vars_.swap(se.vars_);
 		inputs_.swap(se.inputs_);
 		path_.Swap(se.path_);
@@ -38,6 +45,17 @@ namespace crest {
 			s->push_back(static_cast<char>(i->second));
 			s->append((char*)&inputs_[i->first], sizeof(value_t));
 		}
+                
+		// Wirte the execution tag
+                s->append((char*)&execution_tag_, sizeof(time_t));
+
+		// write the specified limits
+		len = limits_.size();
+                s->append((char*)&len, sizeof(len));
+                for (auto i: limits_) {
+                        s->append((char*)&i.first, sizeof(id_t));          
+                        s->append((char*)&i.second, sizeof(value_t));          
+                } 
 
 		// Wirte MPI info
                 len = rank_indices_.size();
@@ -95,7 +113,20 @@ namespace crest {
 			s.read((char*)&inputs_[i], sizeof(value_t));
 		}
 		
-		// Wirte MPI info
+		// Read the execution tag
+                s.read((char*)&execution_tag_, sizeof(time_t));
+	
+		// Read user-specified limits
+                s.read((char*)&len, sizeof(len));
+                limits_.clear();
+                int first, second;
+		for (size_t i = 0; i < len; i++) {
+                        s.read((char*)&first, sizeof(id_t));
+                        s.read((char*)&second, sizeof(value_t));
+			limits_[first] = second;
+                }
+
+		// Read MPI info
                 s.read((char*)&len, sizeof(len));
                 rank_indices_.clear();
                 rank_indices_.resize(len);

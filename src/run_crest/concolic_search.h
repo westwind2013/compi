@@ -106,7 +106,8 @@ namespace crest {
 			YicesSolver* solver;
 			// records the illegal inputs to a file
 			std::ofstream outfile_illegal_inputs;
-
+			// remember the prior execution tag
+			time_t execution_tag_;
 
 			// hEdit: temporary solution to avoid the random number being
 			// generated becomes too big

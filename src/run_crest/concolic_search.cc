@@ -62,7 +62,8 @@ namespace crest {
 			int target_rank) :
 		program_(program), max_iters_(max_iterations), num_iters_(0), 
 		is_first_run(true),  comm_world_size_(comm_world_size),
-		target_rank_(target_rank), solver(new YicesSolver()) {
+		target_rank_(target_rank), solver(new YicesSolver()),
+		execution_tag_(0) {
 
 			start_time_ = time(NULL);
 
@@ -612,8 +613,10 @@ namespace crest {
 		
 		
 		
-		
-		
+	if (execution_tag_ != ex.execution_tag_) {	
+
+	execution_tag_ = ex.execution_tag_;	
+	
 	solver->GetMPIInfo(ex.world_size_indices_, ex.rank_indices_);
 
 	/*
@@ -629,8 +632,7 @@ namespace crest {
 	rank_indices_ = ex.rank_indices_;
 	
 	solver->GenerateConstraintsMPI();
-
-		
+	}
 		
 		
 		

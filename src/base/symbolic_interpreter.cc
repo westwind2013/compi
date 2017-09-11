@@ -45,6 +45,9 @@ namespace crest {
 			stack_.reserve(16);
 			ex_.mutable_inputs()->assign(input.begin(), input.end());
 
+			// set the execution tag 
+			ex_.execution_tag_ = time(NULL);
+
 			//
 			// hEdit: read the random values stored by the tool in file ".rand_params"
 			// and save them to vector "rand_params"
@@ -383,6 +386,13 @@ namespace crest {
 		return ret;
 	}
 
+	value_t SymbolicInterpreter::NewInputWithLimit(type_t type, addr_t addr, value_t limit) {
+	
+		ex_.limits_[num_inputs_] = limit;
+		return NewInput(type, addr);
+	}
+	
+	
 	// 
 	// hEdit: this method takes special care of input variables  
 	// that indicate MPI ranks in MPI_COMM_WORLD
@@ -429,6 +439,7 @@ namespace crest {
 		IFDEBUG(DumpMemory());
 		return ret;
 	}
+
 
 
 
@@ -531,6 +542,12 @@ namespace crest {
 
 		IFDEBUG(DumpMemory());
 		return ret;
+	}
+
+	value_t SymbolicInterpreter::NewInputWorldSizeWithLimit(type_t type, addr_t addr, value_t limit) {
+		
+		ex_.limits_[num_inputs_] = limit;
+		return NewInputWorldSize(type, addr);
 	}
 
 	void SymbolicInterpreter::PushConcrete(value_t value) {

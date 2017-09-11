@@ -214,9 +214,19 @@ void __CrestUChar(unsigned char* x) {
 	*x = (unsigned char)SI->NewInput(types::U_CHAR, (addr_t)x);
 }
 
+void __CrestUCharWithLimit(unsigned char* x, long long int limit) {
+	pre_symbolic = 0;
+	*x = (unsigned char)SI->NewInputWithLimit(types::U_CHAR, (addr_t)x, limit);
+}
+
 void __CrestUShort(unsigned short* x) {
 	pre_symbolic = 0;
 	*x = (unsigned short)SI->NewInput(types::U_SHORT, (addr_t)x);
+}
+
+void __CrestUShortWithLimit(unsigned short* x, long long int limit) {
+	pre_symbolic = 0;
+	*x = (unsigned short)SI->NewInputWithLimit(types::U_SHORT, (addr_t)x, limit);
 }
 
 void __CrestUInt(unsigned int* x) {
@@ -224,9 +234,19 @@ void __CrestUInt(unsigned int* x) {
 	*x = (unsigned int)SI->NewInput(types::U_INT, (addr_t)x);
 }
 
+void __CrestUIntWithLimit(unsigned int* x, long long int limit) {
+	pre_symbolic = 0;
+	*x = (unsigned int)SI->NewInputWithLimit(types::U_INT, (addr_t)x, limit);
+}
+
 void __CrestChar(char* x) {
 	pre_symbolic = 0;
 	*x = (char)SI->NewInput(types::CHAR, (addr_t)x);
+}
+
+void __CrestCharWithLimit(char* x, long long int limit) {
+	pre_symbolic = 0;
+	*x = (char)SI->NewInputWithLimit(types::CHAR, (addr_t)x, limit);
 }
 
 void __CrestShort(short* x) {
@@ -234,9 +254,19 @@ void __CrestShort(short* x) {
 	*x = (short)SI->NewInput(types::SHORT, (addr_t)x);
 }
 
+void __CrestShortWithLimit(short* x, long long int limit) {
+	pre_symbolic = 0;
+	*x = (short)SI->NewInputWithLimit(types::SHORT, (addr_t)x, limit);
+}
+
 void __CrestInt(int* x) {
 	pre_symbolic = 0;
 	*x = (int)SI->NewInput(types::INT, (addr_t)x);
+}
+
+void __CrestIntWithLimit(int* x, long long int limit) {
+	pre_symbolic = 0;
+	*x = (int)SI->NewInputWithLimit(types::INT, (addr_t)x, limit);
 }
 
 //
@@ -286,4 +316,9 @@ void __CrestAfterMPICommRank(MPI_Comm comm, int rank) {
 void __CrestWorldSize(int* x) {
 	pre_symbolic = 0;
 	*x = (int)SI->NewInputWorldSize(types::U_INT, (addr_t)x);
+}
+
+void __CrestWorldSizeWithLimit(int* x, long long int limit) {
+	pre_symbolic = 0;
+	*x = (int)SI->NewInputWorldSizeWithLimit(types::U_INT, (addr_t)x, limit);
 }

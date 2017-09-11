@@ -15,6 +15,7 @@
 #include <ostream>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 
 #include "base/basic_types.h"
 #include "base/symbolic_path.h"
@@ -23,6 +24,8 @@ using std::istream;
 using std::make_pair;
 using std::ostream;
 using std::vector;
+using std::unordered_map;
+
 
 namespace crest {
 
@@ -31,9 +34,11 @@ namespace crest {
 			//
 			// hEdit: logging information used specifically by MPI
 			//
+			unordered_map<id_t, value_t> limits_;
 			vector<id_t> rank_indices_;
 			vector<id_t> rank_non_default_comm_indices_;
 			vector<id_t> world_size_indices_;
+			time_t execution_tag_;
 
 			SymbolicExecution();
 			explicit SymbolicExecution(bool pre_allocate);
