@@ -76,6 +76,17 @@ namespace crest {
                         s->append((char*)&world_size_indices_[i], sizeof(id_t));            
                 }
 
+//
+// hEdit: debug
+//
+fprintf(stderr, "Serialization info: inputs size: %zu\n "
+	"limits size: %zu\n rank_indices size: %zu \n"
+	"rank_non_default_comm_indices size: %zu \n"
+	"world_size_indices size: %zu \n\n", 
+	vars_.size(), limits_.size(), rank_indices_.size(), 
+	rank_non_default_comm_indices_.size(), 
+	world_size_indices_.size());
+
 		// Write the path.
 		path_.Serialize(s);
 	}
@@ -119,7 +130,8 @@ namespace crest {
 		// Read user-specified limits
                 s.read((char*)&len, sizeof(len));
                 limits_.clear();
-                int first, second;
+                id_t first;
+		value_t second;
 		for (size_t i = 0; i < len; i++) {
                         s.read((char*)&first, sizeof(id_t));
                         s.read((char*)&second, sizeof(value_t));

@@ -102,7 +102,7 @@ namespace crest {
 	}
 */
 
-	bool YicesSolver::GetMPIInfo(std::unordered_set<int>& world_size_indices, std::unordered_set<int>& rank_indices) {
+/*	bool YicesSolver::GetMPIInfo(std::unordered_set<int>& world_size_indices, std::unordered_set<int>& rank_indices) {
 		
 		world_size_indices_.clear();
 		rank_indices_.clear();
@@ -117,8 +117,8 @@ namespace crest {
 
 		return true;
 	}
-
-	bool YicesSolver::GetMPIInfo(const std::vector<int>& world_size_indices, const std::vector<int>& rank_indices) {
+*/
+/*	bool YicesSolver::GetMPIInfo(const std::vector<int>& world_size_indices, const std::vector<int>& rank_indices) {
 		
 		world_size_indices_.clear();
 		rank_indices_.clear();
@@ -133,64 +133,91 @@ namespace crest {
 
 		return true;
 	}
-
+*/
 	//
 	// hEdit: generate additional constraints for MPI rank 
 	// 
-	bool YicesSolver::GenerateConstraintsMPI() {
+	void YicesSolver::GenerateConstraintsMPI(const SymbolicExecution& ex) {
 
+		// 1. clear the old contents
+		for (size_t i = 0; i < constraintsMPI.size(); i++) {
+			delete constraintsMPI[i];	
+		}
 		constraintsMPI.clear();
+	
 		
-		SymbolicPred *tmpPred;
+		// 2. build new contents
+		SymbolicExpr *world_size_first = NULL, *world_size_other = NULL;
+		SymbolicExpr *rank_first = NULL, *rank_other = NULL, *tmp_expr = NULL;
+		SymbolicPred *tmpPred = NULL;
 		
 		// construct the constraints:
 		// (1) make all the variables representing the size of MPI_COMM_WORLD 
 		// equivalent
-		SymbolicExpr  *world_size_first = new SymbolicExpr(1, world_size_indices_[0]), *world_size_other;
-		for (size_t i = 1; i < world_size_indices_.size(); i++) {
-			world_size_other = new SymbolicExpr(1, world_size_indices_[i]);
-			*world_size_other -= *world_size_first; 
+		if (!ex.world_size_indices_.empty()) {
+			world_size_first = new SymbolicExpr(1, ex.world_size_indices_[0]);
+			for (size_t i = 1; i < ex.world_size_indices_.size(); i++) {
+				world_size_other = new SymbolicExpr(1, ex.world_size_indices_[i]);
+				*world_size_other -= *world_size_first; 
 
-			tmpPred = new SymbolicPred(ops::EQ, world_size_other);
-			constraintsMPI.push_back(tmpPred);
+				tmpPred = new SymbolicPred(ops::EQ, world_size_other);
+				constraintsMPI.push_back(tmpPred);
+			}
 		}
 
 		// (2) make all the variables for MPI ranks in the MPI_COMM_WORLD 
 		// equivalent
-		SymbolicExpr  *rank_first = new SymbolicExpr(1, rank_indices_[0]), *rank_other;
-		///SymbolicExpr  *rank_first_ = new SymbolicExpr(1, rank_indices_[0]);
-		for (size_t i = 1; i < rank_indices_.size(); i++) {
-			rank_other = new SymbolicExpr(1, rank_indices_[i]);
-			*rank_other -= *rank_first; 
+		if(!ex.rank_indices_.empty()) {
+			rank_first = new SymbolicExpr(1, ex.rank_indices_[0]);
+			///SymbolicExpr  *rank_first_ = new SymbolicExpr(1, rank_indices_[0]);
+			for (size_t i = 1; i < ex.rank_indices_.size(); i++) {
+				rank_other = new SymbolicExpr(1, ex.rank_indices_[i]);
+				*rank_other -= *rank_first; 
 
-			//exprsMPI.push_back(rank_other);
-			tmpPred = new SymbolicPred(ops::EQ, rank_other);
-			constraintsMPI.push_back(tmpPred);
+				//exprsMPI.push_back(rank_other);
+				tmpPred = new SymbolicPred(ops::EQ, rank_other);
+				constraintsMPI.push_back(tmpPred);
 
-			//string str;
-			//tmpPred->AppendToString(&str);
-			//printf("%s\n", str.c_str());	
+				//string str;
+				//tmpPred->AppendToString(&str);
+				//printf("%s\n", str.c_str());	
 
+			}
 		}
-		
 		//
 		// remove this part as we make the MPI rank an unsigned int
-	 	//	
+		//	
 		// (3) MPI rank >= 0
 		//tmpPred = new SymbolicPred(ops::GE, rank_first_);
 		//constraintsMPI.push_back(tmpPred);
-		
+
 		// (4) MPI rank < the size of MPI_COMM_WORLD
-		*rank_first -= *world_size_first; 
-		//exprsMPI.push_back(rank_first);
-		tmpPred = new SymbolicPred(ops::LT, rank_first);
-		constraintsMPI.push_back(tmpPred);
-	
+		if (rank_first && world_size_first) {
+			*rank_first -= *world_size_first; 
+			//exprsMPI.push_back(rank_first);
+			tmpPred = new SymbolicPred(ops::LT, rank_first);
+			constraintsMPI.push_back(tmpPred);
+
+			// delete unwanted resources
+			delete world_size_first;
+		}
+
 		// (5) the size of MPI_COMM_WORLD must be smaller than 
-		*world_size_first -= 4;
-		tmpPred = new SymbolicPred(ops::LE, world_size_first);
-		constraintsMPI.push_back(tmpPred);
-		
+		//if (world_size_first) {
+		//	*world_size_first -= 4;
+		//	tmpPred = new SymbolicPred(ops::LE, world_size_first);
+		//	constraintsMPI.push_back(tmpPred);
+		//}
+
+		if (!ex.limits_.empty()) {
+			for (auto limit: ex.limits_) {
+				tmp_expr = new SymbolicExpr(1, limit.first);
+				*tmp_expr -= limit.second;
+				tmpPred = new SymbolicPred(ops::LE, tmp_expr);
+				constraintsMPI.push_back(tmpPred);
+			}
+		}
+
 		//string str;
 		//tmpPred->AppendToString(&str);
 		//printf("%s\n", str.c_str());	
@@ -201,7 +228,7 @@ namespace crest {
 		//	(*iter)->AppendToString(&str);
 		//	printf("%s\n", str.c_str());	
 		//}
-		return true;
+		return;
 	}
 
 

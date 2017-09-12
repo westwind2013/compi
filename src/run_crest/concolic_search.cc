@@ -610,30 +610,30 @@ namespace crest {
 		map<var_t, value_t> soln;
 		constraints[branch_idx]->Negate();
 		
-		
-		
-		
-	if (execution_tag_ != ex.execution_tag_) {	
 
-	execution_tag_ = ex.execution_tag_;	
-	
-	solver->GetMPIInfo(ex.world_size_indices_, ex.rank_indices_);
 
-	/*
-	world_size_indices_.clear();
-	rank_indices_.clear();
-	world_size_indices_.insert(ex.world_size_indices_.begin(), 
-				ex.world_size_indices_.end());
-	rank_indices_.insert(ex.rank_indices_.begin(), 
-				ex.rank_indices_.end());
-	*/
 
-	world_size_indices_ = ex.world_size_indices_; 
-	rank_indices_ = ex.rank_indices_;
-	
-	solver->GenerateConstraintsMPI();
-	}
-		
+		if (execution_tag_ != ex.execution_tag_) {	
+
+			execution_tag_ = ex.execution_tag_;	
+
+			//solver->GetMPIInfo(ex.world_size_indices_, ex.rank_indices_);
+
+			/*
+			   world_size_indices_.clear();
+			   rank_indices_.clear();
+			   world_size_indices_.insert(ex.world_size_indices_.begin(), 
+			   ex.world_size_indices_.end());
+			   rank_indices_.insert(ex.rank_indices_.begin(), 
+			   ex.rank_indices_.end());
+			 */
+
+			world_size_indices_ = ex.world_size_indices_; 
+			rank_indices_ = ex.rank_indices_;
+
+			solver->GenerateConstraintsMPI(ex);
+		}
+
 		
 		
 		

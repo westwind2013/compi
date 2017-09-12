@@ -190,11 +190,17 @@ EXTERN void __CrestHandleReturn(__CREST_ID, __CREST_VALUE) __SKIP;
  * Functions (macros) for obtaining symbolic inputs.
  */
 #define CREST_unsigned_char(x) __CrestUChar(&x)
+#define CREST_unsigned_char_with_limit(x, limit) __CrestUCharWithLimit(&x, limit)
 #define CREST_unsigned_short(x) __CrestUShort(&x)
+#define CREST_unsigned_short_with_limit(x, limit) __CrestUShortWithLimit(&x, limit)
 #define CREST_unsigned_int(x) __CrestUInt(&x)
+#define CREST_unsigned_int_with_limit(x, limit) __CrestUIntWithLimit(&x, limit)
 #define CREST_char(x) __CrestChar(&x)
+#define CREST_char_with_limit(x, limit) __CrestCharWithLimit(&x, limit)
 #define CREST_short(x) __CrestShort(&x)
+#define CREST_short_with_limit(x, limit) __CrestShortWithLimit(&x, limit)
 #define CREST_int(x) __CrestInt(&x)
+#define CREST_int_with_limit(x, limit) __CrestIntWithLimit(&x, limit)
 
 //
 // hEdit: symbolic input function for MPI rank and 
@@ -202,6 +208,7 @@ EXTERN void __CrestHandleReturn(__CREST_ID, __CREST_VALUE) __SKIP;
 //
 #define CREST_rank(x) __CrestRank(&x)
 #define CREST_world_size(x) __CrestWorldSize(&x)
+#define CREST_world_size_with_limit(x, limit) __CrestWorldSizeWithLimit(&x, limit)
 
 
 EXTERN void __CrestUChar(unsigned char* x) __SKIP;

@@ -19,6 +19,8 @@ open Cil
  * Utilities that should be in the O'Caml standard libraries.
  *)
 
+let worldSizeLimit = 4
+
 let isSome o =
   match o with
     | Some _ -> true
@@ -245,6 +247,7 @@ let isSymbolicType ty = isIntegralType (unrollType ty)
 
 
 (* These definitions must match those in "libcrest/crest.h". *)
+let limitType   = intType
 let idType   = intType
 let bidType  = intType
 let fidType  = uintType
@@ -355,6 +358,7 @@ class crestInstrumentVisitor f =
    * code will grab the varinfo's from the included declarations.
    * Otherwise, it will create declarations for these functions.
    *)
+  let limitArg   = ("limit",   limitType,   []) in
   let idArg   = ("id",   idType,   []) in
   let bidArg  = ("bid",  bidType,  []) in
   let fidArg  = ("fid",  fidType,  []) in
@@ -394,7 +398,7 @@ class crestInstrumentVisitor f =
 	(* hEdit: add a new function that marks MPI_rank in MPI_COMM_WORLD *)
 	let rankFunc   = mkInstFunc_ "Rank" [addrArg] in
 	(* hEdit: add a new function that marks MPI_COMM_WORLD's size in MPI_COMM_WORLD *)
-	let worldSizeFunc   = mkInstFunc_ "WorldSize" [addrArg] in
+	let worldSizeFunc   = mkInstFunc_ "WorldSizeWithLimit" [addrArg; limitArg] in
 	let getMPIInfo       = mkInstFunc_ "GetMPIInfo" [] in
 
 	(*
@@ -453,7 +457,7 @@ class crestInstrumentVisitor f =
 	  let mkHandleReturn value = mkInstCall handleReturnFunc [toValue value] in
 	  
 	  let mkRank addr     = mkInstCall_ rankFunc [toAddr addr] in
-	  let mkWorldSize addr     = mkInstCall_ worldSizeFunc [toAddr addr] in
+	  let mkWorldSize addr limit    = mkInstCall_ worldSizeFunc [toAddr addr; integer limit] in
 	  let mkGetMPIInfo ()      = mkInstCall_ getMPIInfo [] in
 
 	  (*
@@ -520,12 +524,12 @@ class crestInstrumentVisitor f =
 						(
 						match k with 
 							| Lval(_, _) ->
-								[mkWorldSize k]; 
+								[mkWorldSize k worldSizeLimit]; 
 							| CastE(_, _) ->
-								[mkWorldSize k]; 
+								[mkWorldSize k worldSizeLimit]; 
 							| AddrOf(a) ->
 								(* miss the bracket cause the bug for addressOf*)
-								[mkWorldSize (addressOf a)]; 
+								[mkWorldSize (addressOf a) worldSizeLimit]; 
 							| _ -> [];
 						)
 				)

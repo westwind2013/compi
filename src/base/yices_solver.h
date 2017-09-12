@@ -17,6 +17,7 @@
 
 #include "base/basic_types.h"
 #include "base/symbolic_predicate.h"
+#include "base/symbolic_execution.h"
 
 using std::map;
 using std::vector;
@@ -31,11 +32,12 @@ namespace crest {
 
 			//bool GetMPIInfoByFile();
 
-			bool GetMPIInfo(std::unordered_set<int>& comm_world_size, 
-				std::unordered_set<int>& rank_indices);
-	bool GetMPIInfo(const std::vector<int>& world_size_indices, const std::vector<int>& rank_indices);
+			//bool GetMPIInfo(std::unordered_set<int>& comm_world_size, 
+			//	std::unordered_set<int>& rank_indices);
+			//bool GetMPIInfo(const std::vector<int>& world_size_indices, 
+			//	const std::vector<int>& rank_indices);
 
-			bool GenerateConstraintsMPI();
+			void GenerateConstraintsMPI(const SymbolicExecution& ex);
 
 			bool IncrementalSolve(const vector<value_t>& old_soln,
 					const map<var_t,type_t>& vars,
