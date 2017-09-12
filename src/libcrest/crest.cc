@@ -67,7 +67,13 @@ void __CrestInit() {
 	}
 	in.close();
 
-	SI = new SymbolicInterpreter(input);
+	// The number of execution times
+	size_t num_iters = 0;
+	std::ifstream infile(".num_iters");
+	infile >> num_iters;
+	infile.close();
+
+	SI = new SymbolicInterpreter(input, num_iters);
 
 	pre_symbolic = 1;
 

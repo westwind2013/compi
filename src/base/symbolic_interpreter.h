@@ -32,7 +32,7 @@ namespace crest {
 	class SymbolicInterpreter {
 		public:
 			SymbolicInterpreter();
-			explicit SymbolicInterpreter(const vector<value_t>& input);
+			explicit SymbolicInterpreter(const vector<value_t>& input, size_t exec_times);
 			~SymbolicInterpreter();
 
 			void ClearStack(id_t id);

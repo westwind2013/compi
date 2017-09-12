@@ -38,7 +38,7 @@ namespace crest {
 			vector<id_t> rank_indices_;
 			vector<id_t> rank_non_default_comm_indices_;
 			vector<id_t> world_size_indices_;
-			time_t execution_tag_;
+			size_t execution_tag_;
 
 			SymbolicExecution();
 			explicit SymbolicExecution(bool pre_allocate);

@@ -40,14 +40,14 @@ namespace crest {
 
 		}
 
-	SymbolicInterpreter::SymbolicInterpreter(const vector<value_t>& input) :
+	SymbolicInterpreter::SymbolicInterpreter(const vector<value_t>& input, size_t exec_times) :
 		pred_(NULL), return_value_(false), ex_(true), num_inputs_(0) {
 			stack_.reserve(16);
 			ex_.mutable_inputs()->assign(input.begin(), input.end());
 
 			// set the execution tag 
-			ex_.execution_tag_ = time(NULL);
-
+			ex_.execution_tag_ = exec_times;
+//fprintf(stderr, "Execution tag = %zu\n\n", ex_.execution_tag_);
 			//
 			// hEdit: read the random values stored by the tool in file ".rand_params"
 			// and save them to vector "rand_params"

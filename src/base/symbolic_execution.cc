@@ -47,7 +47,7 @@ namespace crest {
 		}
                 
 		// Wirte the execution tag
-                s->append((char*)&execution_tag_, sizeof(time_t));
+                s->append((char*)&execution_tag_, sizeof(size_t));
 
 		// write the specified limits
 		len = limits_.size();
@@ -76,6 +76,7 @@ namespace crest {
                         s->append((char*)&world_size_indices_[i], sizeof(id_t));            
                 }
 
+/*
 //
 // hEdit: debug
 //
@@ -86,6 +87,7 @@ fprintf(stderr, "Serialization info: inputs size: %zu\n "
 	vars_.size(), limits_.size(), rank_indices_.size(), 
 	rank_non_default_comm_indices_.size(), 
 	world_size_indices_.size());
+*/
 
 		// Write the path.
 		path_.Serialize(s);
@@ -125,7 +127,7 @@ fprintf(stderr, "Serialization info: inputs size: %zu\n "
 		}
 		
 		// Read the execution tag
-                s.read((char*)&execution_tag_, sizeof(time_t));
+                s.read((char*)&execution_tag_, sizeof(size_t));
 	
 		// Read user-specified limits
                 s.read((char*)&len, sizeof(len));

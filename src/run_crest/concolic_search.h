@@ -76,7 +76,6 @@ namespace crest {
 			bool UpdateCoverageUponTarget(SymbolicExecution& ex,
 					set<branch_id_t>* new_branches);
 
-			void RandomInput(const map<var_t, type_t>& vars, vector<value_t>* input);
 
 		private:
 			const string program_;
@@ -107,7 +106,7 @@ namespace crest {
 			// records the illegal inputs to a file
 			std::ofstream outfile_illegal_inputs;
 			// remember the prior execution tag
-			time_t execution_tag_;
+			size_t execution_tag_;
 
 			// hEdit: temporary solution to avoid the random number being
 			// generated becomes too big
@@ -166,6 +165,10 @@ namespace crest {
 
 		private:
 			SymbolicExecution ex_;
+			size_t world_size_max;
+			size_t world_size_index;
+
+			void RandomInput(const map<var_t, type_t>& vars, vector<value_t>* input);
 	};
 
 	class RandomSearch: public Search {
