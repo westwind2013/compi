@@ -52,6 +52,13 @@ namespace crest {
 			branch_id_t max_branch_;
 			unsigned int num_covered_;
 			unsigned int total_num_covered_;
+			
+			// the index of variables marked as MPI rank (MPI_COMM_WORLD)
+			// in the array of symbolically marked variables
+			vector<int> rank_indices_;
+			// the index of variables marked as the size of MPI_COMM_WORLD
+			// in the array of symbolically marked variables
+			vector<int> world_size_indices_;
 
 			vector<bool> reached_;
 			vector<unsigned int> branch_count_;
@@ -95,12 +102,6 @@ namespace crest {
 			// the target rank to be tested
 			int target_rank_;
 			
-			// the index of variables marked as MPI rank (MPI_COMM_WORLD)
-			// in the array of symbolically marked variables
-			vector<int> rank_indices_;
-			// the index of variables marked as the size of MPI_COMM_WORLD
-			// in the array of symbolically marked variables
-			vector<int> world_size_indices_;
 			// YicesSolver
 			YicesSolver* solver;
 			// records the illegal inputs to a file

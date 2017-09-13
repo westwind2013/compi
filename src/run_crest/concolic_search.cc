@@ -571,8 +571,8 @@ namespace crest {
 		map<var_t, value_t> soln;
 		constraints[branch_idx]->Negate();
 
-fprintf(stderr, "\nExecution tag: %zu -> %zu \n", execution_tag_, ex.execution_tag_);
 		if (execution_tag_ != ex.execution_tag_) {	
+fprintf(stderr, "\nExecution tag: %zu -> %zu \n", execution_tag_, ex.execution_tag_);
 
 			execution_tag_ = ex.execution_tag_;	
 
@@ -994,224 +994,228 @@ return;
 //// RandomSearch //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
-UniformRandomSearch::UniformRandomSearch(const string& program,
+	UniformRandomSearch::UniformRandomSearch(const string& program,
 		int max_iterations, int comm_world_size, int target_rank, size_t max_depth) :
-	Search(program, max_iterations, comm_world_size, target_rank), max_depth_(
+		Search(program, max_iterations, comm_world_size, target_rank), max_depth_(
 			max_depth) {
 	}
 
-UniformRandomSearch::~UniformRandomSearch() {
-}
-
-void UniformRandomSearch::Run() {
-	// Initial execution (on empty/random inputs).
-	RunProgram(vector<value_t>(), &prev_ex_);
-	UpdateCoverage(prev_ex_);
-
-	while (true) {
-		fprintf(stderr, "RESET\n");
-
-		// Uniform random path.
-		DoUniformRandomPath();
+	UniformRandomSearch::~UniformRandomSearch() {
 	}
-}
 
-void UniformRandomSearch::DoUniformRandomPath() {
-	vector<value_t> input;
+	void UniformRandomSearch::Run() {
+		// Initial execution (on empty/random inputs).
+		RunProgram(vector<value_t>(), &prev_ex_);
+		UpdateCoverage(prev_ex_);
 
-	size_t i = 0;
-	size_t depth = 0;
-	fprintf(stderr, "%zu constraints.\n", prev_ex_.path().constraints().size());
-	while ((i < prev_ex_.path().constraints().size()) && (depth < max_depth_)) {
-		if (SolveAtBranch(prev_ex_, i, &input)) {
-			fprintf(stderr, "Solved constraint %zu/%zu.\n", (i + 1),
-					prev_ex_.path().constraints().size());
-			depth++;
+		while (true) {
+			fprintf(stderr, "RESET\n");
 
-			// With probability 0.5, force the i-th constraint.
-			if (rand() % 2 == 0) {
-				RunProgram(input, &cur_ex_);
-				UpdateCoverage(cur_ex_);
-				size_t branch_idx = prev_ex_.path().constraints_idx()[i];
-				if (!CheckPrediction(prev_ex_, cur_ex_, branch_idx)) {
-					fprintf(stderr, "prediction failed\n");
-					depth--;
-				} else {
-					cur_ex_.Swap(prev_ex_);
+			// Uniform random path.
+			DoUniformRandomPath();
+		}
+	}
+
+	void UniformRandomSearch::DoUniformRandomPath() {
+		vector<value_t> input;
+
+		size_t i = 0;
+		size_t depth = 0;
+		fprintf(stderr, "%zu constraints.\n", prev_ex_.path().constraints().size());
+		while ((i < prev_ex_.path().constraints().size()) && (depth < max_depth_)) {
+			if (SolveAtBranch(prev_ex_, i, &input)) {
+				fprintf(stderr, "Solved constraint %zu/%zu.\n", (i + 1),
+						prev_ex_.path().constraints().size());
+				depth++;
+
+				// With probability 0.5, force the i-th constraint.
+				if (rand() % 2 == 0) {
+					RunProgram(input, &cur_ex_);
+					UpdateCoverage(cur_ex_);
+					size_t branch_idx = prev_ex_.path().constraints_idx()[i];
+					if (!CheckPrediction(prev_ex_, cur_ex_, branch_idx)) {
+						fprintf(stderr, "prediction failed\n");
+						depth--;
+					} else {
+						cur_ex_.Swap(prev_ex_);
+					}
 				}
 			}
-		}
 
-		i++;
+			i++;
+		}
 	}
-}
 
 ////////////////////////////////////////////////////////////////////////
 //// HybridSearch //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
-HybridSearch::HybridSearch(const string& program, int max_iterations,
-		int comm_world_size, int target_rank, int step_size) :
-	Search(program, max_iterations, comm_world_size, target_rank), step_size_(
-			step_size) {
+	HybridSearch::HybridSearch(const string& program, int max_iterations,
+			int comm_world_size, int target_rank, int step_size) :
+		Search(program, max_iterations, comm_world_size, target_rank), step_size_(
+				step_size) {
 	}
 
-HybridSearch::~HybridSearch() {
-}
-
-void HybridSearch::Run() {
-	SymbolicExecution ex;
-
-	while (true) {
-		// Execution on empty/random inputs.
-		RunProgram(vector<value_t>(), &ex);
-		UpdateCoverage(ex);
-
-		// Local searches at increasingly deeper execution points.
-		for (size_t pos = 0; pos < ex.path().constraints().size(); pos +=
-				step_size_) {
-			RandomLocalSearch(&ex, pos, pos + step_size_);
-		}
-	}
-}
-
-void HybridSearch::RandomLocalSearch(SymbolicExecution *ex, size_t start,
-		size_t end) {
-	for (int iters = 0; iters < 100; iters++) {
-		if (!RandomStep(ex, start, end))
-			break;
-	}
-}
-
-bool HybridSearch::RandomStep(SymbolicExecution *ex, size_t start, size_t end) {
-
-	if (end > ex->path().constraints().size()) {
-		end = ex->path().constraints().size();
-	}
-	assert(start < end);
-
-	SymbolicExecution next_ex;
-	vector<value_t> input;
-
-	fprintf(stderr, "%zu-%zu\n", start, end);
-	vector<size_t> idxs(end - start);
-	for (size_t i = 0; i < idxs.size(); i++) {
-		idxs[i] = start + i;
+	HybridSearch::~HybridSearch() {
 	}
 
-	for (int tries = 0; tries < 1000; tries++) {
-		// Pick a random index.
-		if (idxs.size() == 0)
-			break;
-		size_t r = rand() % idxs.size();
-		size_t i = idxs[r];
-		swap(idxs[r], idxs.back());
-		idxs.pop_back();
+	void HybridSearch::Run() {
+		SymbolicExecution ex;
 
-		if (SolveAtBranch(*ex, i, &input)) {
-			RunProgram(input, &next_ex);
-			UpdateCoverage(next_ex);
-			if (CheckPrediction(*ex, next_ex,
-						ex->path().constraints_idx()[i])) {
-				ex->Swap(next_ex);
-				return true;
+		while (true) {
+			// Execution on empty/random inputs.
+			RunProgram(vector<value_t>(), &ex);
+			UpdateCoverage(ex);
+
+			// Local searches at increasingly deeper execution points.
+			for (size_t pos = 0; pos < ex.path().constraints().size(); pos +=
+					step_size_) {
+				RandomLocalSearch(&ex, pos, pos + step_size_);
 			}
 		}
 	}
 
-	return false;
-}
+	void HybridSearch::RandomLocalSearch(SymbolicExecution *ex, size_t start,
+			size_t end) {
+		for (int iters = 0; iters < 100; iters++) {
+			if (!RandomStep(ex, start, end))
+				break;
+		}
+	}
+
+	bool HybridSearch::RandomStep(SymbolicExecution *ex, size_t start, size_t end) {
+
+		if (end > ex->path().constraints().size()) {
+			end = ex->path().constraints().size();
+		}
+		assert(start < end);
+
+		SymbolicExecution next_ex;
+		vector<value_t> input;
+
+		fprintf(stderr, "%zu-%zu\n", start, end);
+		vector<size_t> idxs(end - start);
+		for (size_t i = 0; i < idxs.size(); i++) {
+			idxs[i] = start + i;
+		}
+
+		for (int tries = 0; tries < 1000; tries++) {
+			// Pick a random index.
+			if (idxs.size() == 0)
+				break;
+			size_t r = rand() % idxs.size();
+			size_t i = idxs[r];
+			swap(idxs[r], idxs.back());
+			idxs.pop_back();
+
+			if (SolveAtBranch(*ex, i, &input)) {
+				RunProgram(input, &next_ex);
+				UpdateCoverage(next_ex);
+				if (CheckPrediction(*ex, next_ex,
+							ex->path().constraints_idx()[i])) {
+					ex->Swap(next_ex);
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 
 ////////////////////////////////////////////////////////////////////////
 //// CfgBaselineSearch /////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
-CfgBaselineSearch::CfgBaselineSearch(const string& program, int max_iterations,
-		int comm_world_size, int target_rank) :
-	Search(program, max_iterations, comm_world_size, target_rank) {
-	}
-
-CfgBaselineSearch::~CfgBaselineSearch() {
-}
-
-void CfgBaselineSearch::Run() {
-	SymbolicExecution ex;
-
-	while (true) {
-		// Execution on empty/random inputs.
-		fprintf(stderr, "RESET\n");
-		RunProgram(vector<value_t>(), &ex);
-		UpdateCoverage(ex);
-
-		while (DoSearch(5, 250, 0, ex)) {
-			// As long as we keep finding new branches . . . .
-			ex.Swap(success_ex_);
+	CfgBaselineSearch::CfgBaselineSearch(const string& program, int max_iterations,
+			int comm_world_size, int target_rank) :
+		Search(program, max_iterations, comm_world_size, target_rank) {
 		}
-	}
-}
 
-bool CfgBaselineSearch::DoSearch(int depth, int iters, int pos,
-		const SymbolicExecution& prev_ex) {
-
-	// For each symbolic branch/constraint in the execution path, we will
-	// compute a heuristic score, and then attempt to force the branches
-	// in order of increasing score.
-	vector<ScoredBranch> scoredBranches(
-			prev_ex.path().constraints().size() - pos);
-	for (size_t i = 0; i < scoredBranches.size(); i++) {
-		scoredBranches[i].first = i + pos;
+	CfgBaselineSearch::~CfgBaselineSearch() {
 	}
 
-	{ // Compute (and sort by) the scores.
-		random_shuffle(scoredBranches.begin(), scoredBranches.end());
-		map<branch_id_t, int> seen;
-		for (size_t i = 0; i < scoredBranches.size(); i++) {
-			size_t idx = scoredBranches[i].first;
-			size_t branch_idx = prev_ex.path().constraints_idx()[idx];
-			branch_id_t bid =
-				paired_branch_[prev_ex.path().branches()[branch_idx]];
-			if (covered_[bid]) {
-				scoredBranches[i].second = 100000000 + seen[bid];
-			} else {
-				scoredBranches[i].second = seen[bid];
+	void CfgBaselineSearch::Run() {
+		SymbolicExecution ex;
+
+		while (true) {
+			// clear the state of MPI info used at launching time
+			rank_indices_.clear();
+			world_size_indices_.clear();
+			
+			// Execution on empty/random inputs.
+			fprintf(stderr, "RESET\n");
+			RunProgram(vector<value_t>(), &ex);
+			UpdateCoverage(ex);
+
+			while (DoSearch(5, 250, 0, ex)) {
+				// As long as we keep finding new branches . . . .
+				ex.Swap(success_ex_);
 			}
-			seen[bid] += 1;
-		}
-	}
-	stable_sort(scoredBranches.begin(), scoredBranches.end(),
-			ScoredBranchComp());
-
-	// Solve.
-	SymbolicExecution cur_ex;
-	vector<value_t> input;
-	for (size_t i = 0; i < scoredBranches.size(); i++) {
-		if (iters <= 0) {
-			return false;
-		}
-
-		if (!SolveAtBranch(prev_ex, scoredBranches[i].first, &input)) {
-			continue;
-		}
-
-		RunProgram(input, &cur_ex);
-		iters--;
-
-		if (UpdateCoverage(cur_ex, NULL)) {
-			success_ex_.Swap(cur_ex);
-			return true;
 		}
 	}
 
-	return false;
-}
+	bool CfgBaselineSearch::DoSearch(int depth, int iters, int pos,
+			const SymbolicExecution& prev_ex) {
+
+		// For each symbolic branch/constraint in the execution path, we will
+		// compute a heuristic score, and then attempt to force the branches
+		// in order of increasing score.
+		vector<ScoredBranch> scoredBranches(
+				prev_ex.path().constraints().size() - pos);
+		for (size_t i = 0; i < scoredBranches.size(); i++) {
+			scoredBranches[i].first = i + pos;
+		}
+
+		{ // Compute (and sort by) the scores.
+			random_shuffle(scoredBranches.begin(), scoredBranches.end());
+			map<branch_id_t, int> seen;
+			for (size_t i = 0; i < scoredBranches.size(); i++) {
+				size_t idx = scoredBranches[i].first;
+				size_t branch_idx = prev_ex.path().constraints_idx()[idx];
+				branch_id_t bid =
+					paired_branch_[prev_ex.path().branches()[branch_idx]];
+				if (covered_[bid]) {
+					scoredBranches[i].second = 100000000 + seen[bid];
+				} else {
+					scoredBranches[i].second = seen[bid];
+				}
+				seen[bid] += 1;
+			}
+		}
+		stable_sort(scoredBranches.begin(), scoredBranches.end(),
+				ScoredBranchComp());
+
+		// Solve.
+		SymbolicExecution cur_ex;
+		vector<value_t> input;
+		for (size_t i = 0; i < scoredBranches.size(); i++) {
+			if (iters <= 0) {
+				return false;
+			}
+
+			if (!SolveAtBranch(prev_ex, scoredBranches[i].first, &input)) {
+				continue;
+			}
+
+			RunProgram(input, &cur_ex);
+			iters--;
+
+			if (UpdateCoverage(cur_ex, NULL)) {
+				success_ex_.Swap(cur_ex);
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 ////////////////////////////////////////////////////////////////////////
 //// CfgHeuristicSearch ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
-CfgHeuristicSearch::CfgHeuristicSearch(const string& program,
+	CfgHeuristicSearch::CfgHeuristicSearch(const string& program,
 		int max_iterations, int comm_world_size, int target_rank) :
-	Search(program, max_iterations, comm_world_size, target_rank), cfg_(
+		Search(program, max_iterations, comm_world_size, target_rank), cfg_(
 			max_branch_), cfg_rev_(max_branch_), dist_(max_branch_) {
 
 		// Read in the CFG.
@@ -1238,84 +1242,38 @@ CfgHeuristicSearch::CfgHeuristicSearch(const string& program,
 		}
 	}
 
-CfgHeuristicSearch::~CfgHeuristicSearch() {
-}
-
-void CfgHeuristicSearch::Run() {
-	set<branch_id_t> newly_covered_;
-	SymbolicExecution ex;
-
-	while (true) {
-		covered_.assign(max_branch_, false);
-		num_covered_ = 0;
-
-		// Execution on empty/random inputs.
-		fprintf(stderr, "RESET\n");
-		RunProgram(vector<value_t>(), &ex);
-		if (UpdateCoverage(ex)) {
-			UpdateBranchDistances();
-			PrintStats();
-		}
-
-		// while (DoSearch(3, 200, 0, kInfiniteDistance+10, ex)) {
-		while (DoSearch(5, 30, 0, kInfiniteDistance, ex)) {
-			// while (DoSearch(3, 10000, 0, kInfiniteDistance, ex)) {
-			PrintStats();
-			// As long as we keep finding new branches . . . .
-			UpdateBranchDistances();
-			ex.Swap(success_ex_);
-		}
-		PrintStats();
-		}
+	CfgHeuristicSearch::~CfgHeuristicSearch() {
 	}
 
-	void CfgHeuristicSearch::PrintStats() {
-		fprintf(stderr,
-				"Cfg solves: %u/%u (%u lucky [%u continued], %u on 0's, %u on others,"
-				"%u unsats, %u prediction failures)\n",
-				(num_inner_lucky_successes_ + num_inner_zero_successes_
-				 + num_inner_nonzero_successes_ + num_top_solve_successes_),
-				num_inner_solves_, num_inner_lucky_successes_,
-				(num_inner_lucky_successes_ - num_inner_successes_pred_fail_),
-				num_inner_zero_successes_, num_inner_nonzero_successes_,
-				num_inner_unsats_, num_inner_pred_fails_);
-		fprintf(stderr, "    (recursive successes: %u)\n",
-				num_inner_recursive_successes_);
-		fprintf(stderr, "Top-level SolveAlongCfg: %u/%u\n",
-				num_top_solve_successes_, num_top_solves_);
-		fprintf(stderr,
-				"All SolveAlongCfg: %u/%u  (%u all concrete, %u no paths)\n",
-				num_solve_successes_, num_solves_, num_solve_all_concrete_,
-				num_solve_no_paths_);
-		fprintf(stderr,
-				"    (sat failures: %u/%u)  (prediction failures: %u) (recursions: %u)\n",
-				num_solve_unsats_, num_solve_sat_attempts_, num_solve_pred_fails_,
-				num_solve_recurses_);
-	}
+	void CfgHeuristicSearch::Run() {
+		set<branch_id_t> newly_covered_;
+		SymbolicExecution ex;
 
-	void CfgHeuristicSearch::UpdateBranchDistances() {
-		// We run a BFS backward, starting simultaneously at all uncovered vertices.
-		queue<branch_id_t> Q;
-		for (BranchIt i = branches_.begin(); i != branches_.end(); ++i) {
-			if (!covered_[*i]) {
-				dist_[*i] = 0;
-				Q.push(*i);
-			} else {
-				dist_[*i] = kInfiniteDistance;
+		while (true) {
+			// clear the state of MPI info used at launching time
+			rank_indices_.clear();
+			world_size_indices_.clear();
+			
+			covered_.assign(max_branch_, false);
+			num_covered_ = 0;
+
+			// Execution on empty/random inputs.
+			fprintf(stderr, "RESET\n");
+			RunProgram(vector<value_t>(), &ex);
+			if (UpdateCoverage(ex)) {
+				UpdateBranchDistances();
+				PrintStats();
 			}
-		}
 
-		while (!Q.empty()) {
-			branch_id_t i = Q.front();
-			size_t dist_i = dist_[i];
-			Q.pop();
-
-			for (BranchIt j = cfg_rev_[i].begin(); j != cfg_rev_[i].end(); ++j) {
-				if (dist_i + 1 < dist_[*j]) {
-					dist_[*j] = dist_i + 1;
-					Q.push(*j);
-				}
+			// while (DoSearch(3, 200, 0, kInfiniteDistance+10, ex)) {
+			while (DoSearch(5, 30, 0, kInfiniteDistance, ex)) {
+				// while (DoSearch(3, 10000, 0, kInfiniteDistance, ex)) {
+				PrintStats();
+				// As long as we keep finding new branches . . . .
+				UpdateBranchDistances();
+				ex.Swap(success_ex_);
 			}
+			PrintStats();
 		}
 	}
 
@@ -1459,6 +1417,58 @@ void CfgHeuristicSearch::Run() {
 
 		return false;
 	}
+
+
+	void CfgHeuristicSearch::PrintStats() {
+		fprintf(stderr,
+				"Cfg solves: %u/%u (%u lucky [%u continued], %u on 0's, %u on others,"
+				"%u unsats, %u prediction failures)\n",
+				(num_inner_lucky_successes_ + num_inner_zero_successes_
+				 + num_inner_nonzero_successes_ + num_top_solve_successes_),
+				num_inner_solves_, num_inner_lucky_successes_,
+				(num_inner_lucky_successes_ - num_inner_successes_pred_fail_),
+				num_inner_zero_successes_, num_inner_nonzero_successes_,
+				num_inner_unsats_, num_inner_pred_fails_);
+		fprintf(stderr, "    (recursive successes: %u)\n",
+				num_inner_recursive_successes_);
+		fprintf(stderr, "Top-level SolveAlongCfg: %u/%u\n",
+				num_top_solve_successes_, num_top_solves_);
+		fprintf(stderr,
+				"All SolveAlongCfg: %u/%u  (%u all concrete, %u no paths)\n",
+				num_solve_successes_, num_solves_, num_solve_all_concrete_,
+				num_solve_no_paths_);
+		fprintf(stderr,
+				"    (sat failures: %u/%u)  (prediction failures: %u) (recursions: %u)\n",
+				num_solve_unsats_, num_solve_sat_attempts_, num_solve_pred_fails_,
+				num_solve_recurses_);
+	}
+
+	void CfgHeuristicSearch::UpdateBranchDistances() {
+		// We run a BFS backward, starting simultaneously at all uncovered vertices.
+		queue<branch_id_t> Q;
+		for (BranchIt i = branches_.begin(); i != branches_.end(); ++i) {
+			if (!covered_[*i]) {
+				dist_[*i] = 0;
+				Q.push(*i);
+			} else {
+				dist_[*i] = kInfiniteDistance;
+			}
+		}
+
+		while (!Q.empty()) {
+			branch_id_t i = Q.front();
+			size_t dist_i = dist_[i];
+			Q.pop();
+
+			for (BranchIt j = cfg_rev_[i].begin(); j != cfg_rev_[i].end(); ++j) {
+				if (dist_i + 1 < dist_[*j]) {
+					dist_[*j] = dist_i + 1;
+					Q.push(*j);
+				}
+			}
+		}
+	}
+
 
 	size_t CfgHeuristicSearch::MinCflDistance(size_t i, const SymbolicExecution& ex,
 			const set<branch_id_t>& bs) {
