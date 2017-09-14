@@ -48,10 +48,12 @@ namespace crest {
 			// set the execution tag 
 			ex_.execution_tag_ = exec_times;
 //fprintf(stderr, "Execution tag = %zu\n\n", ex_.execution_tag_);
+			
 			//
 			// hEdit: read the random values stored by the tool in file ".rand_params"
 			// and save them to vector "rand_params"
 			//
+			/*
 			if (input.empty()) {
 				std::ifstream infile(".rand_params");
 				if (!infile) {
@@ -72,6 +74,7 @@ namespace crest {
 
 				infile.close();
 			}
+			*/
 
 		}
 
@@ -351,7 +354,7 @@ namespace crest {
 		ex_.mutable_path()->Push(bid);
 	}
 
-	value_t SymbolicInterpreter::NewInput(type_t type, addr_t addr) {
+	value_t SymbolicInterpreter::NewInput(type_t type, addr_t addr, value_t limit) {
 		IFDEBUG(fprintf(stderr, "symbolic_input %d %lu\n", type, addr));
 
 		mem_[addr] = new SymbolicExpr(1, num_inputs_);
@@ -365,18 +368,19 @@ namespace crest {
                         // hEdit: get random paramters obtained from the tool
                         //
 			
-			if (rand_params_.size() > num_inputs_)
-				ret = CastTo(rand_params_[num_inputs_], type);
-			else
-			{
+			//if (rand_params_.size() > num_inputs_)
+			//	ret = CastTo(rand_params_[num_inputs_], type);
+			//else
+			//{
 				// When new marked variables is found, we need to
 				// generate new values for them. 
-				ret = CastTo(rand(), type);	
+				ret = CastTo(rand() % limit, type);	
 				// 
 				// hEdit: synchronize the value among all processes
 				//
 				MPI_Bcast(&ret, 1, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
-			}
+			
+			//}
 			ex_.mutable_inputs()->push_back(ret);
 		}
 
@@ -389,7 +393,7 @@ namespace crest {
 	value_t SymbolicInterpreter::NewInputWithLimit(type_t type, addr_t addr, value_t limit) {
 	
 		ex_.limits_[num_inputs_] = limit;
-		return NewInput(type, addr);
+		return NewInput(type, addr, limit);
 	}
 	
 	
@@ -418,10 +422,10 @@ namespace crest {
                         // other variables marked as symbolic take the CORRECT
                         // values from the vector. 
                         //
-                        if (num_inputs_ < rand_params_.size())
-				rand_params_.insert(rand_params_.begin() + num_inputs_, rank_);
-			else
-				rand_params_.push_back(rank_);
+                        //if (num_inputs_ < rand_params_.size())
+			//	rand_params_.insert(rand_params_.begin() + num_inputs_, rank_);
+			//else
+			//	rand_params_.push_back(rank_);
 
 		}
 		
@@ -469,10 +473,10 @@ namespace crest {
                         // other variables marked as symbolic take the CORRECT
                         // values from the vector. 
                         //
-                        if (num_inputs_ < rand_params_.size())
-				rand_params_.insert(rand_params_.begin() + num_inputs_, rank_);
-			else
-				rand_params_.push_back(rank_);
+                        //if (num_inputs_ < rand_params_.size())
+			//	rand_params_.insert(rand_params_.begin() + num_inputs_, rank_);
+			//else
+			//	rand_params_.push_back(rank_);
 
 
 		}
@@ -523,10 +527,10 @@ namespace crest {
                         // other variables marked as symbolic take the CORRECT
                         // values from the vector. 
                         //
-                        if (num_inputs_ < rand_params_.size())
-				rand_params_.insert(rand_params_.begin() + num_inputs_, world_size_);
-			else 
-				rand_params_.push_back(world_size_);
+                        //if (num_inputs_ < rand_params_.size())
+			//	rand_params_.insert(rand_params_.begin() + num_inputs_, world_size_);
+			//else 
+			//	rand_params_.push_back(world_size_);
 		}
 
 		//

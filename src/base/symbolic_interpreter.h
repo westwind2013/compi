@@ -12,6 +12,7 @@
 #define BASE_SYMBOLIC_INTERPRETER_H__
 
 #include <stdio.h>
+#include <climits>
 
 #include <ext/hash_map>
 #include <map>
@@ -50,7 +51,7 @@ namespace crest {
 			void Branch(id_t id, branch_id_t bid, bool pred_value);
 			void BranchOnly(branch_id_t bid);
 
-			value_t NewInput(type_t type, addr_t addr);
+			value_t NewInput(type_t type, addr_t addr, value_t limit = INT_MAX);
 			value_t NewInputWithLimit(type_t type, addr_t addr, value_t limit);
 
 			// 
