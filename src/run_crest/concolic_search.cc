@@ -639,8 +639,10 @@ fprintf(stderr, "\nExecution tag: %zu -> %zu \n", execution_tag_, ex.execution_t
 		RunProgram(vector<value_t>(), &ex);
 		UpdateCoverage(ex);
 
-		DFS(0, max_depth_, ex);
+		while (true) {
+			DFS(0, max_depth_, ex);
 		// DFS(0, ex);
+		}
 	}
 
 /*

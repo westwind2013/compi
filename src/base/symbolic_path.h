@@ -15,6 +15,7 @@
 #include <istream>
 #include <ostream>
 #include <vector>
+#include <unordered_map>
 
 #include "base/basic_types.h"
 #include "base/symbolic_predicate.h"
@@ -23,6 +24,7 @@ using std::istream;
 using std::ostream;
 using std::swap;
 using std::vector;
+using std::unordered_map;
 
 namespace crest {
 
@@ -35,7 +37,8 @@ namespace crest {
 			void Swap(SymbolicPath& sp);
 
 			void Push(branch_id_t bid);
-			void Push(branch_id_t bid, SymbolicPred* constraint);
+			void Push(branch_id_t bid, SymbolicPred* constraint, 
+				branch_state_t state);
 			void Serialize(string* s) const;
 			void SerializeBranches(string* s) const;
 			bool Parse(istream& s);
@@ -55,6 +58,7 @@ namespace crest {
 			vector<branch_id_t> branches_;
 			vector<size_t> constraints_idx_;
 			vector<SymbolicPred*> constraints_;
+			unordered_map<id_t, branch_state_t> branchesHash;
 	};
 
 }  // namespace crest

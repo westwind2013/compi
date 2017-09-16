@@ -27,6 +27,13 @@ namespace crest {
 	static const branch_id_t kCallId = -1;
 	static const branch_id_t kReturnId = -2;
 
+	//
+	// hEdit:
+	//
+	enum branch_state_t {
+		TRUE = 0, FALSE = 1, TRUE_FALSE = 2 
+	};
+
 	// Operator enums and utility function.
 
 	namespace ops {

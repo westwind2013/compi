@@ -22,6 +22,8 @@ namespace crest {
 			constraints_idx_.reserve(50000);
 			constraints_.reserve(50000);
 		}
+//fprintf(stderr, "constraints_idx: %d, constraints_: %d, branches_: %zu\n", 
+//	constraints_idx_.size(), constraints_.size(), branches_.size());
 	}
 
 	SymbolicPath::~SymbolicPath() {
@@ -39,25 +41,58 @@ namespace crest {
 		branches_.push_back(bid);
 	}
 
-	void SymbolicPath::Push(branch_id_t bid, SymbolicPred* constraint) {
+	void SymbolicPath::Push(branch_id_t bid, SymbolicPred* constraint, 
+		branch_state_t state) {
+		/*
 		if (constraint) {
 			constraints_.push_back(constraint);
 			constraints_idx_.push_back(branches_.size());
 		}
-		
+		branches_.push_back(bid);
+		*/
+		if (constraint) {
+//fprintf(stderr, "bid: %d, state: %d, branches' size: %d\n", bid, state, branches_.size());
+				
+                        if (branchesHash.find(bid) == branchesHash.end()) {
+
+                                branchesHash[bid] = state;
+                                constraints_.push_back(constraint);
+                                constraints_idx_.push_back(branches_.size());
+                        }
+                        else if (branchesHash[bid] != TRUE_FALSE &&  
+                                branchesHash[bid] != state) {
+
+                                branchesHash[bid] = TRUE_FALSE;
+                                constraints_.push_back(constraint);
+                                constraints_idx_.push_back(branches_.size());
+                        } 
+                }
+
+		branches_.push_back(bid);
 // 
 // hEdit: debug
 // 
 //string tmp;
 //constraint->AppendToString(&tmp);
 //fprintf(stderr, "%s @ branch %d \n\n", tmp.c_str(), bid);
-
-		branches_.push_back(bid);
 	}
 
 	void SymbolicPath::Serialize(string* s) const {
 		typedef vector<SymbolicPred*>::const_iterator ConIt;
 
+//fprintf(stderr, "branches' size: %zu\n"
+//		"constraints' size: %zu\n", 
+//		branches_.size(), constraints_.size());
+
+//hEdit: print the constraints
+//for (auto c: constraints_) {
+//	string str;
+//	c->AppendToString(&str);
+//	fprintf(stderr, "%s\n", str.c_str());	
+//}
+//fprintf(stderr, "\n\n\n");
+//fflush(stderr);
+		
 		// Write the path.
 		size_t len = branches_.size();
 		

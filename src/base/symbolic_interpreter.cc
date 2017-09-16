@@ -345,7 +345,12 @@ namespace crest {
 			pred_->Negate();
 		}
 
-		ex_.mutable_path()->Push(bid, pred_);
+		// 
+		// hEdit: reduce constraint set size
+		//
+		//ex_.mutable_path()->Push(bid, pred_);
+		ex_.mutable_path()->Push(bid, pred_, 
+			pred_value? TRUE : FALSE);
 		pred_ = NULL;
 		IFDEBUG(DumpMemory());
 	}
