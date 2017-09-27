@@ -118,7 +118,7 @@ namespace crest {
 			total_covered_.resize(max_branch_, false);
 			reached_.resize(max_function_, false);
 
-#if 0
+#if 1
 			{ // Read in any previous coverage (for faster debugging).
 				ifstream in("coverage");
 				branch_id_t bid;
@@ -132,7 +132,7 @@ namespace crest {
 					}
 				}
 
-				total_num_covered_ = 0;
+				total_num_covered_ = num_covered_;
 				total_covered_ = covered_;
 			}
 #endif
@@ -260,14 +260,14 @@ namespace crest {
 
 		}*/ 
 		
-		if (!is_first_run) {
+		//if (!is_first_run) {
 			// determine which MPI rank to be tested
 			target_rank_ = rank_indices_.empty() ? 0: inputs[*rank_indices_.begin()];
 			// determine the size of MPI_COMM_WORLD
 			comm_world_size_ = world_size_indices_.empty() ? 4: inputs[*world_size_indices_.begin()];
-		}
+		//}
 
-		WriteInputToFileOrDie("input", inputs);
+		if (!is_first_run) WriteInputToFileOrDie("input", inputs);
 
 		// assemble the command together
 		if (0 != target_rank_) {
@@ -1257,7 +1257,7 @@ return;
 			world_size_indices_.clear();
 			
 			covered_.assign(max_branch_, false);
-			num_covered_ = 0;
+			//num_covered_ = 0;
 
 			// Execution on empty/random inputs.
 			fprintf(stderr, "RESET\n");

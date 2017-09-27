@@ -58,6 +58,12 @@ int main(int argc, char* argv[]) {
 					comm_world_size, target_rank, atoi(argv[6]));
 		}
 	} else if (search_type == "-cfg") {
+		/*	
+		string command("run_crest ./");
+		command += prog + " " + argv[2] + " " + argv[3] + " 50  "
+			+ "-dfs 50";
+		system(command.c_str());
+		*/
 		strategy = new crest::CfgHeuristicSearch(prog, num_iters, comm_world_size,
 				target_rank);
 	} else if (search_type == "-cfg_baseline") {
