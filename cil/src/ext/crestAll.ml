@@ -19,7 +19,7 @@ open Cil
  * Utilities that should be in the O'Caml standard libraries.
  *)
 
-let worldSizeLimit = 4
+let worldSizeLimit = 16
 
 let isSome o =
   match o with
@@ -629,7 +629,7 @@ object (self)
 							let inst_list = (rankMarker args) @ [i; mkClearStack ()] in
 							ChangeTo inst_list;
 						| "MPI_Comm_size"  -> 
-							let inst_list = worldSizeMarker args @ [i] @ [mkClearStack ()] in
+							let inst_list = (worldSizeMarker args) @ [i] @ [mkClearStack ()] in
 							ChangeTo inst_list;
 						| _  -> ChangeTo [i; mkClearStack()];
 						
@@ -637,7 +637,7 @@ object (self)
 			   	| _ ->
 					ChangeTo [i ; mkClearStack ()]
 		   	)
-		       )
+		   )
 
 	      | _ -> DoChildren
 

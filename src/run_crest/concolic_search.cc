@@ -38,7 +38,7 @@ using std::stable_sort;
 // hEdit: set the time limit for a command running
 //
 
-long long TIMEOUT_IN_SECONDS = 60;
+long long TIMEOUT_IN_SECONDS = 600;
 
 namespace crest {
 
@@ -264,7 +264,7 @@ namespace crest {
 			// determine which MPI rank to be tested
 			target_rank_ = rank_indices_.empty() ? 0: inputs[*rank_indices_.begin()];
 			// determine the size of MPI_COMM_WORLD
-			comm_world_size_ = world_size_indices_.empty() ? 4: inputs[*world_size_indices_.begin()];
+			comm_world_size_ = world_size_indices_.empty() ? comm_world_size_: inputs[*world_size_indices_.begin()];
 		//}
 
 		if (!is_first_run) WriteInputToFileOrDie("input", inputs);

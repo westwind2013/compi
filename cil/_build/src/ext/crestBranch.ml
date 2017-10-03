@@ -16,7 +16,7 @@ open Cil
  *)
 
 
-let worldSizeLimit = 4
+let worldSizeLimit = 16
 
 let isSome o =
 	match o with
