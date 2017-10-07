@@ -351,38 +351,38 @@ let hasAddress (_, off) =
 
 
 class crestInstrumentVisitor f =
-  (*
-   * Get handles to the instrumentation functions.
-   *
-   * NOTE: If the file we are instrumenting includes "crest.h", this
-   * code will grab the varinfo's from the included declarations.
-   * Otherwise, it will create declarations for these functions.
-   *)
-  let limitArg   = ("limit",   limitType,   []) in
-  let idArg   = ("id",   idType,   []) in
-  let bidArg  = ("bid",  bidType,  []) in
-  let fidArg  = ("fid",  fidType,  []) in
-  let valArg  = ("val",  valType,  []) in
-  let addrArg = ("addr", addrType, []) in
-  let opArg   = ("op",   opType,   []) in
-  let boolArg = ("b",    boolType, []) in
+	(*
+	 * Get handles to the instrumentation functions.
+	 *
+	 * NOTE: If the file we are instrumenting includes "crest.h", this
+	 * code will grab the varinfo's from the included declarations.
+	 * Otherwise, it will create declarations for these functions.
+	 *)
+	let limitArg   = ("limit",   limitType,   []) in
+	let idArg   = ("id",   idType,   []) in
+	let bidArg  = ("bid",  bidType,  []) in
+	let fidArg  = ("fid",  fidType,  []) in
+	let valArg  = ("val",  valType,  []) in
+	let addrArg = ("addr", addrType, []) in
+	let opArg   = ("op",   opType,   []) in
+	let boolArg = ("b",    boolType, []) in
 
 	(* hComment: create a function that has at least one argument (idArg) *)
-  let mkInstFunc name args =
-    let ty = TFun (voidType, Some (idArg :: args), false, []) in
-    let func = findOrCreateFunc f ("__Crest" ^ name) ty in
-      func.vstorage <- Extern ;
-      func.vattr <- [Attr ("crest_skip", [])] ;
-      func
-  in
+	let mkInstFunc name args =
+		let ty = TFun (voidType, Some (idArg :: args), false, []) in
+		let func = findOrCreateFunc f ("__Crest" ^ name) ty in
+		func.vstorage <- Extern ;
+		func.vattr <- [Attr ("crest_skip", [])] ;
+		func
+	in
 
-  let mkInstFunc_ name args =
-          let ty = TFun (voidType, Some (args), false, []) in
-	  let func = findOrCreateFunc f ("__Crest" ^ name) ty in
-	  func.vstorage <- Extern ;
-	  func.vattr <- [Attr ("crest_skip", [])] ;
-	  func
-  in
+	let mkInstFunc_ name args =
+		let ty = TFun (voidType, Some (args), false, []) in
+		let func = findOrCreateFunc f ("__Crest" ^ name) ty in
+		func.vstorage <- Extern ;
+		func.vattr <- [Attr ("crest_skip", [])] ;
+		func
+	in
 	
 	(* hComment: create specific functions for all types of instructions *)
 	let loadFunc         = mkInstFunc "Load"  [addrArg; valArg] in
@@ -414,82 +414,54 @@ class crestInstrumentVisitor f =
 		Call (None, Lval (var func), args, locUnknown)
 	in
 
-  let unaryOpCode op =
-    let c =
-      match op with
-        | Neg -> 19  | BNot -> 20  |  LNot -> 21
-    in
-      integer c
-  in
+	let unaryOpCode op =
+		let c =
+			match op with
+			| Neg -> 19  | BNot -> 20  |  LNot -> 21
+			in
+			integer c
+	in
 
-  let binaryOpCode op =
-    let c =
-      match op with
-        | PlusA   ->  0  | MinusA  ->  1  | Mult  ->  2  | Div   ->  3
-        | Mod     ->  4  | BAnd    ->  5  | BOr   ->  6  | BXor  ->  7
-        | Shiftlt ->  8  | Shiftrt ->  9  | LAnd  -> 10  | LOr   -> 11
-        | Eq      -> 12  | Ne      -> 13  | Gt    -> 14  | Le    -> 15
-        | Lt      -> 16  | Ge      -> 17
-            (* Other/unhandled operators discarded and treated concretely. *)
-        | _ -> 18
-    in
-      integer c
-  in
+	let binaryOpCode op =
+		let c =
+			match op with
+			| PlusA   ->  0  | MinusA  ->  1  | Mult  ->  2  | Div   ->  3
+			| Mod     ->  4  | BAnd    ->  5  | BOr   ->  6  | BXor  ->  7
+			| Shiftlt ->  8  | Shiftrt ->  9  | LAnd  -> 10  | LOr   -> 11
+			| Eq      -> 12  | Ne      -> 13  | Gt    -> 14  | Le    -> 15
+			| Lt      -> 16  | Ge      -> 17
+			    (* Other/unhandled operators discarded and treated concretely. *)
+			| _ -> 18
+		in
+		integer c
+	in
 
 	(* hComment: CastE, from CIL, performs type conversion *)
-  let toAddr e = CastE (addrType, e) in
+	let toAddr e = CastE (addrType, e) in
 
-  let toValue e =
-      if isPointerType (typeOf e) then
-        CastE (valType, CastE (addrType, e))
-      else
-        CastE (valType, e)
-  in
+	let toValue e =
+		if isPointerType (typeOf e) then
+		CastE (valType, CastE (addrType, e))
+		else
+		CastE (valType, e)
+	in
 
-	  let mkLoad addr value    = mkInstCall loadFunc [toAddr addr; toValue value] in
-	  let mkStore addr         = mkInstCall storeFunc [toAddr addr] in
-	  let mkClearStack ()      = mkInstCall clearStackFunc [] in
-	  let mkApply1 op value    = mkInstCall apply1Func [unaryOpCode op; toValue value] in
-	  let mkApply2 op value    = mkInstCall apply2Func [binaryOpCode op; toValue value] in
-	  let mkBranch bid b       = mkInstCall branchFunc [integer bid; integer b] in
-	  let mkCall fid           = mkInstCall callFunc [integer fid] in
-	  let mkReturn ()          = mkInstCall returnFunc [] in
-	  let mkHandleReturn value = mkInstCall handleReturnFunc [toValue value] in
-	  
-	  let mkRank addr     = mkInstCall_ rankFunc [toAddr addr] in
-	  let mkWorldSize addr limit    = mkInstCall_ worldSizeFunc [toAddr addr; integer limit] in
-	  let mkGetMPIInfo ()      = mkInstCall_ getMPIInfo [] in
+	let mkLoad addr value    = mkInstCall loadFunc [toAddr addr; toValue value] in
+	let mkStore addr         = mkInstCall storeFunc [toAddr addr] in
+	let mkClearStack ()      = mkInstCall clearStackFunc [] in
+	let mkApply1 op value    = mkInstCall apply1Func [unaryOpCode op; toValue value] in
+	let mkApply2 op value    = mkInstCall apply2Func [binaryOpCode op; toValue value] in
+	let mkBranch bid b       = mkInstCall branchFunc [integer bid; integer b] in
+	let mkCall fid           = mkInstCall callFunc [integer fid] in
+	let mkReturn ()          = mkInstCall returnFunc [] in
+	let mkHandleReturn value = mkInstCall handleReturnFunc [toValue value] in
 
-	  (*
-	   * Instrument an expression.
-	   *)
-	  let rec instrumentExpr e =
-	    if isConstant e then
-	      [mkLoad noAddr e]
-	    else
-	      match e with
-		| Lval lv when hasAddress lv ->
-		    [mkLoad (addressOf lv) e]
+	let mkRank addr     = mkInstCall_ rankFunc [toAddr addr] in
+	let mkWorldSize addr limit    = mkInstCall_ worldSizeFunc [toAddr addr; integer limit] in
+	let mkGetMPIInfo ()      = mkInstCall_ getMPIInfo [] in
 
-		| UnOp (op, e1, _) ->
-		    (* Should skip this if we don't currently handle 'op'. *)
-							(* hComment: symbol '@' is used to concatenate two lists*)
-		    (instrumentExpr e1) @ [mkApply1 op e]
 
-		| BinOp (op, e1, e2, _) ->
-		    (* Should skip this if we don't currently handle 'op'. *)
-		    (instrumentExpr e1) @ (instrumentExpr e2) @ [mkApply2 op e]
 
-		| CastE (_, e) ->
-		    (* We currently treat cast's as no-ops, which is not precise. *)
-		    instrumentExpr e
-
-		(* Default case: We cannot instrument, so generate a concrete load
-		 * and stop recursing. *)
-		| _ -> [mkLoad noAddr e]
-	  in
-
-	
 	let rankMarker g = 
 		match g with 
 			| [] -> [];
@@ -535,129 +507,156 @@ class crestInstrumentVisitor f =
 				)
 			| _ -> [];
 	in
+	
+	(*
+	* Instrument an expression.
+	*)
+	let rec instrumentExpr e =
+		if isConstant e then
+			[mkLoad noAddr e]
+		else
+		match e with
+			| Lval lv when hasAddress lv ->
+			    [mkLoad (addressOf lv) e]
+
+			| UnOp (op, e1, _) ->
+			    (* Should skip this if we don't currently handle 'op'. *)
+								(* hComment: symbol '@' is used to concatenate two lists*)
+			    (instrumentExpr e1) @ [mkApply1 op e]
+
+			| BinOp (op, e1, e2, _) ->
+			    (* Should skip this if we don't currently handle 'op'. *)
+			    (instrumentExpr e1) @ (instrumentExpr e2) @ [mkApply2 op e]
+
+			| CastE (_, e) ->
+			    (* We currently treat cast's as no-ops, which is not precise. *)
+			    instrumentExpr e
+
+			(* Default case: We cannot instrument, so generate a concrete load
+			 * and stop recursing. *)
+			| _ -> [mkLoad noAddr e]
+	in
+
 	  
-	let h = ref 0 in 
-
-object (self)
-  inherit nopCilVisitor
+	object (self)
+		inherit nopCilVisitor
 
 
-  (*
-   * Instrument a statement (branch or function return).
-   *)
-  method vstmt(s) =
-    match s.skind with
-      | If (e, b1, b2, _) ->
-          (* hComment: get the first statement's id of a code block *)
-					let getFirstStmtId blk = (List.hd blk.bstmts).sid in
-					(* hComment: get the first statement's id of THEN-block *)
-          let b1_sid = getFirstStmtId b1 in
-					(* hComment: get the first statement's id of ELSE-block*)
-          let b2_sid = getFirstStmtId b2 in
-			(* hComment: instrument the expression, i.e. insert some code *)
-			(* before the current if branch*)
-	    (self#queueInstr (instrumentExpr e) ;
-			(* hComment: insert some code at the beginning of each branch body*)
-	     prependToBlock [mkBranch b1_sid 1] b1 ;
-	     prependToBlock [mkBranch b2_sid 0] b2 ;
-						 (* hComment: add a 2-tuple to the branch pair *)
-             addBranchPair (b1_sid, b2_sid)) ;
-            DoChildren
+	(*
+	* Instrument a statement (branch or function return).
+	*)
+	method vstmt(s) =
+		match s.skind with
+			| If (e, b1, b2, _) ->
+				(* hComment: get the first statement's id of a code block *)
+				let getFirstStmtId blk = (List.hd blk.bstmts).sid in
+				(* hComment: get the first statement's id of THEN-block *)
+				let b1_sid = getFirstStmtId b1 in
+				(* hComment: get the first statement's id of ELSE-block*)
+				let b2_sid = getFirstStmtId b2 in
+				(* hComment: instrument the expression, i.e. insert some code *)
+				(* before the current if branch*)
+				(self#queueInstr (instrumentExpr e) ;
+				(* hComment: insert some code at the beginning of each branch body*)
+				prependToBlock [mkBranch b1_sid 1] b1 ;
+				prependToBlock [mkBranch b2_sid 0] b2 ;
+				 (* hComment: add a 2-tuple to the branch pair *)
+				addBranchPair (b1_sid, b2_sid)) ;
+				DoChildren
 
-      | Return (Some e, _) ->
-          if isSymbolicType (typeOf e) then
-            self#queueInstr (instrumentExpr e) ;
-          self#queueInstr [mkReturn ()] ;
-          SkipChildren
+			| Return (Some e, _) ->
+				if isSymbolicType (typeOf e) then
+				self#queueInstr (instrumentExpr e) ;
+				self#queueInstr [mkReturn ()] ;
+				SkipChildren
 
-      | Return (None, _) ->
-          self#queueInstr [mkReturn ()] ;
-          SkipChildren
-
-      | _ -> DoChildren
+			| Return (None, _) ->
+				self#queueInstr [mkReturn ()] ;
+				SkipChildren
+					
+			| _ -> DoChildren
 
 
 	  (*
 	   * Instrument assignment and call statements.
 	   *)
-	  method vinst(i) =
-		  match i with
-		      | Set (lv, e, _) ->
-			  if (isSymbolicType (typeOf e)) && (hasAddress lv) then
-			    (self#queueInstr (instrumentExpr e) ;
-			     self#queueInstr [mkStore (addressOf lv)]) ;
-			  SkipChildren
-	      (* Don't instrument calls to functions marked as uninstrumented. *)
-	      | Call (_, Lval (Var f, NoOffset), _, _)
-		  when shouldSkipFunction f -> SkipChildren 
-		(*| Call (_, Lval (Var f, NoOffset), g, _)  ->
-			(
-			match f.vname with 
-				| "MPI_Init" ->
-					ChangeTo [i;
-					mkGetMPIInfo ();];
-				| "MPI_Comm_rank"  ->
-					let inst_list = rankMarker g @ [i] in
-					ChangeTo inst_list;
-				| "MPI_Comm_size"  -> (
-					h := !h + 1;
-					if !h = 0 then ( 
-						let inst_list = worldSizeMarker g @ [i] in
-						ChangeTo inst_list;)
-					else 
-						SkipChildren
+	method vinst(i) =
+		match i with
+		| Set (lv, e, _) ->
+			if (isSymbolicType (typeOf e)) && (hasAddress lv) then
+			(self#queueInstr (instrumentExpr e) ;
+			self#queueInstr [mkStore (addressOf lv)]) ;
+			SkipChildren
+		(* Don't instrument calls to functions marked as uninstrumented. *)
+		| Call (_, Lval (Var f, NoOffset), _, _)
+			when shouldSkipFunction f -> SkipChildren 
+		| Call (ret, exp, args, _) ->
+			let isSymbolicExp e = isSymbolicType (typeOf e) in
+			let isSymbolicLval lv = isSymbolicType (typeOfLval lv) in
+			let argsToInst = List.filter isSymbolicExp args in
+			self#queueInstr (concatMap instrumentExpr argsToInst) ;
+			(match ret with
+				| Some lv when ((isSymbolicLval lv) && (hasAddress lv)) ->
+					( match exp with 
+						| Lval (Var f, NoOffset) -> (				
+							match f.vname with 
+								| "MPI_Init" ->
+									ChangeTo [i; mkGetMPIInfo ()];
+								| "MPI_Comm_rank"  ->
+									let inst_list = (rankMarker args) @ [i; mkClearStack ()] in
+									ChangeTo inst_list;
+								| "MPI_Comm_size"  -> 
+									let inst_list = (worldSizeMarker args) @ [i] @ [mkClearStack ()] in
+									ChangeTo inst_list;
+								| _  -> 
+									ChangeTo [i ;
+									 mkHandleReturn (Lval lv) ;
+									mkStore (addressOf lv)]
+							)
+						| _ ->
+							ChangeTo [i ;
+							 mkHandleReturn (Lval lv) ;
+							mkStore (addressOf lv)]
 					)
-				| _  -> DoChildren;
-			)*)
-	      | Call (ret, exp, args, _) ->
-		  let isSymbolicExp e = isSymbolicType (typeOf e) in
-		  let isSymbolicLval lv = isSymbolicType (typeOfLval lv) in
-		  let argsToInst = List.filter isSymbolicExp args in
-		    self#queueInstr (concatMap instrumentExpr argsToInst) ;
-		    (match ret with
-		       | Some lv when ((isSymbolicLval lv) && (hasAddress lv)) ->
-			   ChangeTo [i ;
-				     mkHandleReturn (Lval lv) ;
-				     mkStore (addressOf lv)]
-		       | _ ->
-		       ( match exp with 
-		       		| Lval (Var f, NoOffset) -> (				
-					match f.vname with 
-						| "MPI_Init" ->
-							ChangeTo [i; mkGetMPIInfo ()];
-						| "MPI_Comm_rank"  ->
-							let inst_list = (rankMarker args) @ [i; mkClearStack ()] in
-							ChangeTo inst_list;
-						| "MPI_Comm_size"  -> 
-							let inst_list = (worldSizeMarker args) @ [i] @ [mkClearStack ()] in
-							ChangeTo inst_list;
-						| _  -> ChangeTo [i; mkClearStack()];
-						
-					)
-			   	| _ ->
-					ChangeTo [i ; mkClearStack ()]
-		   	)
-		   )
+				| _ ->
+				( match exp with 
+					| Lval (Var f, NoOffset) -> (				
+						match f.vname with 
+							| "MPI_Init" ->
+								ChangeTo [i; mkGetMPIInfo ()];
+							| "MPI_Comm_rank"  ->
+								let inst_list = (rankMarker args) @ [i; mkClearStack ()] in
+								ChangeTo inst_list;
+							| "MPI_Comm_size"  -> 
+								let inst_list = (worldSizeMarker args) @ [i] @ [mkClearStack ()] in
+								ChangeTo inst_list;
+							| _  -> ChangeTo [i; mkClearStack()];
+							
+						)
+					| _ ->
+						ChangeTo [i ; mkClearStack ()]
+				)
+			)
 
-	      | _ -> DoChildren
+		| _ -> DoChildren
 
 
-  (*
-   * Instrument function entry.
-   *)
-  method vfunc(f) =
-    if shouldSkipFunction f.svar then
-      SkipChildren
-    else
-      let instParam v = mkStore (addressOf (var v)) in
-      let isSymbolic v = isSymbolicType v.vtype in
-      let (_, _, isVarArgs, _) = splitFunctionType f.svar.vtype in
-      let paramsToInst = List.filter isSymbolic f.sformals in
-        addFunction () ;
-        if (not isVarArgs) then
-          prependToBlock (List.rev_map instParam paramsToInst) f.sbody ;
-        prependToBlock [mkCall !funCount] f.sbody ;
-        DoChildren
+	(*
+	* Instrument function entry.
+	*)
+	method vfunc(f) =
+		if shouldSkipFunction f.svar then
+			SkipChildren
+		else
+			let instParam v = mkStore (addressOf (var v)) in
+			let isSymbolic v = isSymbolicType v.vtype in
+			let (_, _, isVarArgs, _) = splitFunctionType f.svar.vtype in
+			let paramsToInst = List.filter isSymbolic f.sformals in
+			addFunction () ;
+			if (not isVarArgs) then
+			  prependToBlock (List.rev_map instParam paramsToInst) f.sbody ;
+			prependToBlock [mkCall !funCount] f.sbody ;
+			DoChildren
 
 end
 
