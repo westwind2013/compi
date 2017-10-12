@@ -14,11 +14,11 @@
 #include <sys/time.h>
 #include <vector>
 #include <iostream>
+#include <cstdio>
 
 #include "base/symbolic_interpreter.h"
 #include "libcrest/crest.h"
 
-#include "mpi.h"
 
 using std::vector;
 using namespace crest;
@@ -83,9 +83,13 @@ void __CrestInit() {
 
 void __CrestAtExit() {
 
+// hEdit: debug
+//fprintf(stderr, "\nAtExit\n");
+	
 	string outfile_name("szd_execution");
 	const SymbolicExecution& ex = SI->execution();
 	// Write the execution out to file 'szd_execution'.
+	
 	string buff;
 	buff.reserve(1<<26);
 
@@ -101,7 +105,7 @@ void __CrestAtExit() {
 	out.write(buff.data(), buff.size());
 	assert(!out.fail());
 	out.close();
-
+	
 	//
 	// hEdit: delete the object
 	// 
@@ -276,43 +280,65 @@ void __CrestIntWithLimit(int* x, long long int limit) {
 }
 
 //
-// hEdit: symbolic input function used to mark MPI rank.
+// hEdit: symbolic input function used to mark MPI rank in MPI_COMM_WORLD
 // 
 void __CrestRank(int* x) {
 	pre_symbolic = 0;
 	*x = (int)SI->NewInputRank(types::U_INT, (addr_t)x);
 }
 
+//
+// hEdit: symbolic input function used to mark MPI rank in communicators
+// other than the default MPI_COMM_WORLD
+// 
+void __CrestRankNonDefaultComm1(int* x) {
+	pre_symbolic = 0;
+	*x = (int)SI->NewInputRankNonDefaultComm(types::U_INT, (addr_t)x);
+}
 
 // 
 // hEdit: 
 // 
-void __CrestAfterMPICommRank(MPI_Comm comm, int rank) {
+void __CrestRankNonDefaultComm2(MPI_Comm comm, int *x) {
+	
 	int size = 0;
 	int *pComm = NULL;
-	char is_this_group = 0, judge_this_group = 0;
+	int is_focus = -1, focus = -1;
 	
 	MPI_Comm_size(comm, &size);
 	if (SI->rank_ == SI->target_rank_) {
-		is_this_group = 1;
+		is_focus = *x;
 		pComm = new int [size];
 	}
-	MPI_Allreduce(&is_this_group, &judge_this_group, 1, MPI_CHAR, MPI_MAX, comm);
+	MPI_Allreduce(&is_focus, &focus, 1, MPI_INT, MPI_MAX, comm);
+//fprintf(stderr, "focus all print %d: \n", focus);
 	
 	// return if this is not the communicator of interest, i.e., the communicator
 	// that includes the target rank
-	if(judge_this_group == 0) return;
+	if(focus < 0) return;
 
 	// rank 0 gathers the result
-	MPI_Gather(&(SI->rank_), 1, MPI_INT, pComm, 1, MPI_INT, 0, comm);
+	MPI_Gather(&(SI->rank_), 1, MPI_INT, pComm, 1, MPI_INT, focus, comm);
 
-	if (SI->rank_ == SI->target_rank_) delete [] pComm;
+	if (SI->rank_ == SI->target_rank_) {
+//
+// hEdit: debug
+//
+//fprintf(stderr, "new comm %zu: \n", comm);
+//for (int i = 0; i < size; i++) fprintf(stderr, "%d  ", pComm[i]);
+//fprintf(stderr, "\n");	
+		vector<int> rank_map;
+		rank_map.resize(size);
+		for (int i = 0; i < size; i++)
+			rank_map[i] = pComm[i];
+		
+		SI->ex_.rank_non_default_comm_map_.push_back(rank_map);
+		delete [] pComm;
 
-	// return if the rank in the current comm is not 0
-	if (rank != 0) return;
-
-	// rank 0 logs the gathered result to a file
-
+		int index = SI->num_inputs_ - 1;
+		(*(SI->ex_.mutable_inputs()))[index] = *x;
+		SI->ex_.limits_[index] = size;
+	}
 }
 
 //

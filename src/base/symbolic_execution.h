@@ -37,6 +37,7 @@ namespace crest {
 			unordered_map<id_t, value_t> limits_;
 			vector<id_t> rank_indices_;
 			vector<id_t> rank_non_default_comm_indices_;
+			vector<vector<id_t>> rank_non_default_comm_map_;
 			vector<id_t> world_size_indices_;
 			size_t execution_tag_;
 

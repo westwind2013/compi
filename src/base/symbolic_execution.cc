@@ -26,6 +26,7 @@ namespace crest {
 		limits_.swap(se.limits_);
 		rank_indices_.swap(se.rank_indices_);
 		rank_non_default_comm_indices_.swap(se.rank_non_default_comm_indices_);
+		rank_non_default_comm_map_.swap(se.rank_non_default_comm_map_);
 		world_size_indices_.swap(se.world_size_indices_);
 		std::swap(execution_tag_, se.execution_tag_);
 
@@ -70,7 +71,18 @@ namespace crest {
                         s->append((char*)&rank_non_default_comm_indices_[i], sizeof(id_t));         
                 }   
 
-                len = world_size_indices_.size();
+		// the number of rows
+		len = rank_non_default_comm_map_.size();
+		s->append((char*)&len, sizeof(len));
+		for (auto tmpV: rank_non_default_comm_map_) {
+			len = tmpV.size();
+			s->append((char*)&len, sizeof(len));
+			for (size_t j = 0; j < tmpV.size(); j++) {
+				s->append((char*)&tmpV[j], sizeof(id_t));         
+			}   
+		}
+		
+		len = world_size_indices_.size();
                 s->append((char*)&len, sizeof(len));
                 for (size_t i = 0; i < world_size_indices_.size(); i++) {
                         s->append((char*)&world_size_indices_[i], sizeof(id_t));            
@@ -154,6 +166,20 @@ fprintf(stderr, "Serialization info: inputs size: %zu\n "
                 for (size_t i = 0; i < len; i++) {
                         s.read((char*)&rank_non_default_comm_indices_[i], sizeof(id_t));
                 }
+		
+		s.read((char*)&len, sizeof(len));
+                rank_non_default_comm_map_.clear();
+                for (size_t i = 0; i < len; i++) {
+			size_t len2;	
+			s.read((char*)&len2, sizeof(len2));
+			
+			vector<id_t> tmpV;
+			tmpV.resize(len2);
+			for (size_t j = 0; j < len2; j++) {
+				s.read((char*)&tmpV[j], sizeof(id_t));
+			}	
+			rank_non_default_comm_map_.push_back(tmpV);
+		}
 
                 s.read((char*)&len, sizeof(len));
                 world_size_indices_.clear();

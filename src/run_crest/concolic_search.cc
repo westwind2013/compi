@@ -255,14 +255,14 @@ namespace crest {
 
 			// assemble the command together with the target process
 			// being MPI rank 0 
-			//command += "mpirun -np 1 " + program_ + " : -np "
+			//command += "mpirun.mpich -np 1 " + program_ + " : -np "
 			//	+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
 
 		}*/ 
 		
 		//if (!is_first_run) {
 			// determine which MPI rank to be tested
-			target_rank_ = rank_indices_.empty() ? 0: inputs[*rank_indices_.begin()];
+			target_rank_ = rank_indices_.empty() ? target_rank_: inputs[*rank_indices_.begin()];
 			// determine the size of MPI_COMM_WORLD
 			comm_world_size_ = world_size_indices_.empty() ? comm_world_size_: inputs[*world_size_indices_.begin()];
 		//}
@@ -271,14 +271,14 @@ namespace crest {
 
 		// assemble the command together
 		if (0 != target_rank_) {
-			command += "mpirun -np " + std::to_string((long long)target_rank_) + " "
+			command += "mpirun.mpich -np " + std::to_string((long long)target_rank_) + " "
 				+ program_clean + " : -np 1 " + program_;
 			if (target_rank_ + 1 < comm_world_size_) {
 				command += " : -np " + std::to_string((long long)comm_world_size_ - target_rank_ - 1)
 					+ " " + program_clean;
 			}
 		} else {
-			command += "mpirun -np 1 " + program_ + " : -np "
+			command += "mpirun.mpich -np 1 " + program_ + " : -np "
 				+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
 		}
 
@@ -578,6 +578,7 @@ fprintf(stderr, "\nExecution tag: %zu -> %zu \n", execution_tag_, ex.execution_t
 
 			world_size_indices_ = ex.world_size_indices_; 
 			rank_indices_ = ex.rank_indices_;
+			rank_non_default_comm_indices_ = ex.rank_non_default_comm_indices_;
 
 			solver->GenerateConstraintsMPI(ex);
 		}
@@ -593,9 +594,37 @@ fprintf(stderr, "\nExecution tag: %zu -> %zu \n", execution_tag_, ex.execution_t
 			// input.  
 			*input = ex.inputs();
 
+vector<value_t> original_rank_non_default;
+for (size_t i = 0; i < rank_non_default_comm_indices_.size(); i++) 
+	original_rank_non_default.push_back(
+	(*input)[rank_non_default_comm_indices_[i]]);
+
 			typedef map<var_t, value_t>::const_iterator SolnIt;
 			for (SolnIt i = soln.begin(); i != soln.end(); ++i) {
 				(*input)[i->first] = i->second;
+
+for (size_t i = 0; i < rank_non_default_comm_indices_.size(); i++) {
+	if (original_rank_non_default[i] != (*input)[rank_non_default_comm_indices_[i]]){
+	
+		int x = i;
+		int y = (*input)[rank_non_default_comm_indices_[i]];
+
+//fprintf(stderr, "x: %d, y:%d\n", x, y);
+//fprintf(stderr, "x*:%d\n", ex.rank_non_default_comm_map_.size());
+//for (int i = 0; i < ex.rank_non_default_comm_map_.size(); i++)
+//fprintf(stderr, "y*:%d\n", ex.rank_non_default_comm_map_[i].size());
+//fflush(stderr);
+
+		target_rank_ = ex.rank_non_default_comm_map_[x][y];
+
+		//if (!rank_indices_.empty()) 
+		for (size_t i = 0; i < rank_indices_.size(); i++) {
+			(*input)[rank_indices_[i]] = target_rank_;
+		}
+		break;
+	}	
+}
+			
 			}
 			return true;
 		}

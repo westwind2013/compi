@@ -87,6 +87,13 @@ namespace crest {
 			// logging files
 			std::ofstream outfile_rank_indices;
 			std::ofstream outfile_world_size_indices;
+			
+			// The symbolic execution (program path and inputs).
+			SymbolicExecution ex_;
+			
+			// Number of symbolic inputs so far.
+			unsigned int num_inputs_;
+
 
 		private:
 			struct StackElem {
@@ -105,13 +112,7 @@ namespace crest {
 
 			// Memory map.
 			map<addr_t,SymbolicExpr*> mem_;
-
-			// The symbolic execution (program path and inputs).
-			SymbolicExecution ex_;
-
-			// Number of symbolic inputs so far.
-			unsigned int num_inputs_;
-
+			
 			//
 			// hEdit
 			//

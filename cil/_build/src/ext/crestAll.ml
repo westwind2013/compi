@@ -397,6 +397,9 @@ class crestInstrumentVisitor f =
 
 	(* hEdit: add a new function that marks MPI_rank in MPI_COMM_WORLD *)
 	let rankFunc   = mkInstFunc_ "Rank" [addrArg] in
+	(* hEdit: add a new function that marks MPI_rank in non-default comm *)
+	let rankFuncNonDefaultComm1   = mkInstFunc_ "RankNonDefaultComm1" [addrArg] in
+	let rankFuncNonDefaultComm2   = mkInstFunc_ "RankNonDefaultComm2" [valArg; addrArg] in
 	(* hEdit: add a new function that marks MPI_COMM_WORLD's size in MPI_COMM_WORLD *)
 	let worldSizeFunc   = mkInstFunc_ "WorldSizeWithLimit" [addrArg; limitArg] in
 	let getMPIInfo       = mkInstFunc_ "GetMPIInfo" [] in
@@ -457,12 +460,14 @@ class crestInstrumentVisitor f =
 	let mkHandleReturn value = mkInstCall handleReturnFunc [toValue value] in
 
 	let mkRank addr     = mkInstCall_ rankFunc [toAddr addr] in
+	let mkRankNonDefaultComm1 addr     = mkInstCall_ rankFuncNonDefaultComm1 [toAddr addr] in
+	let mkRankNonDefaultComm2 value addr     = mkInstCall_ rankFuncNonDefaultComm2 [toValue value; toAddr addr] in
 	let mkWorldSize addr limit    = mkInstCall_ worldSizeFunc [toAddr addr; integer limit] in
 	let mkGetMPIInfo ()      = mkInstCall_ getMPIInfo [] in
 
 
 
-	let rankMarker g = 
+	let rankMarker g i = 
 		match g with 
 			| [] -> [];
 			| h::j when (isConstant h) ->
@@ -473,15 +478,34 @@ class crestInstrumentVisitor f =
 						(
 						match k with 
 							| Lval(_, _) ->
-								[mkRank k]; 
+								[mkRank k; i]; 
 							| CastE(_, _) ->
-								[mkRank k]; 
+								[mkRank k; i]; 
 							| AddrOf(a) ->
 								(* miss the bracket cause the bug for addressOf*)
-								[mkRank (addressOf a)]; 
+								[mkRank (addressOf a); i]; 
 							| _ -> [];
 						)
 				)
+			
+			| h::j ->
+				(
+				match j with
+					| [] -> [];
+					| k::_ -> 
+						(
+						match k with 
+							| Lval(_, _) ->
+								[mkRankNonDefaultComm1 k; i; mkRankNonDefaultComm2 h k]; 
+							| CastE(_, _) ->
+								[mkRankNonDefaultComm1 k; i; mkRankNonDefaultComm2 h k]; 
+							| AddrOf(a) ->
+								(* miss the bracket cause the bug for addressOf*)
+								[mkRankNonDefaultComm1 k; i; mkRankNonDefaultComm2 h (addressOf a)]; 
+							| _ -> [];
+						)
+				)
+			
 			| _ -> [];
 	in
 
@@ -603,7 +627,7 @@ class crestInstrumentVisitor f =
 								| "MPI_Init" ->
 									ChangeTo [i; mkGetMPIInfo ()];
 								| "MPI_Comm_rank"  ->
-									let inst_list = (rankMarker args) @ [i; mkClearStack ()] in
+									let inst_list = (rankMarker args i) @ [mkClearStack ()] in
 									ChangeTo inst_list;
 								| "MPI_Comm_size"  -> 
 									let inst_list = (worldSizeMarker args) @ [i] @ [mkClearStack ()] in
@@ -625,7 +649,7 @@ class crestInstrumentVisitor f =
 							| "MPI_Init" ->
 								ChangeTo [i; mkGetMPIInfo ()];
 							| "MPI_Comm_rank"  ->
-								let inst_list = (rankMarker args) @ [i; mkClearStack ()] in
+								let inst_list = (rankMarker args i) @ [mkClearStack ()] in
 								ChangeTo inst_list;
 							| "MPI_Comm_size"  -> 
 								let inst_list = (worldSizeMarker args) @ [i] @ [mkClearStack ()] in

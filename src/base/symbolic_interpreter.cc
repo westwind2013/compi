@@ -46,13 +46,13 @@ namespace crest {
 	typedef map<addr_t, SymbolicExpr*>::const_iterator ConstMemIt;
 
 	SymbolicInterpreter::SymbolicInterpreter() :
-		pred_(NULL), return_value_(false), ex_(true), num_inputs_(0) {
+		ex_(true), num_inputs_(0), pred_(NULL), return_value_(false) {
 			stack_.reserve(16);
 
 		}
 
 	SymbolicInterpreter::SymbolicInterpreter(const vector<value_t>& input, size_t exec_times) :
-		pred_(NULL), return_value_(false), ex_(true), num_inputs_(0) {
+		ex_(true), num_inputs_(0), pred_(NULL), return_value_(false) {
 			stack_.reserve(16);
 			ex_.mutable_inputs()->assign(input.begin(), input.end());
 
@@ -444,7 +444,8 @@ stack_.clear();
 
 		value_t ret = 0;
 		if (num_inputs_ < ex_.inputs().size()) {
-			ret = ex_.inputs()[num_inputs_];
+			ret = CastTo(rank_, type);
+			(*ex_.mutable_inputs())[num_inputs_] = ret;
 		} else {
 			//
 			// hEdit: process of MPI rank 0 is first tested
@@ -521,10 +522,8 @@ stack_.clear();
 		// later use
 		//
 		if (target_rank_ == rank_) { 
-			std::ofstream outfile(".rank_indices_non_default_comm", std::ofstream::out |
-					std::ofstream::app);
-			outfile << num_inputs_ << std::endl;
-			outfile.close();
+			ex_.rank_non_default_comm_indices_.push_back(num_inputs_);
+//fprintf(stderr, "non_default: %d\n", num_inputs_);
 		}
 
 		num_inputs_++;

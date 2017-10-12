@@ -56,6 +56,9 @@ namespace crest {
 			// the index of variables marked as MPI rank (MPI_COMM_WORLD)
 			// in the array of symbolically marked variables
 			vector<int> rank_indices_;
+			// the index of variables marked as MPI rank (comm other than
+			// MPI_COMM_WORLD)
+			vector<int> rank_non_default_comm_indices_;
 			// the index of variables marked as the size of MPI_COMM_WORLD
 			// in the array of symbolically marked variables
 			vector<int> world_size_indices_;

@@ -352,8 +352,16 @@ class crestInstrumentVisitor f =
 	let limitArg  = ("limit",  limitType,  []) in
 	let bidArg  = ("bid",  bidType,  []) in
 	let addrArg = ("addr", addrType, []) in
-
+	let valArg  = ("val",  valType,  []) in
+	
 	let toAddr e = CastE (addrType, e) in
+	
+	let toValue e =
+		if isPointerType (typeOf e) then
+		CastE (valType, CastE (addrType, e))
+		else
+		CastE (valType, e)
+	in
 	
 	(* hEdit: Create function definition *)
 	let mkInstFunc_ name args =
@@ -368,6 +376,9 @@ class crestInstrumentVisitor f =
 	let branchFuncOnly   = mkInstFunc_ "BranchOnly" [bidArg] in
 	(* hEdit: add a new function that marks MPI_rank in MPI_COMM_WORLD *)
 	let rankFunc   = mkInstFunc_ "Rank" [addrArg] in
+	(* hEdit: add a new function that marks MPI_rank in non-default comm *)
+	let rankFuncNonDefaultComm1   = mkInstFunc_ "RankNonDefaultComm1" [addrArg] in
+	let rankFuncNonDefaultComm2   = mkInstFunc_ "RankNonDefaultComm2" [valArg; addrArg] in
 	(* hEdit: add a new function that marks MPI_COMM_WORLD's size in MPI_COMM_WORLD *)
 	let worldSizeFunc   = mkInstFunc_ "WorldSizeWithLimit" [addrArg; limitArg] in
 	(* hEdit: add a *)
@@ -381,6 +392,9 @@ class crestInstrumentVisitor f =
 
 	let mkBranchOnly bid     = mkInstCall_ branchFuncOnly [integer bid] in
 	let mkRank addr     = mkInstCall_ rankFunc [toAddr addr] in
+	let mkRankNonDefaultComm1 addr     = mkInstCall_ rankFuncNonDefaultComm1 [toAddr addr] in
+        let mkRankNonDefaultComm2 value addr     = mkInstCall_ rankFuncNonDefaultComm2 [toValue value; toAddr addr] in
+
 	let mkWorldSize addr limit     = mkInstCall_ worldSizeFunc [toAddr addr; integer limit] in
 	let mkGetMPIInfo ()      = mkInstCall_ getMPIInfo [] in
 
@@ -409,28 +423,47 @@ class crestInstrumentVisitor f =
 				();
 	in
 	
-	let rankMarker g = 
-		match g with 
-			| [] -> [];
-			| h::j when (isConstant h) ->
-				(
-				match j with
-					| [] -> [];
-					| k::_ -> 
-						(
-						match k with 
-							| Lval(_, _) ->
-								[mkRank k]; 
-							| CastE(_, _) ->
-								[mkRank k]; 
-							| AddrOf(a) ->
-								(* miss the bracket cause the bug for addressOf*)
-								[mkRank (addressOf a)]; 
-							| _ -> [];
-						)
-				)
-			| _ -> [];
-	in
+	let rankMarker g i =
+                match g with
+                        | [] -> [];
+                        | h::j when (isConstant h) ->
+                                (
+                                match j with
+                                        | [] -> [];
+                                        | k::_ -> 
+                                                (
+                                                match k with 
+                                                        | Lval(_, _) ->
+                                                                [mkRank k; i]; 
+                                                        | CastE(_, _) ->
+                                                                [mkRank k; i]; 
+                                                        | AddrOf(a) ->
+                                                                (* miss the bracket cause the bug for addressOf*)
+                                                                [mkRank (addressOf a); i]; 
+                                                        | _ -> [];
+                                                )
+                                )
+                        
+                        | h::j ->
+                                (
+                                match j with
+                                        | [] -> [];
+                                        | k::_ -> 
+                                                (
+                                                match k with 
+                                                        | Lval(_, _) ->
+                                                                [mkRankNonDefaultComm1 k; i; mkRankNonDefaultComm2 h k]; 
+                                                        | CastE(_, _) ->
+                                                                [mkRankNonDefaultComm1 k; i; mkRankNonDefaultComm2 h k]; 
+                                                        | AddrOf(a) ->
+                                                                (* miss the bracket cause the bug for addressOf*)
+                                                                [mkRankNonDefaultComm1 k; i; mkRankNonDefaultComm2 h (addressOf a)]; 
+                                                        | _ -> [];
+                                                )
+                                )
+                        
+                        | _ -> [];
+        in
 
 	let worldSizeMarker g = 
 		match g with 
@@ -500,7 +533,7 @@ class crestInstrumentVisitor f =
 						ChangeTo [i;
 						mkGetMPIInfo ();];
 					| "MPI_Comm_rank"  ->
-						let inst_list = rankMarker g @ [i] in
+						let inst_list = (rankMarker g i) in
 						ChangeTo inst_list;
 					| "MPI_Comm_size"  ->
 						let inst_list = worldSizeMarker g @ [i] in
@@ -509,44 +542,6 @@ class crestInstrumentVisitor f =
 				)
 			| _  -> DoChildren;
 
-
-	(*
-	method vinst(i) =
-		match i with
-			| Call (_, Lval (Var f, NoOffset), g, _)  ->
-				(
-				match f.vname with 
-					| "MPI_Init" ->
-						ChangeTo [i;
-						mkGetMPIInfo ();];
-					| "MPI_Comm_rank"  ->
-						(
-						match g with 
-							| [] -> SkipChildren;
-							| h::j when (isConstant h) ->
-								(
-								match j with
-									| [] -> SkipChildren;
-									| k::_ -> 
-										(
-										match k with 
-											| Lval(_, _) ->
-												ChangeTo [mkRank k; i]; 
-											| CastE(_, _) ->
-												ChangeTo [mkRank k; i]; 
-											| AddrOf(a) ->
-												(* miss the bracket cause the bug for addressOf*)
-												ChangeTo [mkRank (addressOf a); i]; 
-											| _ ->
-												SkipChildren;
-										)
-								)
-							| _ -> SkipChildren;
-						)
-					| _  -> SkipChildren;
-				)
-			| _  -> SkipChildren;
-	*)
 end
 
 
