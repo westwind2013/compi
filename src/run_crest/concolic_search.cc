@@ -410,13 +410,15 @@ namespace crest {
 
 		//
 		// hEdit: merge all the branches being found
-		vector<SymbolicExecution> ex_all_others;
+		//vector<SymbolicExecution> ex_all_others;
+		vector<SymbolicExecution *> ex_all_others;
 		string base_name("szd_execution"), extended_name;
 
 		for (int i = 0; i < comm_world_size_; i++) {
 			if (i == target_rank_) continue;
 
-			SymbolicExecution ex_tmp;
+			//SymbolicExecution ex_tmp;
+			SymbolicExecution * ex_tmp = new SymbolicExecution();
 			extended_name = base_name + std::to_string((long long)i);
 
 			ifstream in(extended_name.c_str(), ios::in | ios::binary);
@@ -430,7 +432,8 @@ namespace crest {
 			//
 			// Fix (1.d): as shown in Fix (1.c). 
 			//
-			if (!in || !ex_tmp.ParseBranches(in)) {
+			//if (!in || !ex_tmp.ParseBranches(in)) {
+			if (!in || !ex_tmp->ParseBranches(in)) {
 				in.close();
 				fprintf(stderr, "%s\n", extended_name.c_str());	
 				continue;
@@ -467,7 +470,8 @@ namespace crest {
 
 		for (size_t j = 0; j < ex_all_others.size(); j++) {
 			
-			const vector<branch_id_t>& branches = ex_all_others[j].path().branches();
+			//const vector<branch_id_t>& branches = ex_all_others[j].path().branches();
+			const vector<branch_id_t>& branches = ex_all_others[j]->path().branches();
 
 			//
 			// hEdit: debug
@@ -493,6 +497,10 @@ namespace crest {
 				}
 			}
 		} 
+
+		for (size_t j = 0; j < ex_all_others.size(); j++) {
+			delete ex_all_others[j];
+		}
 
 		fprintf(stderr,
 				"Iteration %d (%lds): covered %u branches [%u reach funs, %u reach branches].\n",
