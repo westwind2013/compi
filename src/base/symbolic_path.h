@@ -16,6 +16,7 @@
 #include <ostream>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "base/basic_types.h"
 #include "base/symbolic_predicate.h"
@@ -25,6 +26,7 @@ using std::ostream;
 using std::swap;
 using std::vector;
 using std::unordered_map;
+using std::unordered_set;
 
 namespace crest {
 
@@ -55,6 +57,7 @@ namespace crest {
 			}
 
 		private:
+			std::unordered_set<branch_id_t> branchesSet_;
 			vector<branch_id_t> branches_;
 			vector<size_t> constraints_idx_;
 			vector<SymbolicPred*> constraints_;

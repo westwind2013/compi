@@ -38,7 +38,7 @@ namespace crest {
 	}
 
 	void SymbolicPath::Push(branch_id_t bid) {
-		branches_.push_back(bid);
+		branchesSet_.insert(bid);
 	}
 
 	void SymbolicPath::Push(branch_id_t bid, SymbolicPred* constraint, 
@@ -122,8 +122,9 @@ namespace crest {
 	void SymbolicPath::SerializeBranches(string* s) const {
 		//typedef vector<SymbolicPred*>::const_iterator ConIt;
 
+		vector<branch_id_t> branches (branchesSet_.begin(), branchesSet_.end());
 		// Write the path.
-		size_t len = branches_.size();
+		size_t len = branches.size();
 		
 		//
 		// hEdit:: debug
@@ -131,7 +132,7 @@ namespace crest {
 		//printf("branches_.size(): %d\n", len);
 		
 		s->append((char*)&len, sizeof(len));
-		s->append((char*)&branches_.front(), branches_.size() * sizeof(branch_id_t));
+		s->append((char*)&branches.front(), branches.size() * sizeof(branch_id_t));
 		
 		//
 		// hEdit:: debug
