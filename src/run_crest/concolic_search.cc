@@ -259,13 +259,27 @@ namespace crest {
 			//	+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
 
 		}*/ 
-		
-		//if (!is_first_run) {
-			// determine which MPI rank to be tested
-			target_rank_ = rank_indices_.empty() ? target_rank_: inputs[*rank_indices_.begin()];
-			// determine the size of MPI_COMM_WORLD
-			comm_world_size_ = world_size_indices_.empty() ? comm_world_size_: inputs[*world_size_indices_.begin()];
-		//}
+
+
+
+
+
+
+// Temporary fix for a bug that occurs at a rare chance. This bug manifests as too many processes run. 
+int tmp_rank = target_rank_, tmp_size = comm_world_size_;
+// determine which MPI rank to be tested
+target_rank_ = rank_indices_.empty() ? target_rank_: inputs[*rank_indices_.begin()];
+// determine the size of MPI_COMM_WORLD
+comm_world_size_ = world_size_indices_.empty() ? comm_world_size_: inputs[*world_size_indices_.begin()];
+if (target_rank_ < 0 || target_rank_ >= tmp_size || tmp_size > 16) {
+	target_rank_ = tmp_rank;
+	comm_world_size_ = tmp_size; 
+}
+
+
+
+
+
 
 		if (!is_first_run) WriteInputToFileOrDie("input", inputs);
 
@@ -611,6 +625,7 @@ for (size_t i = 0; i < rank_non_default_comm_indices_.size(); i++)
 			for (SolnIt i = soln.begin(); i != soln.end(); ++i) {
 				(*input)[i->first] = i->second;
 
+if (num_iters_ > 100) {
 for (size_t i = 0; i < rank_non_default_comm_indices_.size(); i++) {
 	if (original_rank_non_default[i] != (*input)[rank_non_default_comm_indices_[i]]){
 	
@@ -623,14 +638,15 @@ for (size_t i = 0; i < rank_non_default_comm_indices_.size(); i++) {
 //fprintf(stderr, "y*:%d\n", ex.rank_non_default_comm_map_[i].size());
 //fflush(stderr);
 
-		target_rank_ = ex.rank_non_default_comm_map_[x][y];
+		int global_rank = ex.rank_non_default_comm_map_[x][y];
 
 		//if (!rank_indices_.empty()) 
 		for (size_t i = 0; i < rank_indices_.size(); i++) {
-			(*input)[rank_indices_[i]] = target_rank_;
+			(*input)[rank_indices_[i]] = global_rank;
 		}
 		break;
 	}	
+}
 }
 			
 			}

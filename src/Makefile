@@ -1,9 +1,9 @@
 YICES_DIR=/home/westwind/myInstall/Develop/yices-1.0.40
 
 CC=mpicxx
-CFLAGS = -I. -I$(YICES_DIR)/include -I/usr/include/mpich/ -Wall -std=c++0x -O0 -g
+CFLAGS = -I. -I$(YICES_DIR)/include -I/usr/include/mpich/ -Wall -std=c++0x -O2 -g
 CXXFLAGS = $(CFLAGS)
-LDFLAGS = -L$(YICES_DIR)/lib -L/usr/lib/x86_64-linux-gnu -O0 -g
+LDFLAGS = -L$(YICES_DIR)/lib -L/usr/lib/x86_64-linux-gnu -O2 -g
 LOADLIBES = -lyices -lmpich -lopa -lmpl -lrt -lcr -lpthread
 
 BASE_LIBS = base/basic_types.o base/symbolic_execution.o \
