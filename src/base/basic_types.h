@@ -31,7 +31,7 @@ namespace crest {
 	// hEdit:
 	//
 	enum branch_state_t {
-		TRUE = 0, FALSE = 1, TRUE_FALSE = 2 
+		TRUE = 0, FALSE = 1//, TRUE_FALSE = 2 
 	};
 
 	// Operator enums and utility function.

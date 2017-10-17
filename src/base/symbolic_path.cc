@@ -43,29 +43,17 @@ namespace crest {
 
 	void SymbolicPath::Push(branch_id_t bid, SymbolicPred* constraint, 
 		branch_state_t state) {
-		/*
-		if (constraint) {
-			constraints_.push_back(constraint);
-			constraints_idx_.push_back(branches_.size());
-		}
-		branches_.push_back(bid);
-		*/
+		
 		if (constraint) {
 //fprintf(stderr, "bid: %d, state: %d, branches' size: %d\n", bid, state, branches_.size());
 				
-                        if (branchesHash.find(bid) == branchesHash.end()) {
+                        if (branchesHash.find(bid) == branchesHash.end() || 
+				branchesHash[bid] != state) {
 
                                 branchesHash[bid] = state;
                                 constraints_.push_back(constraint);
                                 constraints_idx_.push_back(branches_.size());
                         }
-                        else if (branchesHash[bid] != TRUE_FALSE &&  
-                                branchesHash[bid] != state) {
-
-                                branchesHash[bid] = TRUE_FALSE;
-                                constraints_.push_back(constraint);
-                                constraints_idx_.push_back(branches_.size());
-                        } 
                 }
 
 		branches_.push_back(bid);
