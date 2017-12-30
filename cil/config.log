@@ -347,7 +347,7 @@ configure: failed program was:
 configure:5207: result: true
 configure:5212: checking if gcc adds underscores to assembly labels.
 configure:5218: gcc -o conftest -g -O2   conftest.c  >&5
-/tmp/ccxj50ie.o: In function `main':
+/tmp/ccfqlR4e.o: In function `main':
 /home/westwind/myInstall/Develop/crest.mpi/cil/conftest.c:19: undefined reference to `_main'
 collect2: error: ld returned 1 exit status
 configure:5218: $? = 1
