@@ -11,7 +11,7 @@ Preparing a Program for COMPI
 
 To do:)
 
-Running Crest
+Running COMPI
 =====
 
 To do:)
