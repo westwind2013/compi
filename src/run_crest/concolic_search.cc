@@ -38,7 +38,7 @@ using std::stable_sort;
 // hEdit: set the time limit for a command running
 //
 
-long long TIMEOUT_IN_SECONDS = 600;
+long long TIMEOUT_IN_SECONDS = 120;
 
 namespace crest {
 
@@ -307,8 +307,11 @@ if (target_rank_ < 0 || target_rank_ >= tmp_size || tmp_size > 16) {
 		// if the command is terminated by the specified timeout
 		if (0 != status) {
 			// log the triggered input 
-			outfile_illegal_inputs << "Return value" << status << std::endl;
-			outfile_illegal_inputs << command << std::endl;
+			outfile_illegal_inputs << num_iters_ << "Return value" << status << std::endl;
+			outfile_illegal_inputs << command << std::endl << std::endl;
+			string tmp("mv input input.");
+			tmp += std::to_string(num_iters_);
+			system(tmp.c_str() );
 		}
 
 		// debug
