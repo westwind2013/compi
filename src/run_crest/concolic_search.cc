@@ -42,112 +42,111 @@ long long TIMEOUT_IN_SECONDS = 120;
 
 namespace crest {
 
-	namespace {
+    namespace {
 
-		typedef pair<size_t, int> ScoredBranch;
+        typedef pair<size_t, int> ScoredBranch;
 
-		struct ScoredBranchComp: public binary_function<ScoredBranch, ScoredBranch, bool> {
-			bool operator()(const ScoredBranch& a, const ScoredBranch& b) const {
-				return (a.second < b.second);
-			}
-		};
+        struct ScoredBranchComp: public binary_function<ScoredBranch, ScoredBranch, bool> {
+            bool operator()(const ScoredBranch& a, const ScoredBranch& b) const {
+                return (a.second < b.second);
+            }
+        };
 
-	}  // namespace
+    }  // namespace
 
 	////////////////////////////////////////////////////////////////////////
 	//// Search ////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////
 
 	Search::Search(const string& program, int max_iterations, int comm_world_size,
-			int target_rank) :
-		program_(program), max_iters_(max_iterations), num_iters_(0), 
-		is_first_run(true),  comm_world_size_(comm_world_size),
-		target_rank_(target_rank), solver(new YicesSolver()),
-		execution_tag_(0) {
+        int target_rank) : program_(program), max_iters_(max_iterations), num_iters_(0), 
+        is_first_run(true),  comm_world_size_(comm_world_size),
+        target_rank_(target_rank), solver(new YicesSolver()),
+        execution_tag_(0) {
 
-			start_time_ = time(NULL);
+        start_time_ = time(NULL);
 
-			{ // Read in the set of branches.
-				max_branch_ = 0;
-				max_function_ = 0;
-				branches_.reserve(100000);
-				branch_count_.reserve(100000);
-				branch_count_.push_back(0);
+        { // Read in the set of branches.
+            max_branch_ = 0;
+            max_function_ = 0;
+            branches_.reserve(100000);
+            branch_count_.reserve(100000);
+            branch_count_.push_back(0);
 
-				ifstream in("branches");
-				assert(in);
-				function_id_t fid;
-				int numBranches;
-				while (in >> fid >> numBranches) {
-					branch_count_.push_back(2 * numBranches);
-					branch_id_t b1, b2;
-					for (int i = 0; i < numBranches; i++) {
-						assert(in >> b1 >> b2);
-						branches_.push_back(b1);
-						branches_.push_back(b2);
-						max_branch_ = max(max_branch_, max(b1, b2));
-					}
-				}
-				in.close();
-				max_branch_++;
-				max_function_ = branch_count_.size();
-			}
+            ifstream in("branches");
+            assert(in);
+            function_id_t fid;
+            int numBranches;
+            while (in >> fid >> numBranches) {
+                branch_count_.push_back(2 * numBranches);
+                branch_id_t b1, b2;
+                for (int i = 0; i < numBranches; i++) {
+                    assert(in >> b1 >> b2);
+                    branches_.push_back(b1);
+                    branches_.push_back(b2);
+                    max_branch_ = max(max_branch_, max(b1, b2));
+                }
+            }
+            in.close();
+            max_branch_++;
+            max_function_ = branch_count_.size();
+        }
 
-			// Compute the paired-branch map.
-			paired_branch_.resize(max_branch_);
-			for (size_t i = 0; i < branches_.size(); i += 2) {
-				paired_branch_[branches_[i]] = branches_[i + 1];
-				paired_branch_[branches_[i + 1]] = branches_[i];
-			}
+        // Compute the paired-branch map.
+        paired_branch_.resize(max_branch_);
+        for (size_t i = 0; i < branches_.size(); i += 2) {
+            paired_branch_[branches_[i]] = branches_[i + 1];
+            paired_branch_[branches_[i + 1]] = branches_[i];
+        }
 
-			// Compute the branch-to-function map.
-			branch_function_.resize(max_branch_);
-			{
-				size_t i = 0;
-				for (function_id_t j = 0; j < branch_count_.size(); j++) {
-					for (size_t k = 0; k < branch_count_[j]; k++) {
-						branch_function_[branches_[i++]] = j;
-					}
-				}
-			}
+        // Compute the branch-to-function map.
+        branch_function_.resize(max_branch_);
+        {
+            size_t i = 0;
+            for (function_id_t j = 0; j < branch_count_.size(); j++) {
+                for (size_t k = 0; k < branch_count_[j]; k++) {
+                    branch_function_[branches_[i++]] = j;
+                }
+            }
+        }
 
-			// Initialize all branches to "uncovered" (and functions to "unreached").
-			total_num_covered_ = num_covered_ = 0;
-			reachable_functions_ = reachable_branches_ = 0;
-			covered_.resize(max_branch_, false);
-			total_covered_.resize(max_branch_, false);
-			reached_.resize(max_function_, false);
+        // Initialize all branches to "uncovered" (and functions to "unreached").
+        total_num_covered_ = num_covered_ = 0;
+        reachable_functions_ = reachable_branches_ = 0;
+        covered_.resize(max_branch_, false);
+        total_covered_.resize(max_branch_, false);
+        reached_.resize(max_function_, false);
 
 #if 1
-			{ // Read in any previous coverage (for faster debugging).
-				ifstream in("coverage");
-				branch_id_t bid;
-				while (in >> bid) {
-					covered_[bid] = true;
-					num_covered_ ++;
-					if (!reached_[branch_function_[bid]]) {
-						reached_[branch_function_[bid]] = true;
-						reachable_functions_ ++;
-						reachable_branches_ += branch_count_[branch_function_[bid]];
-					}
-				}
+        { // Read in any previous coverage (for faster debugging).
+            ifstream in("coverage");
+            branch_id_t bid;
+            while (in >> bid) {
+                covered_[bid] = true;
+                num_covered_ ++;
+                if (!reached_[branch_function_[bid]]) {
+                    reached_[branch_function_[bid]] = true;
+                    reachable_functions_ ++;
+                    reachable_branches_ += branch_count_[branch_function_[bid]];
+                }
+            }
 
-				total_num_covered_ = num_covered_;
-				total_covered_ = covered_;
-			}
+            total_num_covered_ = num_covered_;
+            total_covered_ = covered_;
+        }
 #endif
 
-			// Print out the initial coverage.
-			fprintf(stderr,
-					"Iteration 0 (0s): covered %u branches [%u reach funs, %u reach branches].\n",
-					num_covered_, reachable_functions_, reachable_branches_);
+        // Print out the initial coverage.
+        fprintf(stderr,
+                "Iteration 0 (0s): covered %u branches [%u reach funs, %u reach branches].\n",
+                num_covered_, reachable_functions_, reachable_branches_);
 
-			// Sort the branches.
-			sort(branches_.begin(), branches_.end());
+        // Sort the branches.
+        sort(branches_.begin(), branches_.end());
 
 
-			outfile_illegal_inputs.open("illegal_inputs");
-		}
+        outfile_illegal_inputs.open("illegal_inputs");
+    }
 
 	Search::~Search() {
 		outfile_illegal_inputs.close();
@@ -229,135 +228,66 @@ namespace crest {
 	// input is generated randomly for the first run, and 
 	// then it is obtained from the TESTED process in later runs.
 	//
-	void Search::LaunchProgram(const vector<value_t>& inputs) {
+    void Search::LaunchProgram(const vector<value_t>& inputs) {
 
-		string program_clean = program_ + "_c";
-		string command;
+        string program_clean = program_ + "_c";
+        string command;
 
-		// Generate a random input for the first run
-		/*if (is_first_run) {
-			
-			// read from file
-			std::ifstream infile(".rand_params");
-			if (!infile) {
-				fprintf(stderr, "There is not such file (.rand_params)\n");
-				fflush(stderr);
-				//exit(-1);
-			} else {
-				string s;
-				while (infile >> s) {
-					inputs_str += s + " ";
-				}
-			}
-			infile.close(); 
-
-			//WriteInputToFileOrDie("input", inputs);
-
-			// assemble the command together with the target process
-			// being MPI rank 0 
-			//command += "mpirun.mpich -np 1 " + program_ + " : -np "
-			//	+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
-
-		}*/ 
+        // Temporary fix for a bug that occurs at a rare chance. This bug manifests as too many processes run. 
+        int tmp_rank = target_rank_, tmp_size = comm_world_size_;
+        // determine which MPI rank to be tested
+        target_rank_ = rank_indices_.empty() ? target_rank_: inputs[*rank_indices_.begin()];
+        // determine the size of MPI_COMM_WORLD
+        comm_world_size_ = world_size_indices_.empty() ? comm_world_size_: inputs[*world_size_indices_.begin()];
+        if (target_rank_ < 0 || target_rank_ >= tmp_size || tmp_size > 16) {
+            target_rank_ = tmp_rank;
+            comm_world_size_ = tmp_size; 
+        }
 
 
+        if (!is_first_run) WriteInputToFileOrDie("input", inputs);
 
+        // assemble the command together
+        if (0 != target_rank_) {
+            command += "mpirun.mpich -np " + std::to_string((long long)target_rank_) + " "
+                + program_clean + " : -np 1 " + program_;
+            if (target_rank_ + 1 < comm_world_size_) {
+                command += " : -np " + std::to_string((long long)comm_world_size_ - target_rank_ - 1)
+                    + " " + program_clean;
+            }
+        } else {
+            command += "mpirun.mpich -np 1 " + program_ + " : -np "
+                + std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
+        }
 
+        std::ofstream outfile(".target_rank");
+        outfile << target_rank_;
+        outfile.close();
 
+        // apply a time limit to a command
+        command = string("timeout ") + string(std::to_string(TIMEOUT_IN_SECONDS) + "s ") + command;
+        int status = system(command.c_str()); 
 
-// Temporary fix for a bug that occurs at a rare chance. This bug manifests as too many processes run. 
-int tmp_rank = target_rank_, tmp_size = comm_world_size_;
-// determine which MPI rank to be tested
-target_rank_ = rank_indices_.empty() ? target_rank_: inputs[*rank_indices_.begin()];
-// determine the size of MPI_COMM_WORLD
-comm_world_size_ = world_size_indices_.empty() ? comm_world_size_: inputs[*world_size_indices_.begin()];
-if (target_rank_ < 0 || target_rank_ >= tmp_size || tmp_size > 16) {
-	target_rank_ = tmp_rank;
-	comm_world_size_ = tmp_size; 
-}
+        // if the command is terminated by the specified timeout
+        if (0 != status) {
+            // log the triggered input 
+            outfile_illegal_inputs << num_iters_ << "Return value" << status << std::endl;
+            outfile_illegal_inputs << command << std::endl << std::endl;
+            string tmp("mv input input.");
+            tmp += std::to_string(num_iters_);
+            system(tmp.c_str() );
+        }
 
+        // debug
+        command += "\n";
+        fprintf(stderr, "%s\n", command.c_str());
+        //inputs_str += "\n";
+        //fprintf(stdout, inputs_str.c_str());
 
-
-
-
-
-		if (!is_first_run) WriteInputToFileOrDie("input", inputs);
-
-		// assemble the command together
-		if (0 != target_rank_) {
-			command += "mpirun.mpich -np " + std::to_string((long long)target_rank_) + " "
-				+ program_clean + " : -np 1 " + program_;
-			if (target_rank_ + 1 < comm_world_size_) {
-				command += " : -np " + std::to_string((long long)comm_world_size_ - target_rank_ - 1)
-					+ " " + program_clean;
-			}
-		} else {
-			command += "mpirun.mpich -np 1 " + program_ + " : -np "
-				+ std::to_string((long long)comm_world_size_ - 1) + " " + program_clean;
-		}
-
-		std::ofstream outfile(".target_rank");
-		outfile << target_rank_;
-		outfile.close();
-
-		// apply a time limit to a command
-		command = string("timeout ") + string(std::to_string(TIMEOUT_IN_SECONDS) + "s ") + command;
-		int status = system(command.c_str()); 
-		
-		// if the command is terminated by the specified timeout
-		if (0 != status) {
-			// log the triggered input 
-			outfile_illegal_inputs << num_iters_ << "Return value" << status << std::endl;
-			outfile_illegal_inputs << command << std::endl << std::endl;
-			string tmp("mv input input.");
-			tmp += std::to_string(num_iters_);
-			system(tmp.c_str() );
-		}
-
-		// debug
-		command += "\n";
-		fprintf(stderr, "%s\n", command.c_str());
-		//inputs_str += "\n";
-		//fprintf(stdout, inputs_str.c_str());
-
-
-		// get the indicies of variables marked as MPI ranks
-		//if (is_first_run) {
-		/*	std::ifstream infile(".rank_indices");
-			std::ifstream infile2(".world_size_indices");
-			if (!infile) {
-				fprintf(stderr, "There is not such file (.rank_indices)\n");
-				fflush(stderr);
-				//exit(-1);
-			} else if (!infile2) {
-				fprintf(stderr, "There is not such file (.world_size_indices)\n");
-				fflush(stderr);
-				//exit(-1);
-			} else {
-				string s, s2;
-				while (infile >> s) {
-					rank_indices_.insert(std::stoi(s));
-					//std::cout << s << std::ends;
-					//fprintf(stderr, "%s\n", s.c_str());
-				}
-				while (infile2 >> s2) {
-					world_size_indices_.insert(std::stoi(s2));
-					//std::cout << s << std::ends;
-					//fprintf(stderr, "%s\n", s.c_str());
-				}
-
-				solver->GetMPIInfo(world_size_indices_, rank_indices_);
-				solver->GenerateConstraintsMPI();
-				
-				infile.close();
-				infile2.close();
-
-			}
-		*/	
-			// Disable this branch in further runs 
-			is_first_run = false;
-		//}
-	}
+        // Disable this branch in further runs 
+        is_first_run = false;
+        //}
+    }
 
 	void Search::RunProgram(const vector<value_t>& inputs, SymbolicExecution* ex) {
 		if (++num_iters_ > max_iters_) {
@@ -422,8 +352,8 @@ if (target_rank_ < 0 || target_rank_ >= tmp_size || tmp_size > 16) {
 	// 
 	// hedit: update the coverage only based on all the MPI ranks
 	// 
-	bool Search::UpdateCoverage(SymbolicExecution& ex,
-			set<branch_id_t>* new_branches) {
+	bool Search::UpdateCoverage(SymbolicExecution& ex, 
+        set<branch_id_t>* new_branches) {
 
 		//
 		// hEdit: merge all the branches being found
@@ -597,7 +527,7 @@ if (target_rank_ < 0 || target_rank_ >= tmp_size || tmp_size > 16) {
 		constraints[branch_idx]->Negate();
 
 		if (execution_tag_ != ex.execution_tag_) {	
-fprintf(stderr, "\nExecution tag: %zu -> %zu \n", execution_tag_, ex.execution_tag_);
+            //fprintf(stderr, "\nExecution tag: %zu -> %zu \n", execution_tag_, ex.execution_tag_);
 
 			execution_tag_ = ex.execution_tag_;	
 
@@ -617,41 +547,40 @@ fprintf(stderr, "\nExecution tag: %zu -> %zu \n", execution_tag_, ex.execution_t
 		if (success) {
 			// Merge the solution with the previous input to get the next
 			// input.  
-			*input = ex.inputs();
+            *input = ex.inputs();
 
-vector<value_t> original_rank_non_default;
-for (size_t i = 0; i < rank_non_default_comm_indices_.size(); i++) 
-	original_rank_non_default.push_back(
-	(*input)[rank_non_default_comm_indices_[i]]);
+            vector<value_t> original_rank_non_default;
+            for (size_t i = 0; i < rank_non_default_comm_indices_.size(); i++) 
+                original_rank_non_default.push_back(
+                        (*input)[rank_non_default_comm_indices_[i]]);
 
-			typedef map<var_t, value_t>::const_iterator SolnIt;
-			for (SolnIt i = soln.begin(); i != soln.end(); ++i) {
-				(*input)[i->first] = i->second;
+            typedef map<var_t, value_t>::const_iterator SolnIt;
+            for (SolnIt i = soln.begin(); i != soln.end(); ++i) {
+                (*input)[i->first] = i->second;
 
-if (num_iters_ > 100) {
-for (size_t i = 0; i < rank_non_default_comm_indices_.size(); i++) {
-	if (original_rank_non_default[i] != (*input)[rank_non_default_comm_indices_[i]]){
-	
-		int x = i;
-		int y = (*input)[rank_non_default_comm_indices_[i]];
+                if (num_iters_ > 100) {
+                    for (size_t i = 0; i < rank_non_default_comm_indices_.size(); i++) {
+                        if (original_rank_non_default[i] != (*input)[rank_non_default_comm_indices_[i]]){
 
-//fprintf(stderr, "x: %d, y:%d\n", x, y);
-//fprintf(stderr, "x*:%d\n", ex.rank_non_default_comm_map_.size());
-//for (int i = 0; i < ex.rank_non_default_comm_map_.size(); i++)
-//fprintf(stderr, "y*:%d\n", ex.rank_non_default_comm_map_[i].size());
-//fflush(stderr);
+                            int x = i;
+                            int y = (*input)[rank_non_default_comm_indices_[i]];
 
-		int global_rank = ex.rank_non_default_comm_map_[x][y];
+                            //fprintf(stderr, "x: %d, y:%d\n", x, y);
+                            //fprintf(stderr, "x*:%d\n", ex.rank_non_default_comm_map_.size());
+                            //for (int i = 0; i < ex.rank_non_default_comm_map_.size(); i++)
+                            //fprintf(stderr, "y*:%d\n", ex.rank_non_default_comm_map_[i].size());
+                            //fflush(stderr);
 
-		//if (!rank_indices_.empty()) 
-		for (size_t i = 0; i < rank_indices_.size(); i++) {
-			(*input)[rank_indices_[i]] = global_rank;
-		}
-		break;
-	}	
-}
-}
-			
+                            int global_rank = ex.rank_non_default_comm_map_[x][y];
+
+                            //if (!rank_indices_.empty()) 
+                            for (size_t i = 0; i < rank_indices_.size(); i++) {
+                                (*input)[rank_indices_[i]] = global_rank;
+                            }
+                            break;
+                        }	
+                    }
+                }
 			}
 			return true;
 		}

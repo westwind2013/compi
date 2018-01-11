@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
 	if (argc < 6) {
 		fprintf(stderr, "Syntax: run_crest <program> "
 				"<Total number of ranks> "
-				"<number of parameters> "
+				"<Target rank> "
 				"<number of iterations> "
 				"-<strategy> [strategy options]\n");
 		fprintf(stderr, "  Strategies include: "
