@@ -1,0 +1,108 @@
+1Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+2Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl_c : -np 1 ./xhpl
+
+3Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl_c : -np 1 ./xhpl
+
+4Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+5Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+6Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+7Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+8Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+9Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+10Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+11Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+12Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+13Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+14Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+15Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 0 ./xhpl_c
+
+16Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+17Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+18Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+19Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+20Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+21Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+22Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+23Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+24Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+26Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+27Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+43Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+72Return value256
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+77Return value2
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+78Return value2
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+79Return value2
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+80Return value2
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+83Return value2
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+84Return value2
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+85Return value2
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+
+86Return value2
+timeout 120s mpirun.mpich -np 1 ./xhpl : -np 3 ./xhpl_c
+

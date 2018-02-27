@@ -1,0 +1,65 @@
+============================================================================
+HPLinpack 1.0a  --  High-Performance Linpack benchmark  --   January 20, 2004
+Written by A. Petitet and R. Clint Whaley,  Innovative Computing Labs.,  UTK
+============================================================================
+
+An explanation of the input/output parameters follows:
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+P      : The number of process rows.
+Q      : The number of process columns.
+Time   : Time in seconds to solve the linear system.
+Gflops : Rate of execution for solving the linear system.
+
+The following parameter values will be used:
+
+N      :       4       21 
+NB     :       2        8 
+PMAP   : Row-major process mapping
+P      :       2 
+Q      :       2 
+PFACT  :    Left 
+NBMIN  :       1 
+NDIV   :       2 
+RFACT  :    Left 
+BCAST  :   1ring 
+DEPTH  :       1 
+SWAP   : Mix (threshold = 64)
+L1     : transposed form
+U      : transposed form
+EQUIL  : yes
+ALIGN  : 2066752701 double precision words
+
+----------------------------------------------------------------------------
+
+- The matrix A is randomly generated for each test.
+- The following scaled residual checks will be computed:
+   1) ||Ax-b||_oo / ( eps * ||A||_1  * N        )
+   2) ||Ax-b||_oo / ( eps * ||A||_1  * ||x||_1  )
+   3) ||Ax-b||_oo / ( eps * ||A||_oo * ||x||_oo )
+- The relative machine precision (eps) is taken to be          1.110223e-16
+- Computational tests pass if scaled residuals are less than           16.0
+
+HPL ERROR from process # 0, on line 170 of function HPL_pdtest:
+>>> [1,1] Memory allocation failed for A, x and b. Skip. <<<
+
+HPL ERROR from process # 0, on line 170 of function HPL_pdtest:
+>>> [1,1] Memory allocation failed for A, x and b. Skip. <<<
+
+HPL ERROR from process # 0, on line 170 of function HPL_pdtest:
+>>> [1,1] Memory allocation failed for A, x and b. Skip. <<<
+
+HPL ERROR from process # 0, on line 170 of function HPL_pdtest:
+>>> [1,1] Memory allocation failed for A, x and b. Skip. <<<
+
+============================================================================
+
+Finished      4 tests with the following results:
+              0 tests completed and passed residual checks,
+              0 tests completed and failed residual checks,
+              4 tests skipped because of illegal input values.
+----------------------------------------------------------------------------
+
+End of Tests.
+============================================================================

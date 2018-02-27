@@ -1,0 +1,85 @@
+============================================================================
+HPLinpack 1.0a  --  High-Performance Linpack benchmark  --   January 20, 2004
+Written by A. Petitet and R. Clint Whaley,  Innovative Computing Labs.,  UTK
+============================================================================
+
+An explanation of the input/output parameters follows:
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+P      : The number of process rows.
+Q      : The number of process columns.
+Time   : Time in seconds to solve the linear system.
+Gflops : Rate of execution for solving the linear system.
+
+The following parameter values will be used:
+
+N      :       3       12 
+NB     :       6        5 
+PMAP   : Row-major process mapping
+P      :       2 
+Q      :       2 
+PFACT  :    Left 
+NBMIN  :       2 
+NDIV   :       3 
+RFACT  :    Left 
+BCAST  :   1ring 
+DEPTH  :       2 
+SWAP   : Mix (threshold = 64)
+L1     : transposed form
+U      : transposed form
+EQUIL  : no
+ALIGN  : 4 double precision words
+
+----------------------------------------------------------------------------
+
+- The matrix A is randomly generated for each test.
+- The following scaled residual checks will be computed:
+   1) ||Ax-b||_oo / ( eps * ||A||_1  * N        )
+   2) ||Ax-b||_oo / ( eps * ||A||_1  * ||x||_1  )
+   3) ||Ax-b||_oo / ( eps * ||A||_oo * ||x||_oo )
+- The relative machine precision (eps) is taken to be          1.110223e-16
+- Computational tests pass if scaled residuals are less than           16.0
+
+============================================================================
+T/V                N    NB     P     Q               Time             Gflops
+----------------------------------------------------------------------------
+WR20L3L2           3     6     2     2               0.10          3.302e-07
+----------------------------------------------------------------------------
+||Ax-b||_oo / ( eps * ||A||_1  * N        ) =        0.1520274 ...... PASSED
+||Ax-b||_oo / ( eps * ||A||_1  * ||x||_1  ) =        0.0890430 ...... PASSED
+||Ax-b||_oo / ( eps * ||A||_oo * ||x||_oo ) =        0.0531988 ...... PASSED
+============================================================================
+T/V                N    NB     P     Q               Time             Gflops
+----------------------------------------------------------------------------
+WR20L3L2           3     5     2     2               0.09          3.579e-07
+----------------------------------------------------------------------------
+||Ax-b||_oo / ( eps * ||A||_1  * N        ) =        0.1520274 ...... PASSED
+||Ax-b||_oo / ( eps * ||A||_1  * ||x||_1  ) =        0.0890430 ...... PASSED
+||Ax-b||_oo / ( eps * ||A||_oo * ||x||_oo ) =        0.0531988 ...... PASSED
+============================================================================
+T/V                N    NB     P     Q               Time             Gflops
+----------------------------------------------------------------------------
+WR20L3L2          12     6     2     2               0.21          6.568e-06
+----------------------------------------------------------------------------
+||Ax-b||_oo / ( eps * ||A||_1  * N        ) =        0.0511423 ...... PASSED
+||Ax-b||_oo / ( eps * ||A||_1  * ||x||_1  ) =        0.0883657 ...... PASSED
+||Ax-b||_oo / ( eps * ||A||_oo * ||x||_oo ) =        0.0369477 ...... PASSED
+============================================================================
+T/V                N    NB     P     Q               Time             Gflops
+----------------------------------------------------------------------------
+WR20L3L2          12     5     2     2               0.27          5.106e-06
+----------------------------------------------------------------------------
+||Ax-b||_oo / ( eps * ||A||_1  * N        ) =        0.0460281 ...... PASSED
+||Ax-b||_oo / ( eps * ||A||_1  * ||x||_1  ) =        0.0795291 ...... PASSED
+||Ax-b||_oo / ( eps * ||A||_oo * ||x||_oo ) =        0.0332529 ...... PASSED
+============================================================================
+
+Finished      4 tests with the following results:
+              4 tests completed and passed residual checks,
+              0 tests completed and failed residual checks,
+              0 tests skipped because of illegal input values.
+----------------------------------------------------------------------------
+
+End of Tests.
+============================================================================

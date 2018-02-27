@@ -1,0 +1,6 @@
+#!/bin/sh 
+
+mv $1/cfg* /home/westwind/mpibench/1hpl/hpl-1.0/bin/$1
+mv $1/branch* /home/westwind/mpibench/1hpl/hpl-1.0/bin/$1
+mv $1/*count /home/westwind/mpibench/1hpl/hpl-1.0/bin/$1
+mv $1/*.cil.* /home/westwind/mpibench/1hpl/hpl-1.0/bin/$1

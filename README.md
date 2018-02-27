@@ -36,44 +36,50 @@ solver used by COMPI to solve symbolic constraints.
 
 4. Build COMPI_DIR/src. 
 
-5. Add COMPI_DIR/bin to environment variable "PATH". 
+5. Add COMPI_DIR/bin to environment variable "PATH" so that all the commands/executables
+inside the directory can be used without specifying their full paths
 
 Preparing a Single-file Program for COMPI
 =====
 
 See the example in COMPI_DIR/test
 
-1. Run "cm1 YOUR_PROGRAM" (this generates a executable with light instrumentation).
+1. Mark the variables that dominate the program's execution path as symbolic. 
 
-2. Run "cm2 YOUR_PROGRAM" (this generates a executable with heavy instrumentation).
+2. Run "cm1 PROGRAM.c" (this generates a executable with light instrumentation), 
+which generates an executable named "PROGRAM_c" used for launching the non-focus
+processes.
 
-3. Launch your testing against your program with "run_crest ./executable num_procs 
-target_rank num_of_tests -dfs"
+3. Run "cm2 PROGRAM.c" (this generates a executable with heavy instrumentation),
+which generates an executable named "PROGRAM" used for launching the focus process.
 
 Preparing a Multi-file Program for COMPI
 =====
 
-To do. 
+See the example in COMPI_DIR/test/HPL
+
+1. Mark the variables that dominate the program's execution path as symbolic. 
+
+2. Have two copies of Makefile so that Makefile (1) direct the building of the program
+used for launching the non-focus processes and Makefile (2) direct the building 
+of the progam used for launching the focus process. Makfile (1) requires following changes. First, change the compiler: "CC = gcc" --> "CC = cilly". Second, add additional flags for compiling: "CFLAGS = " --> "CFLAGS = --save-temps --doCrestBranch --merge". Third, add additional flags for linking: "LDFLAGS = " --> "LDFLAGS = --save-temps --doCrestBranch --merge --keepmerged". Forth, change the archiver (if needed): "ARCHIVER = ar" --> "ARCHIVER = cilly --merge --mode=AR". The changes of Makefile (2) only differs by changing all the appearances of "doCrestBranch" to "doCrestAll".
+
+3. Build with each Makefile so as to generates the two executables and place the two in the same directory where you wish to run the program.
+
+References: 
+
+https://github.com/jburnim/crest/wiki/CREST-Frequently-Asked-Questions
+
+https://people.eecs.berkeley.edu/~necula/cil/cil007.html
 
 Running COMPI
 =====
 
-To do:)
+Launch the testing with 
 
-Setup
-=====
+run_crest ./PROGRAM num_procs target_rank num_of_tests -dfs,
 
-COMPI depends on Yices 1, an SMT solver tool and library available at
-http://yices.csl.sri.com/old/download-yices1.shtml.  To build and run
-COMPI, you must download and install Yices *version 1* and change
-YICES_DIR in src/Makefile to point to Yices location.
-
-COMPI uses CIL to instrument C programs for testing.  A modified
-distribution of CIL is included in directory cil/.  To build CIL,
-simply run "configure" and "make" in the cil/ directory.
-
-Finally, COMPI can be built by running "make" in the src/ directory.
-
+where PROGRAM is the generated executable, num_procs denotes the number of processes to be used in the testing, target_rank denotes the MPI rank used for concolic testing, and num_of_tests denotes the number of iterations used in the testing, -dfs denotes the search strategy.  
 
 License
 =====
