@@ -1,4 +1,5 @@
 // Copyright (c) 2008, Jacob Burnim (jburnim@cs.berkeley.edu)
+// Copyright (c) 2018, Hongbo Li (hli035@cs.ucr.edu)
 //
 // This file is part of CREST, which is distributed under the revised
 // BSD license.  A copy of this license can be found in the file LICENSE.
@@ -22,8 +23,6 @@ namespace crest {
 			constraints_idx_.reserve(50000);
 			constraints_.reserve(50000);
 		}
-//fprintf(stderr, "constraints_idx: %d, constraints_: %d, branches_: %zu\n", 
-//	constraints_idx_.size(), constraints_.size(), branches_.size());
 	}
 
 	SymbolicPath::~SymbolicPath() {
@@ -57,30 +56,11 @@ namespace crest {
                 }
 
 		branches_.push_back(bid);
-// 
-// hEdit: debug
-// 
-//string tmp;
-//constraint->AppendToString(&tmp);
-//fprintf(stderr, "%s @ branch %d \n\n", tmp.c_str(), bid);
 	}
 
 	void SymbolicPath::Serialize(string* s) const {
 		typedef vector<SymbolicPred*>::const_iterator ConIt;
 
-//fprintf(stderr, "branches' size: %zu\n"
-//		"constraints' size: %zu\n", 
-//		branches_.size(), constraints_.size());
-
-//hEdit: print the constraints
-//for (auto c: constraints_) {
-//	string str;
-//	c->AppendToString(&str);
-//	fprintf(stderr, "%s\n", str.c_str());	
-//}
-//fprintf(stderr, "\n\n\n");
-//fflush(stderr);
-		
 		// Write the path.
 		size_t len = branches_.size();
 		
@@ -88,7 +68,6 @@ namespace crest {
 		// hEdit:: debug
 		//
 		//printf("branches_.size(): %d\n", len);
-		
 		s->append((char*)&len, sizeof(len));
 		s->append((char*)&branches_.front(), branches_.size() * sizeof(branch_id_t));
 
@@ -99,7 +78,6 @@ namespace crest {
 		// hEdit:: debug
 		//
 		//printf("constraints_.size(): %d\n", len);
-
 		s->append((char*)&len, sizeof(len));
 		s->append((char*)&constraints_idx_.front(), constraints_.size() * sizeof(size_t));
 		for (ConIt i = constraints_.begin(); i != constraints_.end(); ++i) {
@@ -118,29 +96,8 @@ namespace crest {
 		// hEdit:: debug
 		//
 		//printf("branches_.size(): %d\n", len);
-		
 		s->append((char*)&len, sizeof(len));
 		s->append((char*)&branches.front(), branches.size() * sizeof(branch_id_t));
-		
-		//
-		// hEdit:: debug
-		//
-		//printf("Wirte %lld\n", branches_.size() * sizeof(branch_id_t));
-
-		/*
-		// Write the path constraints.
-		len = constraints_.size();
-
-		//
-		// hEdit:: debug
-		//
-		printf("constraints_.size(): %d\n", len);
-
-		s->append((char*)&len, sizeof(len));
-		s->append((char*)&constraints_idx_.front(), constraints_.size() * sizeof(size_t));
-		for (ConIt i = constraints_.begin(); i != constraints_.end(); ++i) {
-			(*i)->Serialize(s);
-		}*/
 	}
 
 	bool SymbolicPath::Parse(istream& s) {
@@ -197,22 +154,6 @@ namespace crest {
 
 	bool SymbolicPath::ParseBranches(istream& s) {
 		
-		// 
-		// hEdit: debug
-		//
-		/*
-		if (s.fail()) {
-			if ( s.rdstate() & std::ifstream::failbit) 
-				printf("Failbiti before reading %lld\n");
-			if ( s.rdstate() & std::ifstream::badbit) 
-				printf("Badbit before reading \n");
-			fflush(stdout);
-
-			return false;
-		}
-		*/
-
-
 		//typedef vector<SymbolicPred*>::iterator ConIt;
 		size_t len;
 
@@ -253,22 +194,6 @@ namespace crest {
 			// return false to denote a failure. 
 			return false;
 		}
-
-		/*
-		// Clean up any existing path constraints.
-		for (size_t i = 0; i < constraints_.size(); i++)
-			delete constraints_[i];
-
-		// Read the path constraints.
-		s.read((char*)&len, sizeof(size_t));
-		constraints_idx_.resize(len);
-		constraints_.resize(len);
-		s.read((char*)&constraints_idx_.front(), len * sizeof(size_t));
-		for (ConIt i = constraints_.begin(); i != constraints_.end(); ++i) {
-			*i = new SymbolicPred();
-			if (!(*i)->Parse(s))
-				return false;
-		}*/
 
 		return !s.fail();
 	}
