@@ -25,12 +25,8 @@ so as to avoid significant redundant tests resulted from loops’ presence.
 
 For details, please refer to:
 
-[COMPI: Concolic Testing for MPI Applications](https://ieeexplore.ieee.org/abstract/document/8425240/metrics#metrics)
-
-Hongbo Li , Sihuan Li, Zachary Benavides, Zizhong Chen, and Rajiv Gupta
-
+[COMPI: Concolic Testing for MPI Applications](https://ieeexplore.ieee.org/abstract/document/8425240/metrics#metrics), Hongbo Li , Sihuan Li, Zachary Benavides, Zizhong Chen, and Rajiv Gupta.
 32nd IEEE International Parallel and Distributed Processing Symposium, 
-
 10 pages, Vancouver, British Columbia, Canada, May 2018. 
 
 
